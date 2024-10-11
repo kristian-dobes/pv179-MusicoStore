@@ -10,9 +10,9 @@ namespace DataAccessLayer.Data
 {
     public class SeminarDBContext : DbContext
     {
-        public DbSet<User> Users { get; set; }
-        public DbSet<Comment> Comments { get; set; }
-        public DbSet<Post> Posts { get; set; }
+        public DbSet<OrderItem> Users { get; set; }
+        public DbSet<Order> Comments { get; set; }
+        public DbSet<Product> Posts { get; set; }
 
         public SeminarDBContext(DbContextOptions<SeminarDBContext> options) : base(options)
         {
@@ -42,19 +42,19 @@ namespace DataAccessLayer.Data
 
             /* one-to-many relationship */
 
-            modelBuilder.Entity<Post>()
+            modelBuilder.Entity<Product>()
                 .HasOne(post => post.Creator)
                 .WithMany(user => user.Posts)
                 .HasForeignKey(post => post.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Comment>()
+            modelBuilder.Entity<Order>()
                 .HasOne(comment => comment.Post)
                 .WithMany(post => post.Comments)
                 .HasForeignKey(comment => comment.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Comment>()
+            modelBuilder.Entity<Order>()
                 .HasOne(comment => comment.Commenter)
                 .WithMany(user => user.Comments)
                 .HasForeignKey(comment => comment.UserId)

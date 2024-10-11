@@ -12,25 +12,25 @@ namespace DataAccessLayer.Data
     {
         public static void Seed(this ModelBuilder modelBuilder)
         {
-            var users = PrepairUserModels();
-            var posts = PrepairPostModels();
-            var comments = PrepairCommentModels();
+            var users = PrepareUserModels();
+            var posts = PreparePostModels();
+            var comments = PrepareCommentModels();
 
-            modelBuilder.Entity<User>()
+            modelBuilder.Entity<OrderItem>()
                 .HasData(users);
 
-            modelBuilder.Entity<Post>()
+            modelBuilder.Entity<Product>()
                 .HasData(posts);
 
-            modelBuilder.Entity<Comment>()
+            modelBuilder.Entity<Order>()
                 .HasData(comments);
         }
 
-        private static List<Comment> PrepairCommentModels()
+        private static List<Order> PrepareCommentModels()
         {
-            return new List<Comment>()
+            return new List<Order>()
             {
-                new Comment
+                new Order
                 {
                     Id = 1,
                     Content = "Bad ....",
@@ -40,11 +40,11 @@ namespace DataAccessLayer.Data
             };
         }
 
-        private static List<Post> PrepairPostModels()
+        private static List<Product> PreparePostModels()
         {
-            return new List<Post>()
+            return new List<Product>()
             {
-                new Post()
+                new Product()
                 {
                     Id = 1,
                     Title = "Post Title :)",
@@ -54,18 +54,18 @@ namespace DataAccessLayer.Data
             };
         }
 
-        private static List<User> PrepairUserModels()
+        private static List<OrderItem> PrepareUserModels()
         {
-            return new List<User>()
+            return new List<OrderItem>()
             {
-                new User()
+                new OrderItem()
                 {
                     Id = 1,
                     Username = "Jozko",
                     Created = new DateTime(2020, 11, 10),
                 },
 
-                new User()
+                new OrderItem()
                 {
                     Id = 2,
                     Username = "Ferko",
