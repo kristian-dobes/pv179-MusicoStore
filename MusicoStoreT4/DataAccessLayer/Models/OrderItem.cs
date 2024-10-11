@@ -19,6 +19,7 @@ namespace DataAccessLayer.Models
         public virtual Product? Product { get; set; }
 
         public int Quantity { get; set; }
+        public decimal Price { get; set; }
 
         public virtual IEnumerable<Order>? Comments { get; set; }
     }
