@@ -1,5 +1,4 @@
-﻿using Infrastructure.Models;
-using Infrastructure.Repository;
+﻿using Infrastructure.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,8 +12,8 @@ namespace Infrastructure.UnitOfWork
         private readonly string _logFilePath;
         private readonly string _imageFilePath;
 
-        private LogMessageRepository? _logMessageRepository;
-        private ImageRepository? _imageRepository;
+        //private LogMessageRepository? _logMessageRepository;
+        //private ImageRepository? _imageRepository;
 
         public UnitOfWork(string logFilePath, string imageFilePath)
         {
@@ -22,12 +21,12 @@ namespace Infrastructure.UnitOfWork
             _imageFilePath = imageFilePath;
         }
 
-        public IRepository<LogMessage> LogMessageRepository => _logMessageRepository ??= new LogMessageRepository(_logFilePath);
-        public IRepository<Image> ImageRepository => _imageRepository ??= new ImageRepository(_imageFilePath);
+        //public IRepository<LogMessage> LogMessageRepository => _logMessageRepository ??= new LogMessageRepository(_logFilePath);
+        //public IRepository<Image> ImageRepository => _imageRepository ??= new ImageRepository(_imageFilePath);
 
         public void Commit()
         {
-            _logMessageRepository?.SaveChanges();
+            //_logMessageRepository?.SaveChanges();
         }
 
         public void Rollback()

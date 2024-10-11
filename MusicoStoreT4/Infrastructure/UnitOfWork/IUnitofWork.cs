@@ -1,5 +1,4 @@
-﻿using Infrastructure.Models;
-using Infrastructure.Repository;
+﻿using Infrastructure.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +9,8 @@ namespace Infrastructure.UnitOfWork
 {
     public interface IUnitOfWork
     {
-        IRepository<LogMessage> LogMessageRepository { get; }
-        IRepository<Image> ImageRepository { get; }
+        //IRepository<LogMessage> LogMessageRepository { get; }
+        //IRepository<Image> ImageRepository { get; }
 
         void Commit();
         void Rollback();
