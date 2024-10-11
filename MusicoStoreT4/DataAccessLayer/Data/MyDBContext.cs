@@ -1,0 +1,43 @@
+﻿using DataAccessLayer.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DataAccessLayer.Data
+{
+    public class MyDBContext : DbContext
+    {
+        public DbSet<OrderItem> Users { get; set; }
+        public DbSet<Order> Comments { get; set; }
+        public DbSet<Product> Posts { get; set; }
+
+        public MyDBContext(DbContextOptions<MyDBContext> options) : base(options)
+        {
+
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+                relationship.DeleteBehavior = DeleteBehavior.SetNull;
+
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(orderItem => orderItem.Order)
+                .WithMany(order => order.OrderItems)
+                .HasForeignKey(orderItem => orderItem.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(orderItem => orderItem.Product)
+                .WithMany(product => product.OrderItems)
+                .HasForeignKey(orderItem => orderItem.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Seed();
+            base.OnModelCreating(modelBuilder);
+        }
+    }
+}
