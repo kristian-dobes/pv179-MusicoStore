@@ -15,10 +15,14 @@ namespace DataAccessLayer.Data
             var orders = PrepareOrderModels();
             var products = PrepareProductModels();
             var orderItems = PrepareOrderItemsModels();
+            var categories = PrepareCategoryModels();
+            var manufacturers = PrepareManufacturerModels();
 
             modelBuilder.Entity<Order>().HasData(orders);
             modelBuilder.Entity<Product>().HasData(products);
             modelBuilder.Entity<OrderItem>().HasData(orderItems);
+            modelBuilder.Entity<Category>().HasData(categories);
+            modelBuilder.Entity<Manufacturer>().HasData(manufacturers);
         }
 
         private static List<Order> PrepareOrderModels()
@@ -199,6 +203,55 @@ namespace DataAccessLayer.Data
                     ProductId = 6,
                     Quantity = 2,
                     Price = 25.54m,
+                },
+            };
+        }
+
+        private static List<Category> PrepareCategoryModels()
+        {
+            return new List<Category>()
+            {
+                new Category()
+                {
+                    Id = 1,
+                    Name = "Musical Instruments",
+                },
+                new Category()
+                {
+                    Id = 2,
+                    Name = "Audio Equipment",
+                },
+                new Category()
+                {
+                    Id = 3,
+                    Name = "Accessories",
+                },
+            };
+        }
+
+        private static List<Manufacturer> PrepareManufacturerModels()
+        {
+            return new List<Manufacturer>()
+            {
+                new Manufacturer()
+                {
+                    Id = 1,
+                    Name = "Shure",
+                },
+                new Manufacturer()
+                {
+                    Id = 2,
+                    Name = "Yamaha",
+                },
+                new Manufacturer()
+                {
+                    Id = 3,
+                    Name = "Fender",
+                },
+                new Manufacturer()
+                {
+                    Id = 4,
+                    Name = "Sennheiser",
                 },
             };
         }
