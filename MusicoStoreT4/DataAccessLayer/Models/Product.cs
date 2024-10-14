@@ -17,10 +17,12 @@ namespace DataAccessLayer.Models
 
         public virtual IEnumerable<OrderItem>? OrderItems { get; set; }
 
-        public Category Category { get; set; }
         public int CategoryId { get; set; }
+        [ForeignKey(nameof(CategoryId))]
+        public virtual Category? Category { get; set; }
 
-        public Manufacturer Manufacturer { get; set; }
         public int ManufacturerId { get; set; }
+        [ForeignKey(nameof(ManufacturerId))]
+        public virtual Manufacturer? Manufacturer { get; set; }
     }
 }
