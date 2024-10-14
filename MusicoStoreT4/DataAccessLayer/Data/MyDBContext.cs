@@ -10,9 +10,9 @@ namespace DataAccessLayer.Data
 {
     public class MyDBContext : DbContext
     {
-        public DbSet<OrderItem> Users { get; set; }
-        public DbSet<Order> Comments { get; set; }
-        public DbSet<Product> Posts { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Manufacturer> Manufacturers { get; set; }
 
