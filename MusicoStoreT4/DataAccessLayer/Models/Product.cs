@@ -17,7 +17,12 @@ namespace DataAccessLayer.Models
 
         public virtual IEnumerable<OrderItem>? OrderItems { get; set; }
 
-        // TODO: add foreign key and reference to the Category
-        // TODO: add foreign key and reference to the Manufacturer
+        public int CategoryId { get; set; }
+        [ForeignKey(nameof(CategoryId))]
+        public virtual Category? Category { get; set; }
+
+        public int ManufacturerId { get; set; }
+        [ForeignKey(nameof(ManufacturerId))]
+        public virtual Manufacturer? Manufacturer { get; set; }
     }
 }

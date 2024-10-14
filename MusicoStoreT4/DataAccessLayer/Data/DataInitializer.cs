@@ -15,10 +15,14 @@ namespace DataAccessLayer.Data
             var orders = PrepareOrderModels();
             var products = PrepareProductModels();
             var orderItems = PrepareOrderItemsModels();
+            var categories = PrepareCategoryModels();
+            var manufacturers = PrepareManufacturerModels();
 
             modelBuilder.Entity<Order>().HasData(orders);
             modelBuilder.Entity<Product>().HasData(products);
             modelBuilder.Entity<OrderItem>().HasData(orderItems);
+            modelBuilder.Entity<Category>().HasData(categories);
+            modelBuilder.Entity<Manufacturer>().HasData(manufacturers);
         }
 
         private static List<Order> PrepareOrderModels()
@@ -56,89 +60,110 @@ namespace DataAccessLayer.Data
         private static List<Product> PrepareProductModels()
         {
             return new List<Product>()
-                {
-                    new Product()
-                    {
-                        Id = 1,
-                        Name = "Microphone",
-                        Description= "Professional condenser microphone for studio recording",
-                        Price = 99.99m,
-                        QuantityInStock = 10,
-                    },
-                    new Product()
-                    {
-                        Id = 2,
-                        Name = "DVD",
-                        Description= "Music concert DVD of popular artist",
-                        Price = 19.99m,
-                        QuantityInStock = 50,
-                    },
-                    new Product()
-                    {
-                        Id = 3,
-                        Name = "Guitar",
-                        Description= "Acoustic guitar with solid spruce top",
-                        Price = 299.99m,
-                        QuantityInStock = 5,
-                    },
-                    new Product()
-                    {
-                        Id = 4,
-                        Name = "Keyboard",
-                        Description= "Digital keyboard with weighted keys",
-                        Price = 499.99m,
-                        QuantityInStock = 3,
-                    },
-                    new Product()
-                    {
-                        Id = 5,
-                        Name = "Drum Set",
-                        Description= "5-piece drum set with cymbals and hardware",
-                        Price = 699.99m,
-                        QuantityInStock = 2,
-                    },
-                    new Product()
-                    {
-                        Id = 6,
-                        Name = "Microphone Stand",
-                        Description= "Adjustable microphone stand with boom arm",
-                        Price = 29.99m,
-                        QuantityInStock = 20,
-                    },
-                    new Product()
-                    {
-                        Id = 7,
-                        Name = "Bass Guitar",
-                        Description= "Electric bass guitar with active pickups",
-                        Price = 399.99m,
-                        QuantityInStock = 8,
-                    },
-                    new Product()
-                    {
-                        Id = 8,
-                        Name = "Piano",
-                        Description= "Digital piano with weighted keys and built-in speakers",
-                        Price = 899.99m,
-                        QuantityInStock = 4,
-                    },
-                    new Product()
-                    {
-                        Id = 9,
-                        Name = "Violin",
-                        Description= "Full-size violin with bow and case",
-                        Price = 199.99m,
-                        QuantityInStock = 6,
-                    },
-                    new Product()
-                    {
-                        Id = 10,
-                        Name = "Studio Monitor",
-                        Description= "Active studio monitor speaker",
-                        Price = 149.99m,
-                        QuantityInStock = 12,
-                    },
-                };
+    {
+        new Product()
+        {
+            Id = 1,
+            Name = "Microphone",
+            Description = "Professional condenser microphone for studio recording",
+            Price = 99.99m,
+            QuantityInStock = 10,
+            CategoryId = 3,
+            ManufacturerId = 4
+        },
+        new Product()
+        {
+            Id = 2,
+            Name = "DVD",
+            Description = "Music concert DVD of popular artist",
+            Price = 19.99m,
+            QuantityInStock = 50,
+            CategoryId = 1,
+            ManufacturerId = 2
+        },
+        new Product()
+        {
+            Id = 3,
+            Name = "Guitar",
+            Description = "Acoustic guitar with solid spruce top",
+            Price = 299.99m,
+            QuantityInStock = 5,
+            CategoryId = 3,
+            ManufacturerId = 1
+        },
+        new Product()
+        {
+            Id = 4,
+            Name = "Keyboard",
+            Description = "Digital keyboard with weighted keys",
+            Price = 499.99m,
+            QuantityInStock = 3,
+            CategoryId = 2,
+            ManufacturerId = 3
+        },
+        new Product()
+        {
+            Id = 5,
+            Name = "Drum Set",
+            Description = "5-piece drum set with cymbals and hardware",
+            Price = 699.99m,
+            QuantityInStock = 2,
+            CategoryId = 3,
+            ManufacturerId = 1
+        },
+        new Product()
+        {
+            Id = 6,
+            Name = "Microphone Stand",
+            Description = "Adjustable microphone stand with boom arm",
+            Price = 29.99m,
+            QuantityInStock = 20,
+            CategoryId = 1,
+            ManufacturerId = 1
+        },
+        new Product()
+        {
+            Id = 7,
+            Name = "Bass Guitar",
+            Description = "Electric bass guitar with active pickups",
+            Price = 399.99m,
+            QuantityInStock = 8,
+            CategoryId = 3,
+            ManufacturerId = 4
+        },
+        new Product()
+        {
+            Id = 8,
+            Name = "Piano",
+            Description = "Digital piano with weighted keys and built-in speakers",
+            Price = 899.99m,
+            QuantityInStock = 4,
+            CategoryId = 2,
+            ManufacturerId = 3
+        },
+        new Product()
+        {
+            Id = 9,
+            Name = "Violin",
+            Description = "Full-size violin with bow and case",
+            Price = 199.99m,
+            QuantityInStock = 6,
+            CategoryId = 3,
+            ManufacturerId = 4
+        },
+        new Product()
+        {
+            Id = 10,
+            Name = "Studio Monitor",
+            Description = "Active studio monitor speaker",
+            Price = 149.99m,
+            QuantityInStock = 12,
+            CategoryId = 1,
+            ManufacturerId = 4
+        },
+    };
         }
+
 
         private static List<OrderItem> PrepareOrderItemsModels()
         {
@@ -199,6 +224,55 @@ namespace DataAccessLayer.Data
                     ProductId = 6,
                     Quantity = 2,
                     Price = 25.54m,
+                },
+            };
+        }
+
+        private static List<Category> PrepareCategoryModels()
+        {
+            return new List<Category>()
+            {
+                new Category()
+                {
+                    Id = 1,
+                    Name = "Musical Instruments",
+                },
+                new Category()
+                {
+                    Id = 2,
+                    Name = "Audio Equipment",
+                },
+                new Category()
+                {
+                    Id = 3,
+                    Name = "Accessories",
+                },
+            };
+        }
+
+        private static List<Manufacturer> PrepareManufacturerModels()
+        {
+            return new List<Manufacturer>()
+            {
+                new Manufacturer()
+                {
+                    Id = 1,
+                    Name = "Shure",
+                },
+                new Manufacturer()
+                {
+                    Id = 2,
+                    Name = "Yamaha",
+                },
+                new Manufacturer()
+                {
+                    Id = 3,
+                    Name = "Fender",
+                },
+                new Manufacturer()
+                {
+                    Id = 4,
+                    Name = "Sennheiser",
                 },
             };
         }
