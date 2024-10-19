@@ -15,6 +15,7 @@ namespace DataAccessLayer.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Manufacturer> Manufacturers { get; set; }
+        public DbSet<User> Users { get; set; }
 
         public MyDBContext(DbContextOptions<MyDBContext> options) : base(options)
         {
@@ -48,6 +49,12 @@ namespace DataAccessLayer.Data
                 .HasOne(product => product.Manufacturer)
                 .WithMany(manufacturer => manufacturer.Products)
                 .HasForeignKey(product => product.ManufacturerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(order => order.User)
+                .WithMany(user => user.Orders)
+                .HasForeignKey(order => order.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Seed();
