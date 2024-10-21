@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAccessLayer.Models
+namespace DataAccessLayer.Models.Enums
 {
-    public class Admin : User
+    public enum Role
     {
+        Admin,
+        Customer
     }
 }

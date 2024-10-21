@@ -1,4 +1,5 @@
 ﻿using DataAccessLayer.Models;
+using DataAccessLayer.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace DataAccessLayer.Data
             modelBuilder.Entity<OrderItem>().HasData(orderItems);
             modelBuilder.Entity<Category>().HasData(categories);
             modelBuilder.Entity<Manufacturer>().HasData(manufacturers);
-            modelBuilder.Entity<Admin>().HasData(admins);
+            modelBuilder.Entity<User>().HasData(admins);
             modelBuilder.Entity<Customer>().HasData(customers);
         }
 
@@ -286,15 +287,16 @@ namespace DataAccessLayer.Data
             };
         }
 
-        private static List<Admin> PrepareAdminModels()
+        private static List<User> PrepareAdminModels()
         {
-            return new List<Admin>()
+            return new List<User>()
             {
-                new Admin()
+                new User()
                 {
                     Id = 1,
                     Name = "Admin",
-                    Email = "admin@bestmusic.com"
+                    Email = "admin@bestmusic.com",
+                    Role = Role.Admin
                 },
             };
         }
@@ -308,6 +310,7 @@ namespace DataAccessLayer.Data
                     Id = 2,
                     Name = "Johnny Silverhand",
                     Email = "johnny@samurai.nc",
+                    Role = Role.Customer,
                     PhoneNumber = "+04 0578 457 666",
                     Address = "Straight 68, NC",
                     City = "Night City",
@@ -319,6 +322,7 @@ namespace DataAccessLayer.Data
                     Id = 3,
                     Name = "Martin Hluchý",
                     Email = "hluchymuzikant@seznam.cz",
+                    Role = Role.Customer,
                     PhoneNumber = "+420 556 556 000",
                     Address = "Botanická 69",
                     City = "Brno",
