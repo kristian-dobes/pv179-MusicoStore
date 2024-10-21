@@ -16,8 +16,7 @@ namespace WebAPI.Controllers
             _dBContext = dBContext;
         }
 
-        [HttpGet]
-        [Route("[controller]/fetch")]
+        [HttpGet("fetch")]
         public async Task<IActionResult> Fetch()
         {
             var products = await _dBContext.Products.ToListAsync();
@@ -33,8 +32,7 @@ namespace WebAPI.Controllers
             }));
         }
 
-        [HttpDelete]
-        [Route("[controller]/delete")]
+        [HttpDelete("delete")]
         public async Task<IActionResult> Delete(int productId)
         {
             var product = await _dBContext.Products
@@ -50,8 +48,7 @@ namespace WebAPI.Controllers
             return Ok();
         }
 
-        [HttpGet]
-        [Route("[controller]/detail")]
+        [HttpGet("detail")]
         public async Task<IActionResult> FetchWithOrderItems()
         {
             var products = await _dBContext.Products
@@ -75,8 +72,7 @@ namespace WebAPI.Controllers
             }));
         }
 
-        [HttpPost]
-        [Route("[controller]/create")]
+        [HttpPost("create")]
         public async Task<IActionResult> Create(string productName)
         {
             if (string.IsNullOrWhiteSpace(productName))
@@ -100,8 +96,7 @@ namespace WebAPI.Controllers
             return Ok();
         }
 
-        [HttpPut]
-        [Route("[controller]/update")]
+        [HttpPut("update")]
         public async Task<IActionResult> Update(int productId, string productName)
         {
             if (string.IsNullOrWhiteSpace(productName))
