@@ -15,7 +15,7 @@ namespace DataAccessLayer.Models
         public decimal Price { get; set; }
         public int QuantityInStock { get; set; }
 
-        public virtual IEnumerable<OrderItem>? OrderItems { get; set; }
+        public virtual ICollection<OrderItem>? OrderItems { get; set; }
 
         public int CategoryId { get; set; }
         [ForeignKey(nameof(CategoryId))]

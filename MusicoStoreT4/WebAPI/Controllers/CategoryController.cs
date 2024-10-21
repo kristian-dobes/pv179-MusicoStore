@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WebAPI.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class CategoryController : Controller
     {
         private readonly MyDBContext _dBContext;

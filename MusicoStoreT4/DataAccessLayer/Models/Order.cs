@@ -12,7 +12,7 @@ namespace DataAccessLayer.Models
     {
         public DateTime Date { get; set; } = DateTime.Now;
 
-        public virtual IEnumerable<OrderItem>? OrderItems { get; set; }
+        public virtual ICollection<OrderItem>? OrderItems { get; set; }
 
         public int UserId { get; set; }
 
