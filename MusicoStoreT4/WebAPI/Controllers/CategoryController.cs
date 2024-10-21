@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WebAPI.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class CategoryController : Controller
     {
         private readonly MyDBContext _dBContext;
@@ -14,8 +16,7 @@ namespace WebAPI.Controllers
             _dBContext = dBContext;
         }
 
-        [HttpGet]
-        [Route("[controller]/fetch")]
+        [HttpGet("fetch")]
         public async Task<IActionResult> Fetch()
         {
             var categories = await _dBContext.Categories.ToListAsync();
@@ -27,8 +28,7 @@ namespace WebAPI.Controllers
             }));
         }
 
-        [HttpDelete]
-        [Route("[controller]/delete")]
+        [HttpDelete("delete")]
         public async Task<IActionResult> Delete(int categoryId)
         {
             var category = await _dBContext.Categories
@@ -45,8 +45,7 @@ namespace WebAPI.Controllers
             return Ok();
         }
 
-        [HttpGet]
-        [Route("[controller]/detail")]
+        [HttpGet("detail")]
         public async Task<IActionResult> FetchWithProducts()
         {
             var categories = await _dBContext.Categories
@@ -67,8 +66,7 @@ namespace WebAPI.Controllers
             }));
         }
 
-        [HttpPost]
-        [Route("[controller]/create")]
+        [HttpPost("create")]
         public async Task<IActionResult> Create(string categoryName)
         {
             var category = new Category
@@ -82,8 +80,7 @@ namespace WebAPI.Controllers
             return Ok();
         }
 
-        [HttpPost]
-        [Route("[controller]/update")]
+        [HttpPut("update")]
         public async Task<IActionResult> Update(int categoryId, string categoryName)
         {
             if (string.IsNullOrWhiteSpace(categoryName))

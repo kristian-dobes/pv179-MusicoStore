@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WebAPI.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class ManufacturerController : Controller
     {
         private readonly MyDBContext _dBContext;
@@ -14,8 +16,7 @@ namespace WebAPI.Controllers
             _dBContext = dBContext;
         }
 
-        [HttpGet]
-        [Route("[controller]/fetch")]
+        [HttpGet("fetch")]
         public async Task<IActionResult> Fetch()
         {
             var manufacturers = await _dBContext.Manufacturers.ToListAsync();
@@ -27,8 +28,7 @@ namespace WebAPI.Controllers
             }));
         }
 
-        [HttpDelete]
-        [Route("[controller]/delete")]
+        [HttpDelete("delete")]
         public async Task<IActionResult> Delete(int manufacturerId)
         {
             var manufacturer = await _dBContext.Manufacturers
@@ -45,8 +45,7 @@ namespace WebAPI.Controllers
             return Ok();
         }
 
-        [HttpGet]
-        [Route("[controller]/detail")]
+        [HttpGet("detail")]
         public async Task<IActionResult> FetchWithProducts()
         {
             var manufacturers = await _dBContext.Manufacturers
@@ -68,8 +67,7 @@ namespace WebAPI.Controllers
             }));
         }
 
-        [HttpPost]
-        [Route("[controller]/create")]
+        [HttpPost("create")]
         public async Task<IActionResult> Create(string manufacturerName)
         {
             if (string.IsNullOrWhiteSpace(manufacturerName))
@@ -93,8 +91,7 @@ namespace WebAPI.Controllers
             return Ok();
         }
 
-        [HttpPut]
-        [Route("[controller]/update")]
+        [HttpPut("update")]
         public async Task<IActionResult> Update(int manufacturerId, string manufacturerName)
         {
             if (string.IsNullOrWhiteSpace(manufacturerName))
