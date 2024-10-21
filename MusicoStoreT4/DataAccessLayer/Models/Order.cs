@@ -14,6 +14,9 @@ namespace DataAccessLayer.Models
 
         public virtual IEnumerable<OrderItem>? OrderItems { get; set; }
 
-        // TODO: add foreign key and reference to the User
+        public int UserId { get; set; }
+
+        [ForeignKey(nameof(UserId))]
+        public virtual User? User { get; set; }
     }
 }

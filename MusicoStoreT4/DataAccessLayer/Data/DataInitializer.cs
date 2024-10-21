@@ -1,4 +1,5 @@
 ﻿using DataAccessLayer.Models;
+using DataAccessLayer.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -17,12 +18,16 @@ namespace DataAccessLayer.Data
             var orderItems = PrepareOrderItemsModels();
             var categories = PrepareCategoryModels();
             var manufacturers = PrepareManufacturerModels();
+            var admins = PrepareAdminModels();
+            var customers = PrepareCustomerModels();
 
             modelBuilder.Entity<Order>().HasData(orders);
             modelBuilder.Entity<Product>().HasData(products);
             modelBuilder.Entity<OrderItem>().HasData(orderItems);
             modelBuilder.Entity<Category>().HasData(categories);
             modelBuilder.Entity<Manufacturer>().HasData(manufacturers);
+            modelBuilder.Entity<User>().HasData(admins);
+            modelBuilder.Entity<Customer>().HasData(customers);
         }
 
         private static List<Order> PrepareOrderModels()
@@ -33,26 +38,31 @@ namespace DataAccessLayer.Data
                     {
                         Id = 1,
                         Date = new DateTime(2024, 10, 1),
+                        UserId = 2
                     },
                     new Order()
                     {
                         Id = 2,
                         Date = new DateTime(2024, 11, 15),
+                        UserId = 3,
                     },
                     new Order()
                     {
                         Id = 3,
                         Date = new DateTime(2024, 12, 5),
+                        UserId = 3,
                     },
                     new Order()
                     {
                         Id = 4,
                         Date = new DateTime(2025, 1, 20),
+                        UserId = 2,
                     },
                     new Order()
                     {
                         Id = 5,
                         Date = new DateTime(2025, 2, 10),
+                        UserId = 2,
                     },
                 };
         }
@@ -273,6 +283,51 @@ namespace DataAccessLayer.Data
                 {
                     Id = 4,
                     Name = "Sennheiser",
+                },
+            };
+        }
+
+        private static List<User> PrepareAdminModels()
+        {
+            return new List<User>()
+            {
+                new User()
+                {
+                    Id = 1,
+                    Name = "Admin",
+                    Email = "admin@bestmusic.com",
+                    Role = Role.Admin
+                },
+            };
+        }
+
+        private static List<Customer> PrepareCustomerModels()
+        {
+            return new List<Customer>()
+            {
+                new Customer()
+                {
+                    Id = 2,
+                    Name = "Johnny Silverhand",
+                    Email = "johnny@samurai.nc",
+                    Role = Role.Customer,
+                    PhoneNumber = "+04 0578 457 666",
+                    Address = "Straight 68, NC",
+                    City = "Night City",
+                    State = "The Free City of Night City",
+                    PostalCode = "1020"
+                },
+                new Customer()
+                {
+                    Id = 3,
+                    Name = "Martin Hluchý",
+                    Email = "hluchymuzikant@seznam.cz",
+                    Role = Role.Customer,
+                    PhoneNumber = "+420 556 556 000",
+                    Address = "Botanická 69",
+                    City = "Brno",
+                    State = "Czechia",
+                    PostalCode = "602 00"
                 },
             };
         }
