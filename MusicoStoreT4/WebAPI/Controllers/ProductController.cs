@@ -2,6 +2,7 @@ using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebAPI.DTOs;
 
 namespace WebAPI.Controllers
 {
@@ -131,6 +132,59 @@ namespace WebAPI.Controllers
                 ProductPrice = product.Price,
                 ProductQuantityInStock = product.QuantityInStock,
             });
+        }
+
+        [HttpGet("filter")]
+        public async Task<IActionResult> GetProducts(
+            string? name,
+            string? description,
+            decimal? price,
+            int? categoryId,
+            int? manufacturerId)
+        {
+
+            // Build query
+            var productsQuery = _dBContext.Products.AsQueryable();
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                productsQuery = productsQuery.Where(p => p.Name.ToLower().Contains(name.ToLower()));
+            }
+
+            if (!string.IsNullOrEmpty(description))
+            {
+                productsQuery = productsQuery.Where(p => p.Description.ToLower().Contains(description.ToLower()));
+            }
+
+            if (price.HasValue)
+            {
+                productsQuery = productsQuery.Where(p => p.Price == price);
+            }
+
+            if (categoryId.HasValue)
+            {
+                productsQuery = productsQuery.Where(p => p.CategoryId == categoryId);
+            }
+
+            if (manufacturerId.HasValue)
+            {
+                productsQuery = productsQuery.Where(p => p.ManufacturerId == manufacturerId);
+            }
+
+            var products = await productsQuery
+                .Include(p => p.Category)
+                .Include(p => p.Manufacturer)
+                .Select(p => new ProductDto      // Project the filtered products into ProductDto
+                {
+                    Name = p.Name,
+                    Description = p.Description,
+                    Price = p.Price,
+                    CategoryName = p.Category.Name,
+                    ManufacturerName = p.Manufacturer.Name
+                })
+                .ToListAsync(); // Execute the query
+
+            return Ok(products);
         }
     }
 }
