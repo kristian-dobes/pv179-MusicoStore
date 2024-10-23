@@ -41,6 +41,8 @@ namespace WebAPI.Controllers
                 _dBContext.Manufacturers.Remove(manufacturer);
                 await _dBContext.SaveChangesAsync();
             }
+            else
+                return NotFound();
 
             return Ok();
         }

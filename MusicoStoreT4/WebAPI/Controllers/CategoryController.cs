@@ -20,6 +20,7 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> Fetch()
         {
             var categories = await _dBContext.Categories.ToListAsync();
+
             return Ok(categories.Select(a => new
             {
                 CategoryId = a.Id,
@@ -41,6 +42,8 @@ namespace WebAPI.Controllers
                 _dBContext.Categories.Remove(category);
                 await _dBContext.SaveChangesAsync();
             }
+            else
+                return NotFound();
 
             return Ok();
         }
@@ -94,12 +97,12 @@ namespace WebAPI.Controllers
             }
 
             var category = await _dBContext.Categories
-                .Where(a => a.Id == categoryId)
-                .FirstOrDefaultAsync();
+                                           .Where(a => a.Id == categoryId)
+                                           .FirstOrDefaultAsync();
 
             if (category == null)
             {
-                return BadRequest("CategoryID not found");
+                return NotFound("CategoryID not found");
             }
 
             category.Name = categoryName;

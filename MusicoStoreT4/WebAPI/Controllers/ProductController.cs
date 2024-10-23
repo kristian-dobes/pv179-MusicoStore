@@ -45,6 +45,8 @@ namespace WebAPI.Controllers
                 _dBContext.Products.Remove(product);
                 await _dBContext.SaveChangesAsync();
             }
+            else
+                return NotFound();
 
             return Ok();
         }
