@@ -1,4 +1,5 @@
-﻿using DataAccessLayer.Data;
+﻿using Castle.Core.Resource;
+using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using DataAccessLayer.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -70,40 +71,20 @@ namespace WebAPI.Controllers
             }));
         }
 
-        [HttpPost("create")]
-        public async Task<IActionResult> Create([FromBody] UserDto userDto)
+        [HttpPost("createAdmin")]
+        public async Task<IActionResult> CreateAdmin([FromBody] AdminDto adminDto)
         {
-            if (userDto == null || userDto.Role != "admin" && userDto.Role != "customer")
+            if (adminDto == null)
             {
-                return BadRequest("User must have valid role");
+                return BadRequest("No valid data");
             }
 
-            User user;
-
-            if (userDto.Role == "admin")
+            User user = new User
             {
-                user = new User
-                {
-                    Name = userDto.Name,
-                    Email = userDto.Email,
-                    Role = Role.Admin,
-                };
-            }
-            else
-            {
-                var customerDto = userDto as CustomerDto;
-                user = new Customer
-                {
-                    Name = customerDto.Name,
-                    Email = customerDto.Email,
-                    Role = Role.Customer,
-                    PhoneNumber = customerDto.PhoneNumber,
-                    Address = customerDto.Address,
-                    City = customerDto.City,
-                    State = customerDto.State,
-                    PostalCode = customerDto.PostalCode,
-                };
-            }
+                Name = adminDto.Name,
+                Email = adminDto.Email,
+                Role = Role.Admin,
+            };
 
             await _dBContext.Users.AddAsync(user);
             await _dBContext.SaveChangesAsync();
@@ -111,15 +92,41 @@ namespace WebAPI.Controllers
             return Ok();
         }
 
-        [HttpPut("update/{userId}")]
-        public async Task<IActionResult> Update(int userId, [FromBody] UserDto userDto)
+        [HttpPost("createCustomer")]
+        public async Task<IActionResult> CreateCustomer([FromBody] CustomerDto customerDto)
         {
-            if (userDto == null)
+            if (customerDto == null)
+            {
+                return BadRequest("No valid data");
+            }
+
+            User user = new Customer
+            {
+                Name = customerDto.Name,
+                Email = customerDto.Email,
+                Role = Role.Customer,
+                PhoneNumber = customerDto.PhoneNumber,
+                Address = customerDto.Address,
+                City = customerDto.City,
+                State = customerDto.State,
+                PostalCode = customerDto.PostalCode,
+            };
+
+            await _dBContext.Users.AddAsync(user);
+            await _dBContext.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [HttpPut("updateAdmin/{userId}")]
+        public async Task<IActionResult> UpdateAdmin(int userId, [FromBody] AdminDto adminDto)
+        {
+            if (adminDto == null)
             {
                 return BadRequest("User data is required.");
             }
 
-            if (await _dBContext.Users.AnyAsync(a => a.Name == userDto.Name && a.Id != userId))
+            if (await _dBContext.Users.AnyAsync(a => a.Name == adminDto.Name && a.Id != userId))
             {
                 return BadRequest("User with that name already exists.");
             }
@@ -133,24 +140,13 @@ namespace WebAPI.Controllers
                 return BadRequest("User not found");
             }
 
-            if (user.Role == Role.Admin)
+            if (user.Role != Role.Admin)
             {
-                user.Name = userDto.Name;
-                user.Email = userDto.Email;
+                return BadRequest("User with given ID is not Admin");
             }
-            else
-            {
-                var customerDto = userDto as CustomerDto;
-                var customer = user as Customer;
 
-                customer.Name = customerDto.Name;
-                customer.Email = customerDto.Email;
-                customer.PhoneNumber = customerDto.PhoneNumber;
-                customer.Address = customerDto.Address;
-                customer.City = customerDto.City;
-                customer.State = customerDto.State;
-                customer.PostalCode = customerDto.PostalCode;
-            }
+            user.Name = adminDto.Name;
+            user.Email = adminDto.Email;
 
             try
             {
@@ -170,8 +166,61 @@ namespace WebAPI.Controllers
             return NoContent();
         }
 
-        // GET: api/User/{id}
-        [HttpGet("{userId}")]
+        [HttpPut("updateCustomer/{userId}")]
+        public async Task<IActionResult> UpdateCustomer(int userId, [FromBody] CustomerDto customerDto)
+        {
+            if (customerDto == null)
+            {
+                return BadRequest("User data is required.");
+            }
+
+            if (await _dBContext.Users.AnyAsync(a => a.Name == customerDto.Name && a.Id != userId))
+            {
+                return BadRequest("User with that name already exists.");
+            }
+
+            var customer = await _dBContext.Users
+                .Where(a => a.Id == userId)
+                .FirstOrDefaultAsync() as Customer;
+
+            if (customer == null)
+            {
+                return BadRequest("User not found");
+            }
+
+            if (customer.Role != Role.Customer)
+            {
+                return BadRequest("User with given ID is not Customer");
+            }
+
+            customer.Name = customerDto.Name;
+            customer.Email = customerDto.Email;
+            customer.PhoneNumber = customerDto.PhoneNumber;
+            customer.Address = customerDto.Address;
+            customer.City = customerDto.City;
+            customer.State = customerDto.State;
+            customer.PostalCode = customerDto.PostalCode;
+
+            try
+            {
+                await _dBContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_dBContext.Users.Any(u => u.Id == userId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return NoContent();
+        }
+
+            // GET: api/User/{id}
+            [HttpGet("{userId}")]
         public async Task<IActionResult> GetUserById(int userId)
         {
             var user = await _dBContext.Users

@@ -1,6 +1,6 @@
 ﻿namespace WebAPI.DTOs
 {
-    public class CustomerDto : UserDto
+    public class CustomerDto : AdminDto
     {
         public string PhoneNumber { get; set; }
         public string Address { get; set; }
