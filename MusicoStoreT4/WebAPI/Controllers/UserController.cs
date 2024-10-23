@@ -23,13 +23,28 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> Fetch()
         {
             var users = await _dBContext.Users.ToListAsync();
-            return Ok(users.Select(a => new
-            {
-                UserId = a.Id,
-                UserName = a.Name,
-                UserDateOfCreation = a.Created,
-               
-            }));
+            return Ok(users.Select(u => (object)(u.Role == Role.Admin ?
+                new
+                {
+                    UserId = u.Id,
+                    UserName = u.Name,
+                    UserDateOfCreation = u.Created
+                }
+                :
+                new
+                {
+                    UserId = u.Id,
+                    UserName = u.Name,
+                    UserDateOfCreation = u.Created,
+                    CustomerDetails = new
+                    {
+                        PhoneNumber = (u as Customer).PhoneNumber,
+                        Address = (u as Customer).Address,
+                        City = (u as Customer).City,
+                        State = (u as Customer).State,
+                        PostalCode = (u as Customer).PostalCode
+                    }
+                })));
         }
 
         [HttpDelete("delete")]
@@ -45,6 +60,8 @@ namespace WebAPI.Controllers
                 _dBContext.Users.Remove(user);
                 await _dBContext.SaveChangesAsync();
             }
+            else
+                return NotFound();
 
             return Ok();
         }

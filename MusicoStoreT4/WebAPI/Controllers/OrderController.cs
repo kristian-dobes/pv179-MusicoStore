@@ -43,6 +43,8 @@ namespace WebAPI.Controllers
                 await _dBContext.SaveChangesAsync();
                 return Ok();
             }
+            else
+                return NotFound();
 
             return NotFound();
         }
