@@ -104,7 +104,23 @@ namespace WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOrderById(int id)
         {
-            var order = await _dBContext.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == id);
+            var order = await _dBContext.Orders
+                .Where(o => o.Id == id)
+                .Select(o => new
+                {
+                    o.Id,
+                    o.Created,
+                    o.Date,
+                    o.UserId,
+                    OrderItems = o.OrderItems.Select(oi => new
+                    {
+                        oi.Id,
+                        oi.ProductId,
+                        oi.Quantity,
+                        oi.Price
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
 
             if (order == null)
                 return NotFound();
