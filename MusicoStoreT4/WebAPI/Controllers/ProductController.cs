@@ -2,7 +2,7 @@ using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebAPI.DTOs;
+using WebAPI.DTOs.Product;
 
 namespace WebAPI.Controllers
 {
@@ -76,57 +76,83 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create(string productName)
+        public async Task<IActionResult> Create([FromBody] CreateProductDTO createProductDTO)
         {
-            if (string.IsNullOrWhiteSpace(productName))
-            {
+            if (string.IsNullOrEmpty(createProductDTO.Name))
                 return BadRequest("Product name is required");
-            }
 
-            if (await _dBContext.Products.AnyAsync(a => a.Name == productName))
-            {
-                return BadRequest("Product already exists");
-            }
+            if (string.IsNullOrEmpty(createProductDTO.Description))
+                return BadRequest("Product description is required");
+
+            if (createProductDTO.Price <= 0)
+                return BadRequest("Price must be valid");
+
+            if (await _dBContext.Products.AnyAsync(a => a.Name == createProductDTO.Name))
+                return BadRequest($"Product with name '{createProductDTO.Name}' already exists");
+
+            if (!(await _dBContext.Categories.AnyAsync(c => c.Id == createProductDTO.CategoryId)))
+                return BadRequest($"Category with id {createProductDTO.CategoryId} not found");
+
+            if (!(await _dBContext.Manufacturers.AnyAsync(m => m.Id == createProductDTO.ManufacturerId)))
+                return BadRequest($"Manufacturer with id {createProductDTO.ManufacturerId} not found");
 
             var product = new Product
             {
-                Name = productName,
+                Name = createProductDTO.Name,
+                Description = createProductDTO.Description,
+                Price = createProductDTO.Price,
+                CategoryId = createProductDTO.CategoryId,
+                ManufacturerId = createProductDTO.ManufacturerId
             };
 
             await _dBContext.Products.AddAsync(product);
             await _dBContext.SaveChangesAsync();
 
-            return Ok();
+            return Ok($"Product {createProductDTO.Name} created successfully.");
         }
 
         [HttpPut("update")]
-        public async Task<IActionResult> Update(int productId, string productName)
+        public async Task<IActionResult> Update([FromBody] UpdateProductDTO updateProductDTO)
         {
-            if (string.IsNullOrWhiteSpace(productName))
-            {
-                return BadRequest("Product name is required");
-            }
-
-            if (await _dBContext.Products.AnyAsync(a => a.Name == productName))
-            {
-                return BadRequest("Product with that name already exists");
-            }
-
             var product = await _dBContext.Products
-                                          .Where(a => a.Id == productId)
+                                          .Where(a => a.Id == updateProductDTO.Id)
                                           .FirstOrDefaultAsync();
 
             if (product == null)
-            {
                 return BadRequest("ProductID not found");
-            }
 
-            product.Name = productName;
+            if (updateProductDTO.Price <= 0)
+                return BadRequest("Price must be valid");
+
+            if (await _dBContext.Products.AnyAsync(a => a.Name == updateProductDTO.Name && a.Id != updateProductDTO.Id))
+                return BadRequest($"Product with name '{updateProductDTO.Name}' already exists");
+
+            if (updateProductDTO.CategoryId != null && !(await _dBContext.Categories.AnyAsync(c => c.Id == updateProductDTO.CategoryId)))
+                return BadRequest($"Category with id {updateProductDTO.CategoryId} not found");
+
+            if (updateProductDTO.ManufacturerId != null && !(await _dBContext.Manufacturers.AnyAsync(m => m.Id == updateProductDTO.ManufacturerId)))
+                return BadRequest($"Manufacturer with id {updateProductDTO.ManufacturerId} not found");
+
+            if (updateProductDTO.Name != null)
+                product.Name = updateProductDTO.Name;
+            
+            if (updateProductDTO.Description != null)
+                product.Description = updateProductDTO.Description;
+
+            if (updateProductDTO.Price.HasValue)
+                product.Price = updateProductDTO.Price.Value;
+
+            if (updateProductDTO.CategoryId.HasValue)
+                product.CategoryId = updateProductDTO.CategoryId.Value;
+
+            if (updateProductDTO.ManufacturerId.HasValue)
+                product.ManufacturerId = updateProductDTO.ManufacturerId.Value;
+
             await _dBContext.SaveChangesAsync();
 
             return Ok(new
             {
-                Message = "Product updated successfully",
+                Message = "Product updated successfully.",
                 ProductId = product.Id,
                 DateOfCreation = product.Created,
                 ProductName = product.Name,

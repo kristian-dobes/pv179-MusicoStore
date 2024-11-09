@@ -16,7 +16,7 @@ Electronic commerce platform with the purpose of selling music-related products 
 |Member          | Petr Balnar      |
 
 ## Running the project
-Developed and tested using [Visual Studio 22](https://visualstudio.microsoft.com/). To run the project simply clone the repositary, set `WebAPI` as your 'Startup Project' in Visual Studio and run.
+Developed and tested using [Visual Studio 22](https://visualstudio.microsoft.com/). Before running the project, update the database using `Update-Database mig-1 -Project DAL.SQLite.Migrations` (or use the latest migration in DAL.SQLite.Migrations.Migrations). To run the project simply clone the repositary, set `WebAPI` as your 'Startup Project' in Visual Studio and run.
 
 Alternatively you can build the project using comand `dotnet build MusicoStoreT4.sln`. Then run the exe program in WebAPI/bin/{Debug or Release}/WebAPI.exe
 

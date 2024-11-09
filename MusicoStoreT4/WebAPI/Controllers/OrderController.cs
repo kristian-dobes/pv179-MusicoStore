@@ -28,6 +28,7 @@ namespace WebAPI.Controllers
                 OrderId = a.Id,
                 OrderDateOfCreation = a.Created,
                 OrderDate = a.Date,
+                UserId = a.UserId
             }));
         }
 
