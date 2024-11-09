@@ -8,17 +8,17 @@ namespace WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class OrderController : ControllerBase
+    public class OrdersController : ControllerBase
     {
         private readonly MyDBContext _dBContext;
 
-        public OrderController(MyDBContext dBContext)
+        public OrdersController(MyDBContext dBContext)
         {
             _dBContext = dBContext;
         }
 
         // GET: api/Order/fetch
-        [HttpGet("fetch")]
+        [HttpGet]
         public async Task<IActionResult> Fetch()
         {
             var orders = await _dBContext.Orders.ToListAsync();
@@ -32,25 +32,33 @@ namespace WebAPI.Controllers
             }));
         }
 
-        // DELETE: api/Order/delete/{orderId}
-        [HttpDelete("delete/{orderId}")]
-        public async Task<IActionResult> Delete(int orderId)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetOrderById(int id)
         {
-            var order = await _dBContext.Orders.FirstOrDefaultAsync(a => a.Id == orderId);
+            var order = await _dBContext.Orders
+                .Where(o => o.Id == id)
+                .Select(o => new
+                {
+                    o.Id,
+                    o.Created,
+                    o.Date,
+                    o.UserId,
+                    OrderItems = o.OrderItems.Select(oi => new
+                    {
+                        oi.Id,
+                        oi.ProductId,
+                        oi.Quantity,
+                        oi.Price
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
 
-            if (order != null)
-            {
-                _dBContext.Orders.Remove(order);
-                await _dBContext.SaveChangesAsync();
-                return Ok();
-            }
-            else
+            if (order == null)
                 return NotFound();
 
-            return NotFound();
+            return Ok(order);
         }
 
-        // GET: api/Order/detail
         [HttpGet("detail")]
         public async Task<IActionResult> FetchWithOrderItems()
         {
@@ -70,8 +78,7 @@ namespace WebAPI.Controllers
             }));
         }
 
-        // POST: api/Order/create
-        [HttpPost("create")]
+        [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateOrderDto createOrderDto)
         {
             int createdOrdersAmount = 0;
@@ -102,7 +109,7 @@ namespace WebAPI.Controllers
                     }).ToList()
                 };
 
-                await _dBContext.Orders.AddAsync(order);
+                _dBContext.Orders.Add(order);
                 await _dBContext.SaveChangesAsync();
                 createdOrdersAmount++;
             }
@@ -110,36 +117,7 @@ namespace WebAPI.Controllers
             return createdOrdersAmount == 0 ? BadRequest("None of the products were found") : Ok();
         }
 
-        // GET: api/Order/{id}
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetOrderById(int id)
-        {
-            var order = await _dBContext.Orders
-                .Where(o => o.Id == id)
-                .Select(o => new
-                {
-                    o.Id,
-                    o.Created,
-                    o.Date,
-                    o.UserId,
-                    OrderItems = o.OrderItems.Select(oi => new
-                    {
-                        oi.Id,
-                        oi.ProductId,
-                        oi.Quantity,
-                        oi.Price
-                    }).ToList()
-                })
-                .FirstOrDefaultAsync();
-
-            if (order == null)
-                return NotFound();
-
-            return Ok(order);
-        }
-
-        // PUT: api/Order/update/{id}
-        [HttpPut("update/{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateOrder(int id, [FromBody] UpdateOrderDto updateOrderDto)
         {
             if (id != updateOrderDto.OrderId)
@@ -181,6 +159,23 @@ namespace WebAPI.Controllers
             }
 
             return NoContent();
+        }
+
+        [HttpDelete("{orderId}")]
+        public async Task<IActionResult> Delete(int orderId)
+        {
+            var order = await _dBContext.Orders.FirstOrDefaultAsync(a => a.Id == orderId);
+
+            if (order != null)
+            {
+                _dBContext.Orders.Remove(order);
+                await _dBContext.SaveChangesAsync();
+                return Ok();
+            }
+            else
+                return NotFound();
+
+            return NotFound();
         }
     }
 }

@@ -8,16 +8,16 @@ namespace WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ProductController : Controller
+    public class ProductsController : Controller
     {
         private readonly MyDBContext _dBContext;
 
-        public ProductController(MyDBContext dBContext)
+        public ProductsController(MyDBContext dBContext)
         {
             _dBContext = dBContext;
         }
 
-        [HttpGet("fetch")]
+        [HttpGet]
         public async Task<IActionResult> Fetch()
         {
             var products = await _dBContext.Products.ToListAsync();
@@ -31,24 +31,6 @@ namespace WebAPI.Controllers
                 ProductPrice = a.Price,
                 ProductQuantityInStock = a.QuantityInStock,
             }));
-        }
-
-        [HttpDelete("delete")]
-        public async Task<IActionResult> Delete(int productId)
-        {
-            var product = await _dBContext.Products
-                                          .Where(a => a.Id == productId)
-                                          .FirstOrDefaultAsync();
-
-            if (product != null)
-            {
-                _dBContext.Products.Remove(product);
-                await _dBContext.SaveChangesAsync();
-            }
-            else
-                return NotFound();
-
-            return Ok();
         }
 
         [HttpGet("detail")]
@@ -87,7 +69,45 @@ namespace WebAPI.Controllers
             }));
         }
 
-        [HttpPost("create")]
+        [HttpGet("filter")]
+        public async Task<IActionResult> GetProducts([FromBody] FilterProductDTO filterProductDTO)
+        {
+            var productsQuery = _dBContext.Products.AsQueryable();
+
+            if (!string.IsNullOrEmpty(filterProductDTO.Name))
+                productsQuery = productsQuery.Where(p => p.Name.ToLower().Contains(filterProductDTO.Name.ToLower()));
+
+            if (!string.IsNullOrEmpty(filterProductDTO.Description))
+                productsQuery = productsQuery.Where(p => p.Description.ToLower().Contains(filterProductDTO.Description.ToLower()));
+
+            decimal minPrice = filterProductDTO.MinPrice ?? decimal.MinValue;
+            decimal maxPrice = filterProductDTO.MaxPrice ?? decimal.MaxValue;
+
+            productsQuery = productsQuery.Where(p => p.Price >= minPrice && minPrice <= maxPrice);
+
+            if (filterProductDTO.CategoryId.HasValue)
+                productsQuery = productsQuery.Where(p => p.CategoryId == filterProductDTO.CategoryId);
+
+            if (filterProductDTO.ManufacturerId.HasValue)
+                productsQuery = productsQuery.Where(p => p.ManufacturerId == filterProductDTO.ManufacturerId);
+
+            var products = await productsQuery
+                .Include(p => p.Category)
+                .Include(p => p.Manufacturer)
+                .Select(p => new ProductDto
+                {
+                    Name = p.Name,
+                    Description = p.Description,
+                    Price = p.Price,
+                    CategoryName = p.Category.Name,
+                    ManufacturerName = p.Manufacturer.Name
+                })
+                .ToListAsync();
+
+            return Ok(products);
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateProductDTO createProductDTO)
         {
             if (string.IsNullOrEmpty(createProductDTO.Name))
@@ -123,7 +143,7 @@ namespace WebAPI.Controllers
             return Ok($"Product {createProductDTO.Name} created successfully.");
         }
 
-        [HttpPut("update")]
+        [HttpPut]
         public async Task<IActionResult> Update([FromBody] UpdateProductDTO updateProductDTO)
         {
             var product = await _dBContext.Products
@@ -174,42 +194,22 @@ namespace WebAPI.Controllers
             });
         }
 
-        [HttpGet("filter")]
-        public async Task<IActionResult> GetProducts([FromBody] FilterProductDTO filterProductDTO)
+        [HttpDelete("{productId}")]
+        public async Task<IActionResult> Delete(int productId)
         {
-            var productsQuery = _dBContext.Products.AsQueryable();
+            var product = await _dBContext.Products
+                                          .Where(a => a.Id == productId)
+                                          .FirstOrDefaultAsync();
 
-            if (!string.IsNullOrEmpty(filterProductDTO.Name))
-                productsQuery = productsQuery.Where(p => p.Name.ToLower().Contains(filterProductDTO.Name.ToLower()));
+            if (product != null)
+            {
+                _dBContext.Products.Remove(product);
+                await _dBContext.SaveChangesAsync();
+            }
+            else
+                return NotFound();
 
-            if (!string.IsNullOrEmpty(filterProductDTO.Description))
-                productsQuery = productsQuery.Where(p => p.Description.ToLower().Contains(filterProductDTO.Description.ToLower()));
-
-            decimal minPrice = filterProductDTO.MinPrice ?? decimal.MinValue;
-            decimal maxPrice = filterProductDTO.MaxPrice ?? decimal.MaxValue;
-
-            productsQuery = productsQuery.Where(p => p.Price >= minPrice && minPrice <= maxPrice);
-
-            if (filterProductDTO.CategoryId.HasValue)
-                productsQuery = productsQuery.Where(p => p.CategoryId == filterProductDTO.CategoryId);
-
-            if (filterProductDTO.ManufacturerId.HasValue)
-                productsQuery = productsQuery.Where(p => p.ManufacturerId == filterProductDTO.ManufacturerId);
-
-            var products = await productsQuery
-                .Include(p => p.Category)
-                .Include(p => p.Manufacturer)
-                .Select(p => new ProductDto
-                {
-                    Name = p.Name,
-                    Description = p.Description,
-                    Price = p.Price,
-                    CategoryName = p.Category.Name,
-                    ManufacturerName = p.Manufacturer.Name
-                })
-                .ToListAsync();
-
-            return Ok(products);
+            return Ok();
         }
     }
 }
