@@ -77,8 +77,15 @@ namespace WebAPI.Controllers
             int createdOrdersAmount = 0;
 
             if (createOrderDto == null || createOrderDto.Items == null || !createOrderDto.Items.Any())
-            {
                 return BadRequest("Order must contain at least one item.");
+
+            if (!(await _dBContext.Users.AnyAsync(u => u.Id == createOrderDto.CustomerId)))
+                return BadRequest($"No such customer with id {createOrderDto.CustomerId}");
+
+            foreach (OrderItemDto orderItemDto in createOrderDto.Items)
+            {
+                if (!(await _dBContext.Products.AnyAsync(p => p.Id == orderItemDto.ProductId)))
+                    return BadRequest($"No such product with id {orderItemDto.ProductId}. Order was not created.");
             }
 
             foreach (OrderItemDto orderItemDto in createOrderDto.Items)
