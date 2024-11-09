@@ -72,6 +72,18 @@ namespace WebAPI.Controllers
                     OrderItemQuantity = orderItem.Quantity,
                     OrderItemDateOfCreation = orderItem.Created,
                 }),
+                Category = a.Category == null ? null : new
+                {
+                    CategoryId = a.Category.Id,
+                    CategoryName = a.Category.Name,
+                    CategoryDateOfCreation = a.Category.Created,
+                },
+                Manufacturer = a.Manufacturer == null ? null : new
+                {
+                    ManufacturerId = a.Manufacturer.Id,
+                    ManufacturerName = a.Manufacturer.Name,
+                    ManufacturerDateOfCreation = a.Manufacturer.Created,
+                }
             }));
         }
 
@@ -163,46 +175,31 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet("filter")]
-        public async Task<IActionResult> GetProducts(
-            string? name,
-            string? description,
-            decimal? price,
-            int? categoryId,
-            int? manufacturerId)
+        public async Task<IActionResult> GetProducts([FromBody] FilterProductDTO filterProductDTO)
         {
-
-            // Build query
             var productsQuery = _dBContext.Products.AsQueryable();
 
-            if (!string.IsNullOrEmpty(name))
-            {
-                productsQuery = productsQuery.Where(p => p.Name.ToLower().Contains(name.ToLower()));
-            }
+            if (!string.IsNullOrEmpty(filterProductDTO.Name))
+                productsQuery = productsQuery.Where(p => p.Name.ToLower().Contains(filterProductDTO.Name.ToLower()));
 
-            if (!string.IsNullOrEmpty(description))
-            {
-                productsQuery = productsQuery.Where(p => p.Description.ToLower().Contains(description.ToLower()));
-            }
+            if (!string.IsNullOrEmpty(filterProductDTO.Description))
+                productsQuery = productsQuery.Where(p => p.Description.ToLower().Contains(filterProductDTO.Description.ToLower()));
 
-            if (price.HasValue)
-            {
-                productsQuery = productsQuery.Where(p => p.Price == price);
-            }
+            decimal minPrice = filterProductDTO.MinPrice ?? decimal.MinValue;
+            decimal maxPrice = filterProductDTO.MaxPrice ?? decimal.MaxValue;
 
-            if (categoryId.HasValue)
-            {
-                productsQuery = productsQuery.Where(p => p.CategoryId == categoryId);
-            }
+            productsQuery = productsQuery.Where(p => p.Price >= minPrice && minPrice <= maxPrice);
 
-            if (manufacturerId.HasValue)
-            {
-                productsQuery = productsQuery.Where(p => p.ManufacturerId == manufacturerId);
-            }
+            if (filterProductDTO.CategoryId.HasValue)
+                productsQuery = productsQuery.Where(p => p.CategoryId == filterProductDTO.CategoryId);
+
+            if (filterProductDTO.ManufacturerId.HasValue)
+                productsQuery = productsQuery.Where(p => p.ManufacturerId == filterProductDTO.ManufacturerId);
 
             var products = await productsQuery
                 .Include(p => p.Category)
                 .Include(p => p.Manufacturer)
-                .Select(p => new ProductDto      // Project the filtered products into ProductDto
+                .Select(p => new ProductDto
                 {
                     Name = p.Name,
                     Description = p.Description,
@@ -210,7 +207,7 @@ namespace WebAPI.Controllers
                     CategoryName = p.Category.Name,
                     ManufacturerName = p.Manufacturer.Name
                 })
-                .ToListAsync(); // Execute the query
+                .ToListAsync();
 
             return Ok(products);
         }
