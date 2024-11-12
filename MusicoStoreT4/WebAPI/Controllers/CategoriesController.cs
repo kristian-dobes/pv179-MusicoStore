@@ -7,16 +7,16 @@ namespace WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CategoryController : Controller
+    public class CategoriesController : Controller
     {
         private readonly MyDBContext _dBContext;
 
-        public CategoryController(MyDBContext dBContext)
+        public CategoriesController(MyDBContext dBContext)
         {
             _dBContext = dBContext;
         }
 
-        [HttpGet("fetch")]
+        [HttpGet]
         public async Task<IActionResult> Fetch()
         {
             var categories = await _dBContext.Categories.ToListAsync();
@@ -27,25 +27,6 @@ namespace WebAPI.Controllers
                 CategoryName = a.Name,
                 CategoryDateOfCreation = a.Created,
             }));
-        }
-
-        [HttpDelete("delete")]
-        public async Task<IActionResult> Delete(int categoryId)
-        {
-            var category = await _dBContext.Categories
-                .Include(a => a.Products)
-                .Where(a => a.Id == categoryId)
-                .FirstOrDefaultAsync();
-
-            if (category != null)
-            {
-                _dBContext.Categories.Remove(category);
-                await _dBContext.SaveChangesAsync();
-            }
-            else
-                return NotFound();
-
-            return Ok();
         }
 
         [HttpGet("detail")]
@@ -69,7 +50,7 @@ namespace WebAPI.Controllers
             }));
         }
 
-        [HttpPost("create")]
+        [HttpPost]
         public async Task<IActionResult> Create(string categoryName)
         {
             var category = new Category
@@ -83,7 +64,7 @@ namespace WebAPI.Controllers
             return Ok();
         }
 
-        [HttpPut("update")]
+        [HttpPut]
         public async Task<IActionResult> Update(int categoryId, string categoryName)
         {
             if (string.IsNullOrWhiteSpace(categoryName))
@@ -107,6 +88,25 @@ namespace WebAPI.Controllers
 
             category.Name = categoryName;
             await _dBContext.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [HttpDelete("{categoryId}")]
+        public async Task<IActionResult> Delete(int categoryId)
+        {
+            var category = await _dBContext.Categories
+                .Include(a => a.Products)
+                .Where(a => a.Id == categoryId)
+                .FirstOrDefaultAsync();
+
+            if (category != null)
+            {
+                _dBContext.Categories.Remove(category);
+                await _dBContext.SaveChangesAsync();
+            }
+            else
+                return NotFound();
 
             return Ok();
         }
