@@ -69,7 +69,7 @@ namespace WebAPI.Controllers
             }));
         }
 
-        [HttpGet("filter")]
+        [HttpPost("filter")]
         public async Task<IActionResult> GetProducts([FromBody] FilterProductDTO filterProductDTO)
         {
             var productsQuery = _dBContext.Products.AsQueryable();
