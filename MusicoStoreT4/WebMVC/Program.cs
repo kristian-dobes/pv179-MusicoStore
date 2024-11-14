@@ -1,4 +1,7 @@
 using DataAccessLayer.Data;
+using DataAccessLayer.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +23,26 @@ builder.Services.AddDbContextFactory<MyDBContext>(options =>
         ;
 });
 
+builder.Services.AddIdentity<LocalIdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<MyDBContext>()
+                .AddDefaultTokenProviders();
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequiredLength = 6;
+    options.Password.RequiredUniqueChars = 1;
+});
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+});
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -35,6 +58,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

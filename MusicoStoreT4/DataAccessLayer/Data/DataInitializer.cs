@@ -294,7 +294,7 @@ namespace DataAccessLayer.Data
                 new User()
                 {
                     Id = 1,
-                    Name = "Admin",
+                    Username = "Admin",
                     Email = "admin@bestmusic.com",
                     Role = Role.Admin
                 },
@@ -308,7 +308,7 @@ namespace DataAccessLayer.Data
                 new Customer()
                 {
                     Id = 2,
-                    Name = "Johnny Silverhand",
+                    Username = "Johnny Silverhand",
                     Email = "johnny@samurai.nc",
                     Role = Role.Customer,
                     PhoneNumber = "+04 0578 457 666",
@@ -320,7 +320,7 @@ namespace DataAccessLayer.Data
                 new Customer()
                 {
                     Id = 3,
-                    Name = "Martin Hluchý",
+                    Username = "Martin Hluchý",
                     Email = "hluchymuzikant@seznam.cz",
                     Role = Role.Customer,
                     PhoneNumber = "+420 556 556 000",
