@@ -10,16 +10,16 @@ namespace WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UserController : Controller
+    public class UsersController : Controller
     {
         private readonly MyDBContext _dBContext;
 
-        public UserController(MyDBContext dBContext)
+        public UsersController(MyDBContext dBContext)
         {
             _dBContext = dBContext;
         }
 
-        [HttpGet("fetch")]
+        [HttpGet]
         public async Task<IActionResult> Fetch()
         {
             var users = await _dBContext.Users.ToListAsync();
@@ -47,25 +47,6 @@ namespace WebAPI.Controllers
                 })));
         }
 
-        [HttpDelete("delete")]
-        public async Task<IActionResult> Delete(int userId)
-        {
-            var user = await _dBContext.Users
-                .Include(a => a.Orders)
-                .Where(a => a.Id == userId)
-                .FirstOrDefaultAsync();
-
-            if (user != null)
-            {
-                _dBContext.Users.Remove(user);
-                await _dBContext.SaveChangesAsync();
-            }
-            else
-                return NotFound();
-
-            return Ok();
-        }
-
         [HttpGet("detail")]
         public async Task<IActionResult> FetchWithOrders()
         {
@@ -86,6 +67,46 @@ namespace WebAPI.Controllers
                     OrderDateOfCreation = order.Created,
                 }),
             }));
+        }
+
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetUserById(int userId)
+        {
+            var user = await _dBContext.Users
+                .Where(u => u.Id == userId)
+                .Select(u => new
+                {
+                    u.Id,
+                    u.Name,
+                    u.Role,
+                    CustomerDetails = u.Role == Role.Customer ? new
+                    {
+                        PhoneNumber = (u as Customer).PhoneNumber,
+                        Address = (u as Customer).Address,
+                        City = (u as Customer).City,
+                        State = (u as Customer).State,
+                        PostalCode = (u as Customer).PostalCode,
+                        Orders = (u as Customer).Orders.Select(o => new
+                        {
+                            o.Id,
+                            o.Date,
+                            o.Created,
+                            OrderItems = o.OrderItems.Select(oi => new
+                            {
+                                oi.Id,
+                                oi.ProductId,
+                                oi.Quantity,
+                                oi.Price
+                            }).ToList()
+                        }).ToList()
+                    } : null
+                })
+                .FirstOrDefaultAsync();
+
+            if (user == null)
+                return NotFound();
+
+            return Ok(user);
         }
 
         [HttpPost("createAdmin")]
@@ -236,45 +257,23 @@ namespace WebAPI.Controllers
             return NoContent();
         }
 
-            // GET: api/User/{id}
-            [HttpGet("{userId}")]
-        public async Task<IActionResult> GetUserById(int userId)
+        [HttpDelete("{userId}")]
+        public async Task<IActionResult> Delete(int userId)
         {
             var user = await _dBContext.Users
-                .Where(u => u.Id == userId)
-                .Select(u => new
-                {
-                    u.Id,
-                    u.Name,
-                    u.Role,
-                    CustomerDetails = u.Role == Role.Customer ? new
-                    {
-                        PhoneNumber = (u as Customer).PhoneNumber,
-                        Address = (u as Customer).Address,
-                        City = (u as Customer).City,
-                        State = (u as Customer).State,
-                        PostalCode = (u as Customer).PostalCode,
-                        Orders = (u as Customer).Orders.Select(o => new
-                        {
-                            o.Id,
-                            o.Date,
-                            o.Created,
-                            OrderItems = o.OrderItems.Select(oi => new
-                            {
-                                oi.Id,
-                                oi.ProductId,
-                                oi.Quantity,
-                                oi.Price
-                            }).ToList()
-                        }).ToList()
-                    } : null
-                })
+                .Include(a => a.Orders)
+                .Where(a => a.Id == userId)
                 .FirstOrDefaultAsync();
 
-            if (user == null)
+            if (user != null)
+            {
+                _dBContext.Users.Remove(user);
+                await _dBContext.SaveChangesAsync();
+            }
+            else
                 return NotFound();
 
-            return Ok(user);
+            return Ok();
         }
     }
 }

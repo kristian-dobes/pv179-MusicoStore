@@ -7,44 +7,26 @@ namespace WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ManufacturerController : Controller
+    public class ManufacturersController : Controller
     {
         private readonly MyDBContext _dBContext;
 
-        public ManufacturerController(MyDBContext dBContext)
+        public ManufacturersController(MyDBContext dBContext)
         {
             _dBContext = dBContext;
         }
 
-        [HttpGet("fetch")]
+        [HttpGet]
         public async Task<IActionResult> Fetch()
         {
             var manufacturers = await _dBContext.Manufacturers.ToListAsync();
+
             return Ok(manufacturers.Select(a => new
             {
                 ManufacturerId = a.Id,
                 ManufacturerName = a.Name,
                 ManufacturerDateOfCreation = a.Created,
             }));
-        }
-
-        [HttpDelete("delete")]
-        public async Task<IActionResult> Delete(int manufacturerId)
-        {
-            var manufacturer = await _dBContext.Manufacturers
-                .Include(a => a.Products)
-                .Where(a => a.Id == manufacturerId)
-                .FirstOrDefaultAsync();
-
-            if (manufacturer != null)
-            {
-                _dBContext.Manufacturers.Remove(manufacturer);
-                await _dBContext.SaveChangesAsync();
-            }
-            else
-                return NotFound();
-
-            return Ok();
         }
 
         [HttpGet("detail")]
@@ -69,7 +51,7 @@ namespace WebAPI.Controllers
             }));
         }
 
-        [HttpPost("create")]
+        [HttpPost]
         public async Task<IActionResult> Create(string manufacturerName)
         {
             if (string.IsNullOrWhiteSpace(manufacturerName))
@@ -93,7 +75,7 @@ namespace WebAPI.Controllers
             return Ok();
         }
 
-        [HttpPut("update")]
+        [HttpPut]
         public async Task<IActionResult> Update(int manufacturerId, string manufacturerName)
         {
             if (string.IsNullOrWhiteSpace(manufacturerName))
@@ -112,7 +94,7 @@ namespace WebAPI.Controllers
 
             if (manufacturer == null)
             {
-                return BadRequest("ManufacturerID not found");
+                return NotFound("ManufacturerID not found");
             }
 
             manufacturer.Name = manufacturerName;
@@ -125,6 +107,25 @@ namespace WebAPI.Controllers
                 ManufacturerName = manufacturer.Name,
                 DateOfCreation = manufacturer.Created,
             });
+        }
+
+        [HttpDelete("{manufacturerId}")]
+        public async Task<IActionResult> Delete(int manufacturerId)
+        {
+            var manufacturer = await _dBContext.Manufacturers
+                .Include(a => a.Products)
+                .Where(a => a.Id == manufacturerId)
+                .FirstOrDefaultAsync();
+
+            if (manufacturer != null)
+            {
+                _dBContext.Manufacturers.Remove(manufacturer);
+                await _dBContext.SaveChangesAsync();
+            }
+            else
+                return NotFound();
+
+            return Ok();
         }
     }
 }
