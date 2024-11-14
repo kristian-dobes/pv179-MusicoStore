@@ -82,8 +82,12 @@ namespace WebMVC.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            // return RedirectToAction("Index", "Home");
-            return RedirectToAction(nameof(HomeController.Index), nameof(HomeController).Replace("Controller", ""));
+            return RedirectToAction(nameof(LogoutSuccess), nameof(AccountController).Replace("Controller", ""));
+        }
+
+        public IActionResult LogoutSuccess()
+        {
+            return View();
         }
 
         public IActionResult LoginSuccess()
