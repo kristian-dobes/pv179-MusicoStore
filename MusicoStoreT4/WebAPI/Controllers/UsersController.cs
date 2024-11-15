@@ -27,14 +27,14 @@ namespace WebAPI.Controllers
                 new
                 {
                     UserId = u.Id,
-                    UserName = u.Name,
+                    UserName = u.Username,
                     UserDateOfCreation = u.Created
                 }
                 :
                 new
                 {
                     UserId = u.Id,
-                    UserName = u.Name,
+                    UserName = u.Username,
                     UserDateOfCreation = u.Created,
                     CustomerDetails = new
                     {
@@ -57,7 +57,7 @@ namespace WebAPI.Controllers
             return Ok(users.Select(a => new
             {
                 UserId = a.Id,
-                UserName = a.Name,
+                UserName = a.Username,
                 UserDateOfCreation = a.Created,
                 UserRole = a.Role,
                 Orders = a.Orders?.Select(order => new
@@ -77,7 +77,7 @@ namespace WebAPI.Controllers
                 .Select(u => new
                 {
                     u.Id,
-                    u.Name,
+                    u.Username,
                     u.Role,
                     CustomerDetails = u.Role == Role.Customer ? new
                     {
@@ -119,7 +119,7 @@ namespace WebAPI.Controllers
 
             User user = new User
             {
-                Name = adminDto.Name,
+                Username = adminDto.Name,
                 Email = adminDto.Email,
                 Role = Role.Admin,
             };
@@ -140,7 +140,7 @@ namespace WebAPI.Controllers
 
             User user = new Customer
             {
-                Name = customerDto.Name,
+                Username = customerDto.Name,
                 Email = customerDto.Email,
                 Role = Role.Customer,
                 PhoneNumber = customerDto.PhoneNumber,
@@ -164,7 +164,7 @@ namespace WebAPI.Controllers
                 return BadRequest("User data is required.");
             }
 
-            if (await _dBContext.Users.AnyAsync(a => a.Name == adminDto.Name && a.Id != userId))
+            if (await _dBContext.Users.AnyAsync(a => a.Username == adminDto.Name && a.Id != userId))
             {
                 return BadRequest("User with that name already exists.");
             }
@@ -183,7 +183,7 @@ namespace WebAPI.Controllers
                 return BadRequest("User with given ID is not Admin");
             }
 
-            user.Name = adminDto.Name;
+            user.Username = adminDto.Name;
             user.Email = adminDto.Email;
 
             try
@@ -212,7 +212,7 @@ namespace WebAPI.Controllers
                 return BadRequest("User data is required.");
             }
 
-            if (await _dBContext.Users.AnyAsync(a => a.Name == customerDto.Name && a.Id != userId))
+            if (await _dBContext.Users.AnyAsync(a => a.Username == customerDto.Name && a.Id != userId))
             {
                 return BadRequest("User with that name already exists.");
             }
@@ -231,7 +231,7 @@ namespace WebAPI.Controllers
                 return BadRequest("User with given ID is not Customer");
             }
 
-            customer.Name = customerDto.Name;
+            customer.Username = customerDto.Name;
             customer.Email = customerDto.Email;
             customer.PhoneNumber = customerDto.PhoneNumber;
             customer.Address = customerDto.Address;
