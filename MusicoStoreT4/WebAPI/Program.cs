@@ -66,5 +66,8 @@ app.UseMiddleware<TokenAuthenticationMiddleware>(); // Token authentication midd
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
+
+app.UseMiddleware<JsonToXmlMiddleware>();
+
 app.MapControllers();
 app.Run();
