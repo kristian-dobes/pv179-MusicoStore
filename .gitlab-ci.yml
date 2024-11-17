@@ -18,6 +18,8 @@ build:
        - shared-fi
    script:
        - dotnet build --configuration Release
+   rules:
+       - if: $CI_MERGE_REQUEST_ID
 
 test:
    stage: test
@@ -25,3 +27,5 @@ test:
        - shared-fi
    script:
        - dotnet test --configuration Release
+   rules:
+       - if: $CI_MERGE_REQUEST_ID
