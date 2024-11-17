@@ -5,6 +5,7 @@ variables:
    DOTNET_CLI_TELEMETRY_OPTOUT: "true"
 
 before_script:
+   - cd MusicoStoreT4 # Ensure the working directory is set before restoring
    - dotnet restore
 
 stages:
@@ -16,7 +17,6 @@ build:
    tags:
        - shared-fi
    script:
-       - cd MusicoStoreT4
        - dotnet build --configuration Release
 
 test:
