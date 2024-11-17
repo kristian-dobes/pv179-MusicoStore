@@ -16,6 +16,7 @@ build:
    tags:
        - shared-fi
    script:
+       - cd MusicoStoreT4
        - dotnet build --configuration Release
 
 test:
