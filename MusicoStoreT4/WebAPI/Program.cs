@@ -1,9 +1,21 @@
 using DataAccessLayer.Data;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using WebAPI.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin", policy =>
+    {
+        policy.WithOrigins("https://localhost:7256", "https://localhost:5270")  // Web MVC origin (https and http)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -61,10 +73,33 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseMiddleware<RequestLoggingMiddleware>(); // Logging middleware
-app.UseMiddleware<TokenAuthenticationMiddleware>(); // Token authentication middleware
+app.Use((context, next) =>
+{
+    var allowedOrigins = new[] { "http://localhost:5270", "https://localhost:7256" };
+
+    var origin = context.Request.Headers["Origin"].ToString();
+
+    if (allowedOrigins.Contains(origin))
+    {
+        context.Response.Headers["Access-Control-Allow-Origin"] = origin;
+        context.Response.Headers["Access-Control-Allow-Methods"] = "OPTIONS, GET, POST, PUT, PATCH, DELETE";
+        context.Response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization";
+    }
+
+    if (context.Request.Method == "OPTIONS")
+    {
+        context.Response.StatusCode = 200; // Respond to OPTIONS preflight request
+        return Task.CompletedTask;
+    }
+
+    return next();
+});
+
+app.UseMiddleware<RequestLoggingMiddleware>();
+app.UseMiddleware<TokenAuthenticationMiddleware>();
 
 app.UseHttpsRedirection();
+app.UseCors("AllowSpecificOrigin");
 app.UseAuthorization();
 
 app.UseMiddleware<JsonToXmlMiddleware>();
