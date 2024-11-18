@@ -89,14 +89,14 @@ app.Use((context, next) =>
     if (context.Request.Method == "OPTIONS")
     {
         context.Response.StatusCode = 200; // Respond to OPTIONS preflight request
-        return Task.CompletedTask; // End the middleware pipeline for OPTIONS
+        return Task.CompletedTask;
     }
 
-    return next(); // Continue with the next middleware
+    return next();
 });
 
-app.UseMiddleware<RequestLoggingMiddleware>(); // Logging middleware
-app.UseMiddleware<TokenAuthenticationMiddleware>(); // Token authentication middleware
+app.UseMiddleware<RequestLoggingMiddleware>();
+app.UseMiddleware<TokenAuthenticationMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseCors("AllowSpecificOrigin");
