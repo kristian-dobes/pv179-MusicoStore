@@ -1,5 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Welcome to Musico Store!";
+    int[] productIds = new int[] { 3, 5 };
 }
 
 <div class="text-center">
@@ -21,4 +22,70 @@
             <li class="list-group-item">🎵 Easy navigation and detailed product categories</li>
         </ul>
     </div>
+
+    <div class="mt-5">
+        <h3>Product Images</h3>
+
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Product 3</h4>
+                <img id="productImage3" src="" alt="Product 3 Image" class="img-fluid" style="max-width: 300px;" />
+            </div>
+
+            <div class="col-md-6">
+                <h4>Product 5</h4>
+                <img id="productImage5" src="" alt="Product 5 Image" class="img-fluid" style="max-width: 300px;" />
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+    // Fetch image for Product 3
+    fetch(`http://localhost:5201/api/images/3/file`, {
+        headers: {
+            'Authorization': 'Bearer YourHardcodedToken',
+            'Origin': 'https://localhost:7256'
+        }
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.blob();
+            } else {
+                console.error(`Image for Product 3 not found. Status: ${response.status}`);
+            }
+        })
+        .then(blob => {
+            if (blob) {
+                const imageUrl = URL.createObjectURL(blob);
+                document.getElementById('productImage3').src = imageUrl;
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching image for Product 3:', error);
+        });
+
+    // Fetch and display image for Product 5
+    fetch(`http://localhost:5201/api/images/5/file`, {
+        headers: {
+            'Authorization': 'Bearer YourHardcodedToken',
+            'Origin': 'https://localhost:7256'
+        }
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.blob();
+            } else {
+                console.error(`Image for Product 5 not found. Status: ${response.status}`);
+            }
+        })
+        .then(blob => {
+            if (blob) {
+                const imageUrl = URL.createObjectURL(blob);
+                document.getElementById('productImage5').src = imageUrl;
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching image for Product 5:', error);
+        });
+</script>

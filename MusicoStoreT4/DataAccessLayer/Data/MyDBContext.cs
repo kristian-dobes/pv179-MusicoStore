@@ -17,6 +17,7 @@ namespace DataAccessLayer.Data
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Manufacturer> Manufacturers { get; set; }
         public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<ProductImage> ProductImages { get; set; }
 
         public MyDBContext(DbContextOptions<MyDBContext> options) : base(options)
         {
