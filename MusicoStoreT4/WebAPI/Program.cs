@@ -75,9 +75,16 @@ if (app.Environment.IsDevelopment())
 
 app.Use((context, next) =>
 {
-    context.Response.Headers["Access-Control-Allow-Origin"] = "*"; // Allow all origins
-    context.Response.Headers["Access-Control-Allow-Methods"] = "OPTIONS, GET, POST, PUT, PATCH, DELETE";
-    context.Response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization";
+    var allowedOrigins = new[] { "http://localhost:5270", "https://localhost:7256" };
+
+    var origin = context.Request.Headers["Origin"].ToString();
+
+    if (allowedOrigins.Contains(origin))
+    {
+        context.Response.Headers["Access-Control-Allow-Origin"] = origin;
+        context.Response.Headers["Access-Control-Allow-Methods"] = "OPTIONS, GET, POST, PUT, PATCH, DELETE";
+        context.Response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization";
+    }
 
     if (context.Request.Method == "OPTIONS")
     {
