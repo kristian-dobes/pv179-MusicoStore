@@ -101,5 +101,8 @@ app.UseMiddleware<TokenAuthenticationMiddleware>();
 app.UseHttpsRedirection();
 app.UseCors("AllowSpecificOrigin");
 app.UseAuthorization();
+
+app.UseMiddleware<JsonToXmlMiddleware>();
+
 app.MapControllers();
 app.Run();
