@@ -16,31 +16,60 @@ namespace WebAPI.Middlewares
 
         public async Task Invoke(HttpContext context)
         {
+            // Determine the response format from the Accept header
+            var acceptHeader = context.Request.Headers["Accept"].ToString().ToLower();
+            if (!acceptHeader.Contains("xml"))
+            {
+                await _next(context);
+                return;
+            }
+
             // Capture the original response body
             var originalBodyStream = context.Response.Body;
 
-            using (var newBodyStream = new MemoryStream())
+            try
             {
-                context.Response.Body = newBodyStream;
+                using (var newBodyStream = new MemoryStream())
+                {
+                    context.Response.Body = newBodyStream;
 
-                await _next(context);
+                    await _next(context);
 
-                // Reset the body stream and read the response
-                context.Response.Body = originalBodyStream;
+                    newBodyStream.Seek(0, SeekOrigin.Begin);
+                    var jsonResponse = await new StreamReader(newBodyStream).ReadToEndAsync();
 
-                newBodyStream.Seek(0, SeekOrigin.Begin);
-                var responseBody = await new StreamReader(newBodyStream).ReadToEndAsync();
+                    if (context.Response.StatusCode == (int)HttpStatusCode.OK)
+                    {
+                        // Convert JSON to XML
+                        var xmlResponse = ConvertJsonToXml(jsonResponse);
 
-                // Determine the response format from the Accept header
-                var acceptHeader = context.Request.Headers["Accept"].ToString().ToLower();
-                bool isXml = acceptHeader.Contains("xml");
-                var formattedResponse = isXml ? ConvertJsonToXml(responseBody) : responseBody;
+                        if (xmlResponse != jsonResponse)
+                        {
+                            // Set the Content-Type to XML
+                            context.Response.ContentType = "application/xml";
 
-                context.Response.ContentType = isXml ? "application/xml" : "application/json";
+                            // Write the XML response to the original response stream
+                            var xmlBytes = Encoding.UTF8.GetBytes(xmlResponse);
+                            await originalBodyStream.WriteAsync(xmlBytes, 0, xmlBytes.Length);
+                            return;
+                        }
+                    }
 
-                // Write the transformed response back to the original body stream
-                await context.Response.WriteAsync(formattedResponse);
+                    // Write the JSON response to the original response stream
+                    var jsonBytes = Encoding.UTF8.GetBytes(jsonResponse);
+                    await originalBodyStream.WriteAsync(jsonBytes, 0, jsonBytes.Length);
+                }
             }
+            catch(Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                // Reset the body stream
+                context.Response.Body = originalBodyStream;
+            }
+            
         }
 
         private string ConvertJsonToXml(string jsonResponse)
@@ -57,7 +86,5 @@ namespace WebAPI.Middlewares
                 return "<error>Invalid JSON format for XML conversion</error>";
             }
         }
-
-
     }
 }

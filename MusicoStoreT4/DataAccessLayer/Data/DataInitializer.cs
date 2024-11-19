@@ -20,6 +20,7 @@ namespace DataAccessLayer.Data
             var manufacturers = PrepareManufacturerModels();
             var admins = PrepareAdminModels();
             var customers = PrepareCustomerModels();
+            var images = PrepareImagesModels();
 
             modelBuilder.Entity<Order>().HasData(orders);
             modelBuilder.Entity<Product>().HasData(products);
@@ -28,6 +29,7 @@ namespace DataAccessLayer.Data
             modelBuilder.Entity<Manufacturer>().HasData(manufacturers);
             modelBuilder.Entity<User>().HasData(admins);
             modelBuilder.Entity<Customer>().HasData(customers);
+            modelBuilder.Entity<ProductImage>().HasData(images);
         }
 
         private static List<Order> PrepareOrderModels()
@@ -70,108 +72,108 @@ namespace DataAccessLayer.Data
         private static List<Product> PrepareProductModels()
         {
             return new List<Product>()
-    {
-        new Product()
-        {
-            Id = 1,
-            Name = "Microphone",
-            Description = "Professional condenser microphone for studio recording",
-            Price = 99.99m,
-            QuantityInStock = 10,
-            CategoryId = 3,
-            ManufacturerId = 4
-        },
-        new Product()
-        {
-            Id = 2,
-            Name = "DVD",
-            Description = "Music concert DVD of popular artist",
-            Price = 19.99m,
-            QuantityInStock = 50,
-            CategoryId = 1,
-            ManufacturerId = 2
-        },
-        new Product()
-        {
-            Id = 3,
-            Name = "Guitar",
-            Description = "Acoustic guitar with solid spruce top",
-            Price = 299.99m,
-            QuantityInStock = 5,
-            CategoryId = 3,
-            ManufacturerId = 1
-        },
-        new Product()
-        {
-            Id = 4,
-            Name = "Keyboard",
-            Description = "Digital keyboard with weighted keys",
-            Price = 499.99m,
-            QuantityInStock = 3,
-            CategoryId = 2,
-            ManufacturerId = 3
-        },
-        new Product()
-        {
-            Id = 5,
-            Name = "Drum Set",
-            Description = "5-piece drum set with cymbals and hardware",
-            Price = 699.99m,
-            QuantityInStock = 2,
-            CategoryId = 3,
-            ManufacturerId = 1
-        },
-        new Product()
-        {
-            Id = 6,
-            Name = "Microphone Stand",
-            Description = "Adjustable microphone stand with boom arm",
-            Price = 29.99m,
-            QuantityInStock = 20,
-            CategoryId = 1,
-            ManufacturerId = 1
-        },
-        new Product()
-        {
-            Id = 7,
-            Name = "Bass Guitar",
-            Description = "Electric bass guitar with active pickups",
-            Price = 399.99m,
-            QuantityInStock = 8,
-            CategoryId = 3,
-            ManufacturerId = 4
-        },
-        new Product()
-        {
-            Id = 8,
-            Name = "Piano",
-            Description = "Digital piano with weighted keys and built-in speakers",
-            Price = 899.99m,
-            QuantityInStock = 4,
-            CategoryId = 2,
-            ManufacturerId = 3
-        },
-        new Product()
-        {
-            Id = 9,
-            Name = "Violin",
-            Description = "Full-size violin with bow and case",
-            Price = 199.99m,
-            QuantityInStock = 6,
-            CategoryId = 3,
-            ManufacturerId = 4
-        },
-        new Product()
-        {
-            Id = 10,
-            Name = "Studio Monitor",
-            Description = "Active studio monitor speaker",
-            Price = 149.99m,
-            QuantityInStock = 12,
-            CategoryId = 1,
-            ManufacturerId = 4
-        },
-    };
+            {
+                new Product()
+                {
+                    Id = 1,
+                    Name = "Microphone",
+                    Description = "Professional condenser microphone for studio recording",
+                    Price = 99.99m,
+                    QuantityInStock = 10,
+                    CategoryId = 3,
+                    ManufacturerId = 4
+                },
+                new Product()
+                {
+                    Id = 2,
+                    Name = "DVD",
+                    Description = "Music concert DVD of popular artist",
+                    Price = 19.99m,
+                    QuantityInStock = 50,
+                    CategoryId = 1,
+                    ManufacturerId = 2
+                },
+                new Product()
+                {
+                    Id = 3,
+                    Name = "Guitar",
+                    Description = "Acoustic guitar with solid spruce top",
+                    Price = 299.99m,
+                    QuantityInStock = 5,
+                    CategoryId = 3,
+                    ManufacturerId = 1
+                },
+                new Product()
+                {
+                    Id = 4,
+                    Name = "Keyboard",
+                    Description = "Digital keyboard with weighted keys",
+                    Price = 499.99m,
+                    QuantityInStock = 3,
+                    CategoryId = 2,
+                    ManufacturerId = 3
+                },
+                new Product()
+                {
+                    Id = 5,
+                    Name = "Drum Set",
+                    Description = "5-piece drum set with cymbals and hardware",
+                    Price = 699.99m,
+                    QuantityInStock = 2,
+                    CategoryId = 3,
+                    ManufacturerId = 1
+                },
+                new Product()
+                {
+                    Id = 6,
+                    Name = "Microphone Stand",
+                    Description = "Adjustable microphone stand with boom arm",
+                    Price = 29.99m,
+                    QuantityInStock = 20,
+                    CategoryId = 1,
+                    ManufacturerId = 1
+                },
+                new Product()
+                {
+                    Id = 7,
+                    Name = "Bass Guitar",
+                    Description = "Electric bass guitar with active pickups",
+                    Price = 399.99m,
+                    QuantityInStock = 8,
+                    CategoryId = 3,
+                    ManufacturerId = 4
+                },
+                new Product()
+                {
+                    Id = 8,
+                    Name = "Piano",
+                    Description = "Digital piano with weighted keys and built-in speakers",
+                    Price = 899.99m,
+                    QuantityInStock = 4,
+                    CategoryId = 2,
+                    ManufacturerId = 3
+                },
+                new Product()
+                {
+                    Id = 9,
+                    Name = "Violin",
+                    Description = "Full-size violin with bow and case",
+                    Price = 199.99m,
+                    QuantityInStock = 6,
+                    CategoryId = 3,
+                    ManufacturerId = 4
+                },
+                new Product()
+                {
+                    Id = 10,
+                    Name = "Studio Monitor",
+                    Description = "Active studio monitor speaker",
+                    Price = 149.99m,
+                    QuantityInStock = 12,
+                    CategoryId = 1,
+                    ManufacturerId = 4
+                },
+            };
         }
 
 
@@ -329,6 +331,31 @@ namespace DataAccessLayer.Data
                     State = "Czechia",
                     PostalCode = "602 00"
                 },
+            };
+        }
+
+        private static List<ProductImage> PrepareImagesModels()
+        {
+            return new List<ProductImage>()
+            {
+                new ProductImage()
+                {
+                    Id = 1,
+                    ProductId = 3,
+                    FilePath = "images\\drums.png",
+                    FileName = "drums.png",
+                    MimeType = "image/png",
+                    Created = DateTime.UtcNow
+                },
+                new ProductImage()
+                {
+                    Id = 2,
+                    ProductId = 5,
+                    FilePath = "images\\guitar.png",
+                    FileName = "guitar.png",
+                    MimeType = "image/png",
+                    Created = DateTime.UtcNow
+                }
             };
         }
     }
