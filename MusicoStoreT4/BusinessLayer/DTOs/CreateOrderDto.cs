@@ -1,4 +1,4 @@
-﻿namespace WebAPI.DTOs
+﻿namespace BusinessLayer.DTOs
 {
     public class CreateOrderDto
     {
