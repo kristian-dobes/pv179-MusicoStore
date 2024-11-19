@@ -13,10 +13,9 @@ namespace DataAccessLayer.Models
         public DateTime Date { get; set; } = DateTime.Now;
 
         public int UserId { get; set; }
-
-        public virtual ICollection<OrderItem>? OrderItems { get; set; }
-
         [ForeignKey(nameof(UserId))]
         public virtual User? User { get; set; }
+
+        public virtual ICollection<OrderItem>? OrderItems { get; set; }
     }
 }
