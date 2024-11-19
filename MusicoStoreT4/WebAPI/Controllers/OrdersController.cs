@@ -72,6 +72,7 @@ namespace WebAPI.Controllers
                 OrderItems = a.OrderItems?.Select(orderItem => new
                 {
                     OrderItemId = orderItem.Id,
+                    OrderItemProductId = orderItem.ProductId,
                     OrderItemQuantity = orderItem.Quantity,
                     OrderItemDateOfCreation = orderItem.Created,
                 }),

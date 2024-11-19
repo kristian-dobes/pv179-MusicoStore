@@ -20,7 +20,5 @@ namespace DataAccessLayer.Models
 
         public int Quantity { get; set; }
         public decimal Price { get; set; }
-
-        public virtual ICollection<Order>? Comments { get; set; }
     }
 }
