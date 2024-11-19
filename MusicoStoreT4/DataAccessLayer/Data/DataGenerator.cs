@@ -26,6 +26,9 @@ public static class DataGenerator
 
         modelBuilder.Entity<Order>().HasData(orders);
         modelBuilder.Entity<OrderItem>().HasData(orderItems);
+
+        var images = PrepareImagesModels();
+        modelBuilder.Entity<ProductImage>().HasData(images);
     }
 
     // Dictionary to store product for each category
@@ -192,5 +195,30 @@ public static class DataGenerator
                 Price = 25.54m,
             },
         };
+    }
+
+    private static List<ProductImage> PrepareImagesModels()
+    {
+        return new List<ProductImage>()
+            {
+                new ProductImage()
+                {
+                    Id = 1,
+                    ProductId = 3,
+                    FilePath = "images\\drums.png",
+                    FileName = "drums.png",
+                    MimeType = "image/png",
+                    Created = DateTime.UtcNow
+                },
+                new ProductImage()
+                {
+                    Id = 2,
+                    ProductId = 5,
+                    FilePath = "images\\guitar.png",
+                    FileName = "guitar.png",
+                    MimeType = "image/png",
+                    Created = DateTime.UtcNow
+                }
+            };
     }
 }
