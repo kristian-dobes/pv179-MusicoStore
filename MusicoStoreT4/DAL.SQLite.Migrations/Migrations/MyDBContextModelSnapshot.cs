@@ -42,20 +42,20 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(597),
-                            Name = "Musical Instruments"
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 454, DateTimeKind.Local).AddTicks(5711),
+                            Name = "Instruments"
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(601),
-                            Name = "Audio Equipment"
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 454, DateTimeKind.Local).AddTicks(5820),
+                            Name = "Accessories"
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(603),
-                            Name = "Accessories"
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 454, DateTimeKind.Local).AddTicks(5828),
+                            Name = "Equipment"
                         });
                 });
 
@@ -149,26 +149,32 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(606),
-                            Name = "Shure"
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 458, DateTimeKind.Local).AddTicks(5372),
+                            Name = "Herman Inc"
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(610),
-                            Name = "Yamaha"
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 459, DateTimeKind.Local).AddTicks(1783),
+                            Name = "Kemmer, Goldner and Trantow"
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(612),
-                            Name = "Fender"
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 459, DateTimeKind.Local).AddTicks(2756),
+                            Name = "Brakus, Miller and Stanton"
                         },
                         new
                         {
                             Id = 4,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(614),
-                            Name = "Sennheiser"
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 459, DateTimeKind.Local).AddTicks(3264),
+                            Name = "Schneider Inc"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 459, DateTimeKind.Local).AddTicks(3563),
+                            Name = "Jenkins - Bartoletti"
                         });
                 });
 
@@ -184,15 +190,10 @@ namespace DAL.SQLite.Migrations.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("OrderItemId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OrderItemId");
 
                     b.HasIndex("UserId");
 
@@ -202,35 +203,35 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(482),
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 474, DateTimeKind.Local).AddTicks(7914),
                             Date = new DateTime(2024, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 2
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(488),
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 474, DateTimeKind.Local).AddTicks(7943),
                             Date = new DateTime(2024, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 3
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(492),
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 474, DateTimeKind.Local).AddTicks(7964),
                             Date = new DateTime(2024, 12, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 3
                         },
                         new
                         {
                             Id = 4,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(495),
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 474, DateTimeKind.Local).AddTicks(7984),
                             Date = new DateTime(2025, 1, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 2
                         },
                         new
                         {
                             Id = 5,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(499),
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 474, DateTimeKind.Local).AddTicks(8004),
                             Date = new DateTime(2025, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 2
                         });
@@ -251,7 +252,7 @@ namespace DAL.SQLite.Migrations.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("ProductId")
+                    b.Property<int>("ProductId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Quantity")
@@ -269,7 +270,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(575),
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 474, DateTimeKind.Local).AddTicks(8023),
                             OrderId = 1,
                             Price = 99.99m,
                             ProductId = 1,
@@ -278,7 +279,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(579),
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 474, DateTimeKind.Local).AddTicks(8040),
                             OrderId = 1,
                             Price = 21.99m,
                             ProductId = 2,
@@ -287,7 +288,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(582),
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 474, DateTimeKind.Local).AddTicks(8052),
                             OrderId = 2,
                             Price = 280m,
                             ProductId = 3,
@@ -296,7 +297,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 4,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(585),
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 474, DateTimeKind.Local).AddTicks(8065),
                             OrderId = 3,
                             Price = 499.99m,
                             ProductId = 4,
@@ -305,7 +306,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 5,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(588),
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 474, DateTimeKind.Local).AddTicks(8076),
                             OrderId = 4,
                             Price = 720.05m,
                             ProductId = 5,
@@ -314,7 +315,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 6,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(591),
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 474, DateTimeKind.Local).AddTicks(8090),
                             OrderId = 5,
                             Price = 29.99m,
                             ProductId = 6,
@@ -323,7 +324,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 7,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(593),
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 474, DateTimeKind.Local).AddTicks(8101),
                             OrderId = 4,
                             Price = 25.54m,
                             ProductId = 6,
@@ -373,111 +374,78 @@ namespace DAL.SQLite.Migrations.Migrations
                         {
                             Id = 1,
                             CategoryId = 3,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(505),
-                            Description = "Professional condenser microphone for studio recording",
-                            ManufacturerId = 4,
-                            Name = "Microphone",
-                            Price = 99.99m,
-                            QuantityInStock = 10
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 464, DateTimeKind.Local).AddTicks(7559),
+                            Description = "The automobile layout consists of a front-engine design, with transaxle-type transmissions mounted at the rear of the engine and four wheel drive",
+                            ManufacturerId = 5,
+                            Name = "Acoustic Guitar",
+                            Price = 294.131160291333520m,
+                            QuantityInStock = 2
                         },
                         new
                         {
                             Id = 2,
-                            CategoryId = 1,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(510),
-                            Description = "Music concert DVD of popular artist",
-                            ManufacturerId = 2,
-                            Name = "DVD",
-                            Price = 19.99m,
-                            QuantityInStock = 50
+                            CategoryId = 3,
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 465, DateTimeKind.Local).AddTicks(1517),
+                            Description = "The beautiful range of Apple Naturalé that has an exciting mix of natural ingredients. With the Goodness of 100% Natural Ingredients",
+                            ManufacturerId = 1,
+                            Name = "PA Systems",
+                            Price = 205.565336005722760m,
+                            QuantityInStock = 47
                         },
                         new
                         {
                             Id = 3,
-                            CategoryId = 3,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(550),
-                            Description = "Acoustic guitar with solid spruce top",
-                            ManufacturerId = 1,
-                            Name = "Guitar",
-                            Price = 299.99m,
-                            QuantityInStock = 5
+                            CategoryId = 2,
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 465, DateTimeKind.Local).AddTicks(1687),
+                            Description = "Carbonite web goalkeeper gloves are ergonomically designed to give easy fit",
+                            ManufacturerId = 4,
+                            Name = "Saxophone",
+                            Price = 575.13010600655290m,
+                            QuantityInStock = 9
                         },
                         new
                         {
                             Id = 4,
-                            CategoryId = 2,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(553),
-                            Description = "Digital keyboard with weighted keys",
+                            CategoryId = 1,
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 465, DateTimeKind.Local).AddTicks(1754),
+                            Description = "New ABC 13 9370, 13.3, 5th Gen CoreA5-8250U, 8GB RAM, 256GB SSD, power UHD Graphics, OS 10 Home, OS Office A & J 2016",
                             ManufacturerId = 3,
-                            Name = "Keyboard",
-                            Price = 499.99m,
-                            QuantityInStock = 3
+                            Name = "Digital Piano",
+                            Price = 741.332166524702380m,
+                            QuantityInStock = 93
                         },
                         new
                         {
                             Id = 5,
                             CategoryId = 3,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(555),
-                            Description = "5-piece drum set with cymbals and hardware",
-                            ManufacturerId = 1,
-                            Name = "Drum Set",
-                            Price = 699.99m,
-                            QuantityInStock = 2
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 465, DateTimeKind.Local).AddTicks(1815),
+                            Description = "New range of formal shirts are designed keeping you in mind. With fits and styling that will make you stand apart",
+                            ManufacturerId = 2,
+                            Name = "Instrument Cases",
+                            Price = 215.650002243658060m,
+                            QuantityInStock = 29
                         },
                         new
                         {
                             Id = 6,
-                            CategoryId = 1,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(559),
-                            Description = "Adjustable microphone stand with boom arm",
+                            CategoryId = 2,
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 465, DateTimeKind.Local).AddTicks(1875),
+                            Description = "New ABC 13 9370, 13.3, 5th Gen CoreA5-8250U, 8GB RAM, 256GB SSD, power UHD Graphics, OS 10 Home, OS Office A & J 2016",
                             ManufacturerId = 1,
-                            Name = "Microphone Stand",
-                            Price = 29.99m,
-                            QuantityInStock = 20
+                            Name = "Acoustic Guitar",
+                            Price = 564.097375148073130m,
+                            QuantityInStock = 63
                         },
                         new
                         {
                             Id = 7,
-                            CategoryId = 3,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(561),
-                            Description = "Electric bass guitar with active pickups",
-                            ManufacturerId = 4,
-                            Name = "Bass Guitar",
-                            Price = 399.99m,
-                            QuantityInStock = 8
-                        },
-                        new
-                        {
-                            Id = 8,
                             CategoryId = 2,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(564),
-                            Description = "Digital piano with weighted keys and built-in speakers",
-                            ManufacturerId = 3,
-                            Name = "Piano",
-                            Price = 899.99m,
-                            QuantityInStock = 4
-                        },
-                        new
-                        {
-                            Id = 9,
-                            CategoryId = 3,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(566),
-                            Description = "Full-size violin with bow and case",
-                            ManufacturerId = 4,
-                            Name = "Violin",
-                            Price = 199.99m,
-                            QuantityInStock = 6
-                        },
-                        new
-                        {
-                            Id = 10,
-                            CategoryId = 1,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(570),
-                            Description = "Active studio monitor speaker",
-                            ManufacturerId = 4,
-                            Name = "Studio Monitor",
-                            Price = 149.99m,
-                            QuantityInStock = 12
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 465, DateTimeKind.Local).AddTicks(1932),
+                            Description = "Boston's most advanced compression wear technology increases muscle oxygenation, stabilizes active muscles",
+                            ManufacturerId = 2,
+                            Name = "PA Systems",
+                            Price = 440.167071478381930m,
+                            QuantityInStock = 60
                         });
                 });
 
@@ -510,26 +478,6 @@ namespace DAL.SQLite.Migrations.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("ProductImages");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Created = new DateTime(2024, 11, 17, 22, 7, 6, 694, DateTimeKind.Utc).AddTicks(634),
-                            FileName = "drums.png",
-                            FilePath = "images\\drums.png",
-                            MimeType = "image/png",
-                            ProductId = 3
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Created = new DateTime(2024, 11, 17, 22, 7, 6, 694, DateTimeKind.Utc).AddTicks(637),
-                            FileName = "guitar.png",
-                            FilePath = "images\\guitar.png",
-                            MimeType = "image/png",
-                            ProductId = 5
-                        });
                 });
 
             modelBuilder.Entity("DataAccessLayer.Models.User", b =>
@@ -564,16 +512,6 @@ namespace DAL.SQLite.Migrations.Migrations
                     b.HasDiscriminator().HasValue("User");
 
                     b.UseTphMappingStrategy();
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(618),
-                            Email = "admin@bestmusic.com",
-                            Role = 0,
-                            Username = "Admin"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -734,28 +672,54 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(623),
-                            Email = "johnny@samurai.nc",
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 470, DateTimeKind.Local).AddTicks(4682),
+                            Email = "Verdie_Hermann1_Casper32@hotmail.com",
                             Role = 1,
-                            Username = "Johnny Silverhand",
-                            Address = "Straight 68, NC",
-                            City = "Night City",
-                            PhoneNumber = "+04 0578 457 666",
-                            PostalCode = "1020",
-                            State = "The Free City of Night City"
+                            Username = "Verdie_Hermann1",
+                            Address = "8095 Monahan Flat",
+                            City = "Port Mandyburgh",
+                            PhoneNumber = "+295 981 389 688",
+                            PostalCode = "31622",
+                            State = "North Dakota"
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 11, 17, 23, 7, 6, 694, DateTimeKind.Local).AddTicks(627),
-                            Email = "hluchymuzikant@seznam.cz",
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 470, DateTimeKind.Local).AddTicks(9989),
+                            Email = "Baby_Welch81.Runolfsdottir@yahoo.com",
                             Role = 1,
-                            Username = "Martin Hluchý",
-                            Address = "Botanická 69",
-                            City = "Brno",
-                            PhoneNumber = "+420 556 556 000",
-                            PostalCode = "602 00",
-                            State = "Czechia"
+                            Username = "Baby_Welch81",
+                            Address = "1457 Evert Village",
+                            City = "Nathanielview",
+                            PhoneNumber = "+236 394 085 884",
+                            PostalCode = "44056-8452",
+                            State = "Maryland"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 471, DateTimeKind.Local).AddTicks(846),
+                            Email = "Keegan.Cormier63.Goyette@yahoo.com",
+                            Role = 1,
+                            Username = "Keegan.Cormier63",
+                            Address = "73042 Quitzon Forest",
+                            City = "East Fordton",
+                            PhoneNumber = "+372 630 432 037",
+                            PostalCode = "97554",
+                            State = "Indiana"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Created = new DateTime(2024, 11, 19, 17, 32, 15, 471, DateTimeKind.Local).AddTicks(1665),
+                            Email = "Jadon3321@gmail.com",
+                            Role = 1,
+                            Username = "Jadon33",
+                            Address = "34044 Jasen Manor",
+                            City = "Jameyport",
+                            PhoneNumber = "+734 109 103 854",
+                            PostalCode = "54357",
+                            State = "Ohio"
                         });
                 });
 
@@ -772,10 +736,6 @@ namespace DAL.SQLite.Migrations.Migrations
 
             modelBuilder.Entity("DataAccessLayer.Models.Order", b =>
                 {
-                    b.HasOne("DataAccessLayer.Models.OrderItem", null)
-                        .WithMany("Comments")
-                        .HasForeignKey("OrderItemId");
-
                     b.HasOne("DataAccessLayer.Models.User", "User")
                         .WithMany("Orders")
                         .HasForeignKey("UserId")
@@ -796,7 +756,8 @@ namespace DAL.SQLite.Migrations.Migrations
                     b.HasOne("DataAccessLayer.Models.Product", "Product")
                         .WithMany("OrderItems")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Order");
 
@@ -897,11 +858,6 @@ namespace DAL.SQLite.Migrations.Migrations
             modelBuilder.Entity("DataAccessLayer.Models.Order", b =>
                 {
                     b.Navigation("OrderItems");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Models.OrderItem", b =>
-                {
-                    b.Navigation("Comments");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Models.Product", b =>
