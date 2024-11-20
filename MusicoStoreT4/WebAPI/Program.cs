@@ -1,3 +1,5 @@
+using BusinessLayer.Facades;
+using BusinessLayer.Facades.Interfaces;
 using DataAccessLayer.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -71,6 +73,7 @@ builder.Services.AddDbContextFactory<MyDBContext>(options =>
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IManufacturerFacade, ManufacturerFacade>();
 
 var app = builder.Build();
 

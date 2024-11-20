@@ -1,3 +1,4 @@
+using BusinessLayer.Facades.Interfaces;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
@@ -13,12 +14,14 @@ namespace WebAPI.Controllers
         private readonly MyDBContext _dBContext;
         private readonly IManufacturerService _manufacturerService;
         private readonly IProductService _productService;
+        private readonly IManufacturerFacade _manufacturerFacade;
 
-        public ManufacturersController(MyDBContext dBContext, IManufacturerService manufacturerService, IProductService productService)
+        public ManufacturersController(MyDBContext dBContext, IManufacturerService manufacturerService, IProductService productService, IManufacturerFacade manufacturer)
         {
             _dBContext = dBContext;
             _manufacturerService = manufacturerService;
             _productService = productService;
+            _manufacturerFacade = manufacturer;
         }
 
         [HttpGet]
@@ -117,25 +120,19 @@ namespace WebAPI.Controllers
         [HttpPut("MergeManufacturers")]
         public async Task<IActionResult> MergeManufacturers(int sourceManufacturerId, int targetManufacturerId)
         {
-            if (sourceManufacturerId == targetManufacturerId)
+            try
             {
-                return BadRequest("Source and target manufacturers cannot be the same");
+                await _manufacturerFacade.MergeManufacturersAsync(sourceManufacturerId, targetManufacturerId);
+                return Ok("Manufacturers merged successfully, source manufacturer was removed.");
             }
-
-            if (!await _manufacturerService.ValidateManufacturerAsync(sourceManufacturerId))
+            catch (InvalidOperationException ex)
             {
-                return NotFound("Source manufacturer not found");
+                return BadRequest(ex.Message);
             }
-
-            if (!await _manufacturerService.ValidateManufacturerAsync(targetManufacturerId))
+            catch (KeyNotFoundException ex)
             {
-                return NotFound("Target manufacturer not found");
+                return NotFound(ex.Message);
             }
-
-            await _productService.ReassignProductsToManufacturerAsync(sourceManufacturerId, targetManufacturerId);
-            await _manufacturerService.DeleteManufacturerAsync(sourceManufacturerId);
-
-            return Ok("Manufacturers merged successfully, source manufacturer was removed");
         }
 
         [HttpDelete("{manufacturerId}")]
