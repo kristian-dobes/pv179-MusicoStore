@@ -1,8 +1,12 @@
+using BusinessLayer.Facades;
+using BusinessLayer.Facades.Interfaces;
 using DataAccessLayer.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using WebAPI.Middlewares;
+using BusinessLayer.Services;
+using BusinessLayer.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,6 +68,12 @@ builder.Services.AddDbContextFactory<MyDBContext>(options =>
         .UseLazyLoadingProxies()
         ;
 });
+
+// Register Services
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IManufacturerFacade, ManufacturerFacade>();
 
 var app = builder.Build();
 
