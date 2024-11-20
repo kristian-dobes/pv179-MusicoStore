@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BusinessLayer.DTOs;
+using BusinessLayer.DTOs.Product;
 
 namespace BusinessLayer.Services.Interfaces
 {
     public interface IProductService : IBaseService
     {
-        public Task ReassignProductsToManufacturerAsync(int sourceManufacturerId, int targetManufacturerId);
+        Task ReassignProductsToManufacturerAsync(int sourceManufacturerId, int targetManufacturerId);
+        Task<List<TopSellingProductDto>> GetTopSellingProductsByCategoryAsync(DateTime startDate, DateTime endDate, int topN = 5);
     }
 }
