@@ -149,7 +149,14 @@ namespace WebAPI.Controllers
                     save: true
                 );
 
-                return CreatedAtAction("GetCategoryById", new { id = newCategory.Id }, newCategory);
+                var result = CreatedAtAction("GetCategoryById", new { id = newCategory.Id }, new
+                {
+                    CategoryId = newCategory.Id,
+                    CategoryName = newCategory.Name,
+                    CategoryCreated = newCategory.Created
+                });
+
+                return result;
             }
             catch (Exception ex)
             {
