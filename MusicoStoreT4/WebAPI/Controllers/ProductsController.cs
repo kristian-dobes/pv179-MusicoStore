@@ -1,5 +1,6 @@
 using BusinessLayer.DTOs.Product;
 using BusinessLayer.Services;
+using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -12,9 +13,9 @@ namespace WebAPI.Controllers
     public class ProductsController : Controller
     {
         private readonly MyDBContext _dBContext;
-        private ProductService _productService;
+        private IProductService _productService;
 
-        public ProductsController(MyDBContext dBContext, ProductService productService)
+        public ProductsController(MyDBContext dBContext, IProductService productService)
         {
             _dBContext = dBContext;
             _productService = productService;
@@ -141,7 +142,9 @@ namespace WebAPI.Controllers
                 Description = createProductDTO.Description,
                 Price = createProductDTO.Price,
                 CategoryId = createProductDTO.CategoryId,
-                ManufacturerId = createProductDTO.ManufacturerId
+                ManufacturerId = createProductDTO.ManufacturerId,
+                LastModifiedBy = "Admin",
+                EditCount = 0
             };
 
             await _dBContext.Products.AddAsync(product);

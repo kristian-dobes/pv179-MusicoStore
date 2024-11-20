@@ -74,7 +74,9 @@ public static class DataGenerator
             })
             .RuleFor(p => p.Description, f => f.Commerce.ProductDescription())
             .RuleFor(p => p.Price, f => f.Random.Decimal(10, 1000))
+            .RuleFor(p => p.LastModifiedBy, f => f.Internet.UserName())
             .RuleFor(p => p.CategoryId, f => f.PickRandom(categories).Id)
+            .RuleFor(p => p.EditCount, f => f.Random.Int(1, 10))
             .RuleFor(p => p.ManufacturerId, f => f.PickRandom(manufacturers).Id)
             .RuleFor(p => p.QuantityInStock, f => f.Random.Int(1, 100))
             .Generate(count);
