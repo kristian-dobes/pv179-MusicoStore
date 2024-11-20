@@ -55,10 +55,12 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+var databaseName = builder.Configuration["DatabaseName"];
+
 builder.Services.AddDbContextFactory<MyDBContext>(options =>
 {
     var folder = Environment.SpecialFolder.LocalApplicationData;
-    var dbPath = Path.Join(Environment.GetFolderPath(folder), "MusicoStore.db");
+    var dbPath = Path.Join(Environment.GetFolderPath(folder), databaseName);
 
     options
         .UseSqlite(

@@ -7,10 +7,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
+var databaseName = builder.Configuration["DatabaseName"];
+
 builder.Services.AddDbContext<MyDBContext>(options =>
 {
     var folder = Environment.SpecialFolder.LocalApplicationData;
-    var dbPath = Path.Join(Environment.GetFolderPath(folder), "MusicoStore.db");
+    var dbPath = Path.Join(Environment.GetFolderPath(folder), databaseName);
 
     options
         .UseSqlite($"Data Source={dbPath}", x => x.MigrationsAssembly("DAL.SQLite.Migrations"))
