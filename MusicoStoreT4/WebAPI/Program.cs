@@ -70,6 +70,8 @@ builder.Services.AddDbContextFactory<MyDBContext>(options =>
         ;
 });
 
+builder.Services.AddScoped<IUserService, UserService>();
+
 // Register Services
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
