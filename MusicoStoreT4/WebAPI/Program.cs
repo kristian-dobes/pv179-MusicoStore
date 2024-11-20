@@ -22,9 +22,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddScoped<ProductService>();
-builder.Services.AddScoped<CategoryService>();
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
