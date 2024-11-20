@@ -1,4 +1,5 @@
 ﻿using BusinessLayer.DTOs;
+using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using DataAccessLayer.Models.Enums;
@@ -12,10 +13,12 @@ namespace WebAPI.Controllers
     public class UsersController : Controller
     {
         private readonly MyDBContext _dBContext;
+        private readonly IUserService _userService;
 
-        public UsersController(MyDBContext dBContext)
+        public UsersController(MyDBContext dBContext, IUserService userService)
         {
             _dBContext = dBContext;
+            _userService = userService;
         }
 
         [HttpGet]
@@ -273,6 +276,31 @@ namespace WebAPI.Controllers
                 return NotFound();
 
             return Ok();
+        }
+
+        [HttpGet("summaries")]
+        public async Task<IActionResult> GetUserSummaries()
+        {
+            var summaries = await _userService.GetUserSummariesAsync();
+            return Ok(summaries);
+        }
+
+        [HttpGet("segments")]
+        public async Task<IActionResult> GetCustomerSegments()
+        {
+            var segments = await _userService.GetCustomerSegmentsAsync();
+            return Ok(segments);
+        }
+
+        [HttpGet("mostFrequentItem/{userId}")]
+        public async Task<IActionResult> GetMostFrequentItem(int userId)
+        {
+            if (!await _userService.ValidateUserAsync(userId))
+            {
+                return BadRequest();
+            }
+            var item = await _userService.GetMostFrequentBoughtItemAsync(userId);
+            return item != null ? Ok(item) : NotFound();
         }
     }
 }
