@@ -1,4 +1,5 @@
 ﻿using BusinessLayer.Services;
+﻿using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -12,13 +13,12 @@ namespace WebAPI.Controllers
     public class CategoriesController : Controller
     {
         private readonly MyDBContext _dBContext;
-        private readonly CategoryService _categoryService;
+        private readonly ICategoryService _categoryService;
 
-        public CategoriesController(MyDBContext dBContext, CategoryService categoryService)
+        public CategoriesController(MyDBContext dBContext, ICategoryService categoryService)
         {
             _dBContext = dBContext;
             _categoryService = categoryService;
-
         }
 
         [HttpGet]
@@ -52,6 +52,12 @@ namespace WebAPI.Controllers
             });
         }
 
+        [HttpGet("fetch/summary")]
+        public async Task<IActionResult> FetchCategoriesSummary()
+        {
+            return Ok(await _categoryService.GetCategoriesAsync());
+        }
+
         [HttpGet("detail")]
         public async Task<IActionResult> FetchWithProducts()
         {
@@ -71,6 +77,19 @@ namespace WebAPI.Controllers
                     ProductDateOfCreation = product.Created,
                 }),
             }));
+        }
+
+        [HttpGet("fetch/{categoryId}/summary")]
+        public async Task<IActionResult> FetchCategorySummary(int categoryId)
+        {
+            var category = await _categoryService.GetCategorySummaryAsync(categoryId);
+
+            if (category == null)
+            {
+                return BadRequest();
+            }
+
+            return Ok(category);
         }
 
         [HttpPost]

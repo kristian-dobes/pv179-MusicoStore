@@ -1,0 +1,16 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using BusinessLayer.DTOs;
+using BusinessLayer.DTOs.Product;
+
+namespace BusinessLayer.Services.Interfaces
+{
+    public interface IProductService : IBaseService
+    {
+        Task ReassignProductsToManufacturerAsync(int sourceManufacturerId, int targetManufacturerId);
+        Task<List<TopSellingProductDto>> GetTopSellingProductsByCategoryAsync(DateTime startDate, DateTime endDate, int topN = 5);
+    }
+}

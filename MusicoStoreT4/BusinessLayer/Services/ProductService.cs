@@ -1,15 +1,16 @@
-﻿using BusinessLayer.DTOs.Product;
-using DataAccessLayer.Data;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BusinessLayer.DTOs.Product;
+using BusinessLayer.Services.Interfaces;
+using DataAccessLayer.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Services
 {
-    public class ProductService : BaseService
+    public class ProductService : BaseService, IProductService 
     {
         private readonly MyDBContext _dBContext;
 
@@ -18,12 +19,25 @@ namespace BusinessLayer.Services
             _dBContext = dBContext;
         }
 
-        public async Task<List<TopSellingProductDto>> GetTopSellingProductsByCategoryAsync(
-    DateTime startDate,
-    DateTime endDate,
-    int topN = 5)
+        public async Task ReassignProductsToManufacturerAsync(int sourceManufacturerId, int targetManufacturerId)
         {
-            // First, materialize the data before performing complex grouping
+            // Fetch all products of the source manufacturer
+            var productsToUpdate = await _dBContext.Products
+                .Where(p => p.ManufacturerId == sourceManufacturerId)
+                .ToListAsync();
+
+            // Reassign each product's manufacturer
+            foreach (var product in productsToUpdate)
+            {
+                product.ManufacturerId = targetManufacturerId;
+            }
+
+            // Save changes to the database
+            await _dBContext.SaveChangesAsync();
+        }
+
+        public async Task<List<TopSellingProductDto>> GetTopSellingProductsByCategoryAsync(DateTime startDate, DateTime endDate, int topN = 5)
+        {
             var orderItems = await (from orderItem in _dBContext.OrderItems
                                     join product in _dBContext.Products on orderItem.ProductId equals product.Id
                                     join category in _dBContext.Categories on product.CategoryId equals category.Id
@@ -38,7 +52,6 @@ namespace BusinessLayer.Services
                                         orderItem.Price
                                     }).ToListAsync();
 
-            // Now, perform the grouping and aggregations on the in-memory data
             var query = orderItems
                 .GroupBy(item => new { item.CategoryId, item.CategoryName })
                 .Select(categoryGroup => new TopSellingProductDto
