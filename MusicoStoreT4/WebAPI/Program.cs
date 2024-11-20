@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using WebAPI.Middlewares;
+using BusinessLayer.Services;
+using BusinessLayer.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,6 +66,11 @@ builder.Services.AddDbContextFactory<MyDBContext>(options =>
         .UseLazyLoadingProxies()
         ;
 });
+
+// Register Services
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
+builder.Services.AddScoped<IProductService, ProductService>();
 
 var app = builder.Build();
 

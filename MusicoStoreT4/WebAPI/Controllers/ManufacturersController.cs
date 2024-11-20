@@ -1,3 +1,4 @@
+using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +11,14 @@ namespace WebAPI.Controllers
     public class ManufacturersController : Controller
     {
         private readonly MyDBContext _dBContext;
+        private readonly IManufacturerService _manufacturerService;
+        private readonly IProductService _productService;
 
-        public ManufacturersController(MyDBContext dBContext)
+        public ManufacturersController(MyDBContext dBContext, IManufacturerService manufacturerService, IProductService productService)
         {
             _dBContext = dBContext;
+            _manufacturerService = manufacturerService;
+            _productService = productService;
         }
 
         [HttpGet]
@@ -107,6 +112,30 @@ namespace WebAPI.Controllers
                 ManufacturerName = manufacturer.Name,
                 DateOfCreation = manufacturer.Created,
             });
+        }
+
+        [HttpPut("MergeManufacturers")]
+        public async Task<IActionResult> MergeManufacturers(int sourceManufacturerId, int targetManufacturerId)
+        {
+            if (sourceManufacturerId == targetManufacturerId)
+            {
+                return BadRequest("Source and target manufacturers cannot be the same");
+            }
+
+            if (!await _manufacturerService.ValidateManufacturerAsync(sourceManufacturerId))
+            {
+                return NotFound("Source manufacturer not found");
+            }
+
+            if (!await _manufacturerService.ValidateManufacturerAsync(targetManufacturerId))
+            {
+                return NotFound("Target manufacturer not found");
+            }
+
+            await _productService.ReassignProductsToManufacturerAsync(sourceManufacturerId, targetManufacturerId);
+            await _manufacturerService.DeleteManufacturerAsync(sourceManufacturerId);
+
+            return Ok("Manufacturers merged successfully, source manufacturer was removed");
         }
 
         [HttpDelete("{manufacturerId}")]
