@@ -1,10 +1,9 @@
-﻿using Castle.Core.Resource;
+﻿using BusinessLayer.DTOs;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using DataAccessLayer.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebAPI.DTOs;
 
 namespace WebAPI.Controllers
 {

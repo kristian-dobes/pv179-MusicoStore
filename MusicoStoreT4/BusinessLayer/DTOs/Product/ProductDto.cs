@@ -1,4 +1,4 @@
-﻿namespace WebAPI.DTOs.Product
+﻿namespace BusinessLayer.DTOs.Product
 {
     public class ProductDto
     {

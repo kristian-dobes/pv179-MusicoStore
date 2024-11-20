@@ -1,8 +1,8 @@
+using BusinessLayer.DTOs.Product;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebAPI.DTOs.Product;
 
 namespace WebAPI.Controllers
 {

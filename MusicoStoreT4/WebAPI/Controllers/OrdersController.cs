@@ -1,8 +1,8 @@
+using BusinessLayer.DTOs;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebAPI.DTOs;
 
 namespace WebAPI.Controllers
 {
@@ -72,7 +72,6 @@ namespace WebAPI.Controllers
                 OrderItems = a.OrderItems?.Select(orderItem => new
                 {
                     OrderItemId = orderItem.Id,
-                    OrderItemProductId = orderItem.ProductId,
                     OrderItemQuantity = orderItem.Quantity,
                     OrderItemDateOfCreation = orderItem.Created,
                 }),
