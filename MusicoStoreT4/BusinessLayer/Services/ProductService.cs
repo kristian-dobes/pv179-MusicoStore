@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Services
 {
-    public class ProductService : BaseService, IProductService 
+    public class ProductService : BaseService, IProductService
     {
         private readonly MyDBContext _dBContext;
 
@@ -20,20 +20,52 @@ namespace BusinessLayer.Services
             _dBContext = dBContext;
         }
 
+        public async Task<Product> GetProductByIdAsync(int productId)
+        {
+            return await _dBContext.Products.FirstOrDefaultAsync(p => p.Id == productId);
+        }
+
+        public async Task UpdateProductAsync(Product model, string modifiedBy)
+        {
+            var product = await _dBContext.Products.FirstOrDefaultAsync(p => p.Id == model.Id);
+
+            if (product == null)
+                throw new KeyNotFoundException($"Product with ID {model.Id} not found.");
+
+            product.Name = model.Name;
+            product.Description = model.Description;
+            product.Price = model.Price;
+            product.ManufacturerId = model.ManufacturerId;
+            product.CategoryId = model.CategoryId;
+            product.QuantityInStock = model.QuantityInStock;
+
+            product.LastModifiedBy = modifiedBy;
+            product.EditCount++;
+
+            await _dBContext.SaveChangesAsync();
+        }
+
+        public async Task<Product> CreateProductAsync(Product model, string createdBy)
+        {
+            model.LastModifiedBy = createdBy;
+            model.EditCount = 0;
+            _dBContext.Products.Add(model);
+            await _dBContext.SaveChangesAsync();
+
+            return model;
+        }
+
         public async Task ReassignProductsToManufacturerAsync(int sourceManufacturerId, int targetManufacturerId)
         {
-            // Fetch all products of the source manufacturer
             var productsToUpdate = await _dBContext.Products
                 .Where(p => p.ManufacturerId == sourceManufacturerId)
                 .ToListAsync();
 
-            // Reassign each product's manufacturer
             foreach (var product in productsToUpdate)
             {
                 product.ManufacturerId = targetManufacturerId;
             }
 
-            // Save changes to the database
             await _dBContext.SaveChangesAsync();
         }
 
@@ -46,8 +78,7 @@ namespace BusinessLayer.Services
 
         public async Task UpdateProductManufacturerAsync(int productId, int newManufacturerId)
         {
-            var product = await _dBContext.Products
-                .FirstOrDefaultAsync(p => p.Id == productId);
+            var product = await _dBContext.Products.FirstOrDefaultAsync(p => p.Id == productId);
 
             if (product == null)
                 throw new KeyNotFoundException($"Product with ID {productId} not found.");
@@ -94,6 +125,20 @@ namespace BusinessLayer.Services
                 }).ToList();
 
             return query;
+        }
+
+        public async Task DeleteProductAsync(int productId, string deletedBy)
+        {
+            var product = await _dBContext.Products.FirstOrDefaultAsync(p => p.Id == productId);
+
+            if (product == null)
+                throw new KeyNotFoundException($"Product with ID {productId} not found.");
+
+            // Optionally log the delete action or use the deletedBy field for audit purposes
+            // e.g., _auditLogService.LogAsync(productId, "Delete", deletedBy);
+
+            _dBContext.Products.Remove(product);
+            await _dBContext.SaveChangesAsync();
         }
     }
 }
