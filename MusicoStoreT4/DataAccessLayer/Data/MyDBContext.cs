@@ -19,6 +19,7 @@ namespace DataAccessLayer.Data
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<ProductImage> ProductImages { get; set; }
         public virtual DbSet<Log> Logs { get; set; }
+        public virtual DbSet<AuditLog> AuditLogs { get; set; }
 
         public MyDBContext(DbContextOptions<MyDBContext> options) : base(options)
         {
