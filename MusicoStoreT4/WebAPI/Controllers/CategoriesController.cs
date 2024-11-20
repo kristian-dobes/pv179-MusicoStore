@@ -1,7 +1,9 @@
-﻿using DataAccessLayer.Data;
+﻿using BusinessLayer.Services;
+using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebAPI.DTOs;
 
 namespace WebAPI.Controllers
 {
@@ -10,10 +12,13 @@ namespace WebAPI.Controllers
     public class CategoriesController : Controller
     {
         private readonly MyDBContext _dBContext;
+        private readonly CategoryService _categoryService;
 
-        public CategoriesController(MyDBContext dBContext)
+        public CategoriesController(MyDBContext dBContext, CategoryService categoryService)
         {
             _dBContext = dBContext;
+            _categoryService = categoryService;
+
         }
 
         [HttpGet]
@@ -109,6 +114,29 @@ namespace WebAPI.Controllers
                 return NotFound();
 
             return Ok();
+        }
+
+        [HttpPost("merge")]
+        public async Task<IActionResult> MergeCategories([FromBody] MergeCategoriesDTO mergeCategoriesDTO)
+        {
+            if (mergeCategoriesDTO == null)
+                return BadRequest("Invalid request.");
+
+            try
+            {
+                var newCategory = await _categoryService.MergeCategoriesAndCreateNewAsync(
+                    mergeCategoriesDTO.NewCategoryName,
+                    mergeCategoriesDTO.SourceCategoryId1,
+                    mergeCategoriesDTO.SourceCategoryId2,
+                    save: true
+                );
+
+                return CreatedAtAction("GetCategoryById", new { id = newCategory.Id }, newCategory);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
