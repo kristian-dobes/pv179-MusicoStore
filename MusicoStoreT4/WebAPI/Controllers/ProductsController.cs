@@ -33,6 +33,8 @@ namespace WebAPI.Controllers
                 ProductDescription = a.Description,
                 ProductPrice = a.Price,
                 ProductQuantityInStock = a.QuantityInStock,
+                ProductManufacturer = a.ManufacturerId,
+                ProductCategory = a.CategoryId
             }));
         }
 
@@ -51,6 +53,8 @@ namespace WebAPI.Controllers
                 ProductDescription = a.Description,
                 ProductPrice = a.Price,
                 ProductQuantityInStock = a.QuantityInStock,
+                ProductManufacturer = a.ManufacturerId,
+                ProductCategory = a.CategoryId,
                 OrderItems = a.OrderItems?.Select(orderItem => new
                 {
                     OrderItemId = orderItem.Id,
@@ -215,12 +219,12 @@ namespace WebAPI.Controllers
             return Ok();
         }
 
-        [HttpGet]
+        [HttpGet("top-selling-products")]
         public async Task<IActionResult> TopSellingProducts(DateTime startDate, DateTime endDate)
         {
             var result = await _productService.GetTopSellingProductsByCategoryAsync(startDate, endDate);
 
-            return View(result);
+            return Ok(result);
         }
     }
 }

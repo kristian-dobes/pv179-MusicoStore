@@ -1,3 +1,4 @@
+using BusinessLayer.Services;
 using DataAccessLayer.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,9 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
+
+builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<CategoryService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -99,8 +103,8 @@ app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseMiddleware<TokenAuthenticationMiddleware>();
 
 app.UseHttpsRedirection();
-app.UseCors("AllowSpecificOrigin");
 app.UseAuthorization();
+app.UseCors("AllowSpecificOrigin");
 
 app.UseMiddleware<JsonToXmlMiddleware>();
 

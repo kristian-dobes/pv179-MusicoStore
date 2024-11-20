@@ -34,6 +34,24 @@ namespace WebAPI.Controllers
             }));
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetCategoryById(int id)
+        {
+            var category = await _dBContext.Categories
+                .Where(a => a.Id == id)
+                .FirstOrDefaultAsync();
+
+            if (category == null)
+                return NotFound();
+
+            return Ok(new
+            {
+                CategoryId = category.Id,
+                CategoryName = category.Name,
+                CategoryDateOfCreation = category.Created,
+            });
+        }
+
         [HttpGet("detail")]
         public async Task<IActionResult> FetchWithProducts()
         {
