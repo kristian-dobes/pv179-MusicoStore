@@ -4,11 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BusinessLayer.DTOs;
+using DataAccessLayer.Models;
 
 namespace BusinessLayer.Services.Interfaces
 {
     public interface IProductService : IBaseService
     {
-        public Task ReassignProductsToManufacturerAsync(int sourceManufacturerId, int targetManufacturerId);
+        Task ReassignProductsToManufacturerAsync(int sourceManufacturerId, int targetManufacturerId);
+        Task<List<Product>> GetProductsByManufacturerAsync(int manufacturerId);
+        Task UpdateProductManufacturerAsync(int productId, int newManufacturerId);
     }
 }

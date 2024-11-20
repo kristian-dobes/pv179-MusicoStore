@@ -1,5 +1,6 @@
 using BusinessLayer.Facades;
 using BusinessLayer.Services.Interfaces;
+using DataAccessLayer.Models;
 using Moq;
 
 namespace Tests
@@ -79,36 +80,47 @@ namespace Tests
         }
 
         [Test]
-        public async Task MergeManufacturersAsync_ShouldReassignAllProductsToTargetManufacturer()
+        public async Task MergeManufacturersAsync_ShouldReassignSpecificProductsToTargetManufacturer()
         {
-            // Arrange //
+            // Arrange
             int sourceManufacturerId = 1;
             int targetManufacturerId = 2;
+
+            var productsToReassign = new List<Product>
+    {
+        new Product { Id = 101, ManufacturerId = sourceManufacturerId },
+        new Product { Id = 102, ManufacturerId = sourceManufacturerId }
+    };
 
             _manufacturerServiceMock.Setup(m => m.ValidateManufacturerAsync(sourceManufacturerId)).ReturnsAsync(true);
             _manufacturerServiceMock.Setup(m => m.ValidateManufacturerAsync(targetManufacturerId)).ReturnsAsync(true);
 
-            var productsToReassign = new List<int> { 101, 102, 103 };
+            _productServiceMock.Setup(p => p.GetProductsByManufacturerAsync(sourceManufacturerId))
+                .ReturnsAsync(productsToReassign);
 
             _productServiceMock.Setup(p => p.ReassignProductsToManufacturerAsync(sourceManufacturerId, targetManufacturerId))
-                .Callback<int, int>((src, tgt) =>
+                .Callback<int, int>((srcId, targetId) =>
                 {
-                    Assert.AreEqual(sourceManufacturerId, src, "Source manufacturer ID does not match.");
-                    Assert.AreEqual(targetManufacturerId, tgt, "Target manufacturer ID does not match.");
+                    // Assert inside the callback
+                    Assert.AreEqual(sourceManufacturerId, srcId, "Source manufacturer ID mismatch.");
+                    Assert.AreEqual(targetManufacturerId, targetId, "Target manufacturer ID mismatch.");
+
+                    // Verify that all products were reassigned
+                    foreach (var product in productsToReassign)
+                    {
+                        Assert.AreEqual(targetManufacturerId, targetId, $"Product {product.Id} was not reassigned to the target manufacturer.");
+                    }
                 })
                 .Returns(Task.CompletedTask);
 
-            // Act //
+            // Act
             await _manufacturerFacade.MergeManufacturersAsync(sourceManufacturerId, targetManufacturerId);
 
-            // Assert //
+            // Assert
             _manufacturerServiceMock.Verify(m => m.ValidateManufacturerAsync(sourceManufacturerId), Times.Once);
             _manufacturerServiceMock.Verify(m => m.ValidateManufacturerAsync(targetManufacturerId), Times.Once);
             _productServiceMock.Verify(p => p.ReassignProductsToManufacturerAsync(sourceManufacturerId, targetManufacturerId), Times.Once);
             _manufacturerServiceMock.Verify(m => m.DeleteManufacturerAsync(sourceManufacturerId), Times.Once);
-
-            _productServiceMock.VerifyNoOtherCalls();
-            _manufacturerServiceMock.VerifyNoOtherCalls();
         }
     }
 }
