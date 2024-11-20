@@ -1,3 +1,4 @@
+using BusinessLayer.Services;
 using BusinessLayer.Facades;
 using BusinessLayer.Facades.Interfaces;
 using DataAccessLayer.Data;
@@ -109,8 +110,8 @@ app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseMiddleware<TokenAuthenticationMiddleware>();
 
 app.UseHttpsRedirection();
-app.UseCors("AllowSpecificOrigin");
 app.UseAuthorization();
+app.UseCors("AllowSpecificOrigin");
 
 app.UseMiddleware<JsonToXmlMiddleware>();
 

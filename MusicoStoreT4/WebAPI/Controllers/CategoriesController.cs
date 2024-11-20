@@ -1,8 +1,10 @@
+﻿using BusinessLayer.Services;
 ﻿using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebAPI.DTOs;
 
 namespace WebAPI.Controllers
 {
@@ -30,6 +32,24 @@ namespace WebAPI.Controllers
                 CategoryName = a.Name,
                 CategoryDateOfCreation = a.Created,
             }));
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetCategoryById(int id)
+        {
+            var category = await _dBContext.Categories
+                .Where(a => a.Id == id)
+                .FirstOrDefaultAsync();
+
+            if (category == null)
+                return NotFound();
+
+            return Ok(new
+            {
+                CategoryId = category.Id,
+                CategoryName = category.Name,
+                CategoryDateOfCreation = category.Created,
+            });
         }
 
         [HttpGet("fetch/summary")]
@@ -131,6 +151,36 @@ namespace WebAPI.Controllers
                 return NotFound();
 
             return Ok();
+        }
+
+        [HttpPost("merge")]
+        public async Task<IActionResult> MergeCategories([FromBody] MergeCategoriesDTO mergeCategoriesDTO)
+        {
+            if (mergeCategoriesDTO == null)
+                return BadRequest("Invalid request.");
+
+            try
+            {
+                var newCategory = await _categoryService.MergeCategoriesAndCreateNewAsync(
+                    mergeCategoriesDTO.NewCategoryName,
+                    mergeCategoriesDTO.SourceCategoryId1,
+                    mergeCategoriesDTO.SourceCategoryId2,
+                    save: true
+                );
+
+                var result = CreatedAtAction("GetCategoryById", new { id = newCategory.Id }, new
+                {
+                    CategoryId = newCategory.Id,
+                    CategoryName = newCategory.Name,
+                    CategoryCreated = newCategory.Created
+                });
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
