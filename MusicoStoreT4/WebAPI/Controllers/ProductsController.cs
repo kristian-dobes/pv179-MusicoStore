@@ -1,4 +1,5 @@
 using BusinessLayer.DTOs.Product;
+using BusinessLayer.Services;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +12,12 @@ namespace WebAPI.Controllers
     public class ProductsController : Controller
     {
         private readonly MyDBContext _dBContext;
+        private ProductService _productService;
 
-        public ProductsController(MyDBContext dBContext)
+        public ProductsController(MyDBContext dBContext, ProductService productService)
         {
             _dBContext = dBContext;
+            _productService = productService;
         }
 
         [HttpGet]
@@ -210,6 +213,14 @@ namespace WebAPI.Controllers
                 return NotFound();
 
             return Ok();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> TopSellingProducts(DateTime startDate, DateTime endDate)
+        {
+            var result = await _productService.GetTopSellingProductsByCategoryAsync(startDate, endDate);
+
+            return View(result);
         }
     }
 }
