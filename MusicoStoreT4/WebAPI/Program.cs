@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using WebAPI.Middlewares;
-using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -75,6 +74,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IManufacturerFacade, ManufacturerFacade>();
+builder.Services.AddScoped<ILogService, LogService>();
 
 var app = builder.Build();
 
