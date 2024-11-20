@@ -142,7 +142,9 @@ namespace WebAPI.Controllers
                 Description = createProductDTO.Description,
                 Price = createProductDTO.Price,
                 CategoryId = createProductDTO.CategoryId,
-                ManufacturerId = createProductDTO.ManufacturerId
+                ManufacturerId = createProductDTO.ManufacturerId,
+                LastModifiedBy = "Admin",
+                EditCount = 0
             };
 
             await _dBContext.Products.AddAsync(product);
