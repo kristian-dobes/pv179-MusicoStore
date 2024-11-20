@@ -6,9 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BusinessLayer.DTOs;
-using BusinessLayer.DTOs.Product;
-using DataAccessLayer.Models;
 
 namespace BusinessLayer.Mapper
 {
@@ -18,7 +15,7 @@ namespace BusinessLayer.Mapper
         private const int DaysOfInactivityThreshold = 180;
         public static UserSummaryDto MapToUserSummaryDto(this User user)
         {
-            var totalExpenditure = user?.Orders?.Sum(o => o.OrderItems.Sum(oi => oi.Price * oi.Quantity)) ?? 0;
+            var totalExpenditure = user.CalculateTotalExpenditure();
 
             return new UserSummaryDto
             {
@@ -27,6 +24,11 @@ namespace BusinessLayer.Mapper
                 Role = user.Role,
                 TotalExpenditure = totalExpenditure
             };
+        }
+
+        private static decimal CalculateTotalExpenditure(this User user)
+        {
+            return user?.Orders?.Sum(o => o.OrderItems?.Sum(oi => oi.Price * oi.Quantity) ?? 0) ?? 0;
         }
 
         public static OrderItemDto MapToOrderItemDto(this OrderItem orderItem)
@@ -42,13 +44,15 @@ namespace BusinessLayer.Mapper
             this IEnumerable<Customer> customers,
             DateTime currentDate)
         {
+            
+
             var highValueCustomers = customers
-                .Where(c => c.Orders.Sum(o => o.OrderItems.Sum(oi => oi.Price * oi.Quantity)) > HighValueCustomerThreshold)
+                .Where(c => c.CalculateTotalExpenditure() > HighValueCustomerThreshold)
                 .Select(c => c.MapToCustomerDto())
                 .ToList();
 
             var infrequentCustomers = customers
-                .Where(c => c.Orders.All(o => (currentDate - o.Date).Days > DaysOfInactivityThreshold))
+                .Where(c => c.Orders?.All(o => (currentDate - o.Date).Days > DaysOfInactivityThreshold) ?? false)
                 .Select(c => c.MapToCustomerDto())
                 .ToList();
 

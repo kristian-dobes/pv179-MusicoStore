@@ -47,7 +47,7 @@ namespace BusinessLayer.Services
             }
 
             var mostFrequentItem = user.Orders
-                .SelectMany(o => o.OrderItems!)
+                .SelectMany(o => o.OrderItems)
                 .GroupBy(oi => oi.ProductId)
                 .Select(g => new
                 {
@@ -73,7 +73,7 @@ namespace BusinessLayer.Services
         {
             var users = await _dbContext.Users
                 .Include(u => u.Orders)
-                .ThenInclude(o => o.OrderItems!)
+                .ThenInclude(o => o.OrderItems)
                 .ToListAsync();
 
             return users.Select(u => u.MapToUserSummaryDto()).ToList();

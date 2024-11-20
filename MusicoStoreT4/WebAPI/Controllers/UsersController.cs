@@ -281,15 +281,13 @@ namespace WebAPI.Controllers
         [HttpGet("summaries")]
         public async Task<IActionResult> GetUserSummaries()
         {
-            var summaries = await _userService.GetUserSummariesAsync();
-            return Ok(summaries);
+            return Ok(await _userService.GetUserSummariesAsync());
         }
 
         [HttpGet("segments")]
         public async Task<IActionResult> GetCustomerSegments()
         {
-            var segments = await _userService.GetCustomerSegmentsAsync();
-            return Ok(segments);
+            return Ok(await _userService.GetCustomerSegmentsAsync());
         }
 
         [HttpGet("mostFrequentItem/{userId}")]
@@ -297,10 +295,10 @@ namespace WebAPI.Controllers
         {
             if (!await _userService.ValidateUserAsync(userId))
             {
-                return BadRequest();
+                return BadRequest($"User {userId} not found");
             }
             var item = await _userService.GetMostFrequentBoughtItemAsync(userId);
-            return item != null ? Ok(item) : NotFound();
+            return item != null ? Ok(item) : NotFound($"User {userId} doesn't have any orders");
         }
     }
 }
