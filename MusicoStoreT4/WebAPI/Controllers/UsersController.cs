@@ -1,4 +1,5 @@
 ﻿using BusinessLayer.DTOs;
+using BusinessLayer.DTOs.User;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
@@ -23,6 +24,13 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> Fetch()
         {
             var users = await _userService.GetAllUsersAsync();
+            return Ok(users);
+        }
+
+        [HttpGet("detail")]
+        public async Task<IActionResult> FetchWithOrders()
+        {
+            var users = await _userService.GetAllUserDetailsAsync();
             return Ok(users);
         }
 
@@ -93,7 +101,7 @@ namespace WebAPI.Controllers
             if (!await _userService.ValidateUserAsync(userId))
                 return BadRequest($"User {userId} not found");
 
-            var item = await _userService.GetMostFrequentItemAsync(userId);
+            var item = await _userService.GetMostFrequentBoughtItemAsync(userId);
             return item != null ? Ok(item) : NotFound($"User {userId} doesn't have any orders");
         }
     }

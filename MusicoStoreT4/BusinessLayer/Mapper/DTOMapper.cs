@@ -1,11 +1,13 @@
-using BusinessLayer.DTOs;
-using BusinessLayer.DTOs.Product;
-using DataAccessLayer.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BusinessLayer.DTOs;
+using BusinessLayer.DTOs.Product;
+using BusinessLayer.DTOs.User;
+using DataAccessLayer.Models;
+using DataAccessLayer.Models.Enums;
 
 namespace BusinessLayer.Mapper
 {
@@ -13,10 +15,14 @@ namespace BusinessLayer.Mapper
     {
         private const int HighValueCustomerThreshold = 1000;
         private const int DaysOfInactivityThreshold = 180;
-        public static UserSummaryDto MapToUserSummaryDto(this User user)
-        {
-            var totalExpenditure = user.CalculateTotalExpenditure();
 
+        public static bool IsAdmin(this User user)
+        {
+            return user.Role == Role.Admin;
+        }
+
+        public static UserSummaryDto MapToUserSummaryDto(this User user, decimal totalExpenditure)
+        {
             return new UserSummaryDto
             {
                 UserId = user.Id,
@@ -26,9 +32,58 @@ namespace BusinessLayer.Mapper
             };
         }
 
-        private static decimal CalculateTotalExpenditure(this User user)
+        public static UserDto MapToUserDto(this User user)
         {
-            return user?.Orders?.Sum(o => o.OrderItems?.Sum(oi => oi.Price * oi.Quantity) ?? 0) ?? 0;
+            return new UserDto
+            {
+                UserId = user.Id,
+                Email = user.Email,
+                Username = user.Username,
+                Role = user.Role,
+                Created = user.Created,
+                CustomerDetails = user.MapToCustomerDetailsDto()
+            };
+        }
+
+        public static CustomerDetailsDto MapToCustomerDetailsDto(this Customer customer)
+        {
+            return new CustomerDetailsDto
+            {
+                PhoneNumber = customer.PhoneNumber,
+                Address = customer.Address,
+                City = customer.City,
+                State = customer.State,
+                PostalCode = customer.PostalCode
+            };
+        }
+
+        private static CustomerDetailsDto? MapToCustomerDetailsDto(this User user)
+        {
+            return user.IsAdmin() ? null : (user as Customer).MapToCustomerDetailsDto();
+        }
+
+        public static UserDetailDto MapToUserDetailDto(this User user)
+        {
+            return new UserDetailDto
+            {
+                UserId = user.Id,
+                Email = user.Email,
+                Username = user.Username,
+                Role = user.Role,
+                Created = user.Created,
+                CustomerDetails = user.MapToCustomerDetailsDto(),
+                Orders = user.Orders?.Select(o => o.MapToOrderDto())
+            };
+        }
+
+        public static OrderDto MapToOrderDto(this Order order)
+        {
+            return new OrderDto
+            {
+                OrderId = order.Id,
+                OrderDate = order.Date,
+                Created = order.Created
+            };
         }
 
         public static OrderItemDto MapToOrderItemDto(this OrderItem orderItem)
@@ -40,34 +95,11 @@ namespace BusinessLayer.Mapper
             };
         }
 
-        public static CustomerSegmentsDto MapToCustomerSegmentsDto(
-            this IEnumerable<Customer> customers,
-            DateTime currentDate)
-        {
-            
-
-            var highValueCustomers = customers
-                .Where(c => c.CalculateTotalExpenditure() > HighValueCustomerThreshold)
-                .Select(c => c.MapToCustomerDto())
-                .ToList();
-
-            var infrequentCustomers = customers
-                .Where(c => c.Orders?.All(o => (currentDate - o.Date).Days > DaysOfInactivityThreshold) ?? false)
-                .Select(c => c.MapToCustomerDto())
-                .ToList();
-
-            return new CustomerSegmentsDto
-            {
-                HighValueCustomers = highValueCustomers,
-                InfrequentCustomers = infrequentCustomers
-            };
-        }
-
         public static CustomerDto MapToCustomerDto(this Customer customer)
         {
             return new CustomerDto
             {
-                Name = customer.Username,
+                Username = customer.Username,
                 Email = customer.Email,
                 PhoneNumber = customer.PhoneNumber,
                 Address = customer.Address,

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BusinessLayer.DTOs;
 using BusinessLayer.DTOs.Product;
+using BusinessLayer.DTOs.User;
 using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
@@ -27,12 +28,41 @@ namespace BusinessLayer.Services
         public async Task<CustomerSegmentsDto> GetCustomerSegmentsAsync()
         {
             var currentDate = DateTime.UtcNow;
+
             var customers = await _dbContext
                 .Users.Where(u => u.Role == Role.Customer)
+                .Include(c => c.Orders)
                 .Select(u => u as Customer)
                 .ToListAsync();
 
-            return customers.MapToCustomerSegmentsDto(currentDate);
+            var highValueCustomers = new List<CustomerDto>();
+            var infrequentCustomers = new List<CustomerDto>();
+
+            foreach (var customer in customers)
+            {
+                if (customer == null || customer.Orders == null)
+                {
+                    continue;
+                }
+
+                var totalExpenditure = await CalculateTotalExpenditureAsync(customer.Id); // Use the async method for total expenditure
+
+                if (totalExpenditure > 1000)
+                {
+                    highValueCustomers.Add(customer.MapToCustomerDto());
+                }
+
+                if (customer.Orders.All(o => (currentDate - o.Date).Days > 180))
+                {
+                    infrequentCustomers.Add(customer.MapToCustomerDto());
+                }
+            }
+
+            return new CustomerSegmentsDto
+            {
+                HighValueCustomers = highValueCustomers,
+                InfrequentCustomers = infrequentCustomers
+            };
         }
 
         public async Task<OrderItemDto?> GetMostFrequentBoughtItemAsync(int userId)
@@ -73,7 +103,15 @@ namespace BusinessLayer.Services
                 .ThenInclude(o => o.OrderItems)
                 .ToListAsync();
 
-            return users.Select(u => u.MapToUserSummaryDto()).ToList();
+            var userSummaries = new List<UserSummaryDto>();
+            foreach (var user in users)
+            {
+                var totalExpenditure = await CalculateTotalExpenditureAsync(user.Id);
+
+                userSummaries.Add(user.MapToUserSummaryDto(totalExpenditure));
+            }
+
+            return userSummaries;
         }
 
         public async Task<bool> ValidateUserAsync(int userId)
@@ -84,31 +122,10 @@ namespace BusinessLayer.Services
         public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
         {
             var users = await _dbContext.Users.ToListAsync();
-            return users.Select(u =>
-                u.Role == Role.Admin
-                    ? new UserDto
-                    {
-                        UserId = u.Id,
-                        UserName = u.Username,
-                        CreatedDate = u.Created,
-                        Role = u.Role.ToString()
-                    }
-                    : new CustomerDto
-                    {
-                        UserId = u.Id,
-                        UserName = u.Username,
-                        CreatedDate = u.Created,
-                        Role = u.Role.ToString(),
-                        PhoneNumber = (u as Customer)?.PhoneNumber,
-                        Address = (u as Customer)?.Address,
-                        City = (u as Customer)?.City,
-                        State = (u as Customer)?.State,
-                        PostalCode = (u as Customer)?.PostalCode
-                    }
-            );
+            return users.Select(u => u.MapToUserDto());
         }
 
-        public async Task<UserDetailDto> GetUserByIdAsync(int userId)
+        public async Task<UserDetailDto?> GetUserByIdAsync(int userId)
         {
             var user = await _dbContext
                 .Users.Include(u => (u as Customer).Orders)
@@ -117,67 +134,19 @@ namespace BusinessLayer.Services
             if (user == null)
                 return null;
 
-            return new UserDetailDto
-            {
-                UserId = user.Id,
-                UserName = user.Username,
-                Role = user.Role.ToString(),
-                CustomerDetails =
-                    user.Role == Role.Customer
-                        ? new CustomerDetailDto
-                        {
-                            PhoneNumber = (user as Customer)?.PhoneNumber,
-                            Address = (user as Customer)?.Address,
-                            City = (user as Customer)?.City,
-                            State = (user as Customer)?.State,
-                            PostalCode = (user as Customer)?.PostalCode,
-                            Orders = (user as Customer)
-                                ?.Orders.Select(o => new OrderDto
-                                {
-                                    OrderId = o.Id,
-                                    Date = o.Date,
-                                    Created = o.Created,
-                                    OrderItems = o
-                                        .OrderItems.Select(oi => new OrderItemDto
-                                        {
-                                            Id = oi.Id,
-                                            ProductId = oi.ProductId,
-                                            Quantity = oi.Quantity,
-                                            Price = oi.Price
-                                        })
-                                        .ToList()
-                                })
-                                .ToList()
-                        }
-                        : null
-            };
+            return user.MapToUserDetailDto();
         }
 
         public async Task CreateAdminAsync(AdminDto adminDto)
         {
-            var admin = new User
-            {
-                Username = adminDto.Name,
-                Email = adminDto.Email,
-                Role = Role.Admin
-            };
+            var admin = adminDto.MapToAdmin();
             await _dbContext.Users.AddAsync(admin);
             await _dbContext.SaveChangesAsync();
         }
 
         public async Task CreateCustomerAsync(CustomerDto customerDto)
         {
-            var customer = new Customer
-            {
-                Username = customerDto.Name,
-                Email = customerDto.Email,
-                Role = Role.Customer,
-                PhoneNumber = customerDto.PhoneNumber,
-                Address = customerDto.Address,
-                City = customerDto.City,
-                State = customerDto.State,
-                PostalCode = customerDto.PostalCode
-            };
+            var customer = customerDto.MapToCustomer();
             await _dbContext.Users.AddAsync(customer);
             await _dbContext.SaveChangesAsync();
         }
@@ -189,7 +158,7 @@ namespace BusinessLayer.Services
             if (user == null || user.Role != Role.Admin)
                 throw new KeyNotFoundException("Admin not found");
 
-            user.Username = adminDto.Name;
+            user.Username = adminDto.Username;
             user.Email = adminDto.Email;
             await _dbContext.SaveChangesAsync();
         }
@@ -203,7 +172,7 @@ namespace BusinessLayer.Services
             if (customer == null || customer.Role != Role.Customer)
                 throw new KeyNotFoundException("Customer not found");
 
-            customer.Username = customerDto.Name;
+            customer.Username = customerDto.Username;
             customer.Email = customerDto.Email;
             customer.PhoneNumber = customerDto.PhoneNumber;
             customer.Address = customerDto.Address;
@@ -224,31 +193,18 @@ namespace BusinessLayer.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<MostFrequentItemDto> GetMostFrequentItemAsync(int userId)
+        public async Task<IEnumerable<UserDetailDto>> GetAllUserDetailsAsync()
         {
-            var customer = await _dbContext
-                .Users.OfType<Customer>()
-                .Include(c => c.Orders)
-                .ThenInclude(o => o.OrderItems)
-                .FirstOrDefaultAsync(c => c.Id == userId);
+            var users = await _dbContext.Users.ToListAsync();
+            return users.Select(u => u.MapToUserDetailDto());
+        }
 
-            if (customer == null)
-                return null;
-
-            var mostFrequentItem = customer
-                .Orders.SelectMany(o => o.OrderItems)
-                .GroupBy(oi => oi.ProductId)
-                .OrderByDescending(g => g.Count())
-                .FirstOrDefault();
-
-            if (mostFrequentItem == null)
-                return null;
-
-            return new MostFrequentItemDto
-            {
-                ProductId = mostFrequentItem.Key,
-                Quantity = mostFrequentItem.Sum(oi => oi.Quantity)
-            };
+        public async Task<decimal> CalculateTotalExpenditureAsync(int userId)
+        {
+            return await _dbContext
+                .Orders.Where(o => o.UserId == userId)
+                .SelectMany(o => o.OrderItems)
+                .SumAsync(oi => oi.Price * oi.Quantity);
         }
     }
 }
