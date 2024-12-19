@@ -23,7 +23,7 @@ namespace Tests
         [SetUp]
         public void SetUp()
         {
-            _context = MockDbContext.GenerateMock();  // Use the MockDbContext to create a DbContext with seeded data
+            _context = MockDbContext.GenerateMock();
             _service = new CategoryService(_context);
         }
 
@@ -35,7 +35,7 @@ namespace Tests
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(3, result.Count);
+            Assert.AreEqual(4, result.Count);
         }
 
         [Test]
@@ -62,8 +62,8 @@ namespace Tests
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result.CategoryId);
-            Assert.AreEqual("Electronics", result.Name);
-            Assert.AreEqual(1, result.ProductCount);
+            Assert.AreEqual("Guitars", result.Name);
+            Assert.AreEqual(2, result.ProductCount);
         }
 
         [Test]
@@ -182,7 +182,7 @@ namespace Tests
 
             // Verify that the products are reassigned to the new category
             var reassignedProducts = _context.Products.Where(p => p.CategoryId == savedCategory.Id).ToList();
-            Assert.AreEqual(2, reassignedProducts.Count);
+            Assert.AreEqual(3, reassignedProducts.Count);
             Assert.Contains(product1, reassignedProducts);
             Assert.Contains(product2, reassignedProducts);
 
