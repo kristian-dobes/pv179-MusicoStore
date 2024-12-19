@@ -44,7 +44,7 @@ namespace BusinessLayer.Services
             return product?.Adapt<ProductCompleteDTO>();
         }
 
-        public async Task<ProductCompleteDTO?> UpdateProductAsync(int id, ProductUpdateDTO productDto, string modifiedBy)
+        public async Task<ProductCompleteDTO?> UpdateProductAsync(int id, ProductUpdateDTO productDto)
         {
             var product = await _dBContext.Products.FindAsync(id);
 
@@ -62,7 +62,7 @@ namespace BusinessLayer.Services
             //product.ManufacturerId = productDto.ManufacturerId;
             //product.CategoryId = productDto.CategoryId;
             //product.QuantityInStock = productDto.QuantityInStock;
-            product.LastModifiedBy = modifiedBy;
+            //product.LastModifiedBy = modifiedBy;
             product.EditCount++;
 
             _dBContext.Products.Update(product);
@@ -165,8 +165,10 @@ namespace BusinessLayer.Services
             return query;
         }
 
-        public async Task DeleteProductAsync(int productId, string deletedBy)
+        public async Task DeleteProductAsync(int productId)
         {
+            //TODO does this method need string deletedBy?
+
             var product = await _dBContext.Products.FindAsync(productId);
 
             if (product != null)
@@ -180,6 +182,12 @@ namespace BusinessLayer.Services
 
             // Optionally log the delete action or use the deletedBy field for audit purposes
             // e.g., _auditLogService.LogAsync(productId, "Delete", deletedBy);
+        }
+
+        public async Task<Boolean> IsProductValidAsync(int productId) 
+        {
+            // TODO might shoudl be implemented in repository ?
+            return await _dBContext.Products.AnyAsync(p => p.Id == productId);
         }
     }
 }

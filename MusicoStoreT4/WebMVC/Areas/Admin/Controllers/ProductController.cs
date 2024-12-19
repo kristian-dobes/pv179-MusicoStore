@@ -60,10 +60,10 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/Product/Create
         public IActionResult Create()
         {
+            // TODO use list of categories and manufacturers from the database
+            // not like this tho
             //ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
             //ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "Id", "Name");
-
-            Console.WriteLine("First Create product return View");
 
             return View();
         }
@@ -73,8 +73,6 @@ namespace WebMVC.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ProductCreateViewModel model)
         {
-            Console.WriteLine("Second Create product start");
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -85,11 +83,9 @@ namespace WebMVC.Areas.Admin.Controllers
 
             var productResult = await _productService.CreateProductAsync(product);
 
-            Console.WriteLine("Third Create product end");
-
             //ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
             //ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "Id", "Name", product.ManufacturerId);
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index");
         }
 
         // GET: Admin/Product/Edit/5
@@ -117,58 +113,48 @@ namespace WebMVC.Areas.Admin.Controllers
             }
 
             var product = model.Adapt<ProductUpdateDTO>();
-            
+
             // Retrieve the username of the currently logged-in user
             string username = User.Identity.Name;
-
             if (string.IsNullOrEmpty(username))
             {
                 return Unauthorized("User must be authenticated to update the product.");
             }
+            product.LastModifiedBy = User.Identity.Name; // created by the currently logged-in user
+            
+            var productResult = await _productService.UpdateProductAsync(id, product); // TODO use real username
 
-            var productResult = await _productService.UpdateProductAsync(id, product, username); // TODO use real username
-
-            return View(productResult.Adapt<ProductUpdateViewModel>());
+            return View(productResult.Adapt<ProductUpdateViewModel>()); // TODO return to index
         }
 
         // GET: Admin/Product/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var product = await _productService.GetProductByIdAsync(id);
 
-            var product = await _context.Products
-                .Include(p => p.Category)
-                .Include(p => p.Manufacturer)
-                .FirstOrDefaultAsync(m => m.Id == id);
             if (product == null)
             {
                 return NotFound();
             }
 
-            return View(product);
+            Console.WriteLine("GET Delete product end");
+
+            return View(product.Adapt<ProductDetailViewModel>());
         }
 
         // POST: Admin/Product/Delete/5
+        //[ValidateAntiForgeryToken]
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirm(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product != null)
-            {
-                _context.Products.Remove(product);
-            }
-
+            Console.WriteLine("Delete product start");
+            
+            await _productService.DeleteProductAsync(id);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
 
-        private bool ProductExists(int id)
-        {
-            return _context.Products.Any(e => e.Id == id);
+            Console.WriteLine("Delete product end");
+
+            return RedirectToAction("Index");
         }
     }
 }

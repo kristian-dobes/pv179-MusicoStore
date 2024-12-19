@@ -18,6 +18,7 @@ namespace BusinessLayer.DTOs.Product
         public required string Description { get; set; }
         public required decimal Price { get; set; }
         public required int QuantityInStock { get; set; }
+        public required string LastModifiedBy { get; set; }
         public required int CategoryId { get; set; }
         public required int ManufacturerId { get; set; }
     }
