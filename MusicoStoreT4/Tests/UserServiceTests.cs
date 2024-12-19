@@ -1,151 +1,165 @@
 ﻿using BusinessLayer.DTOs;
+using BusinessLayer.DTOs.User;
 using BusinessLayer.Facades;
+using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
+using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Moq;
+using Tests.Other;
 
 namespace Tests
 {
     [TestFixture]
     public class UserServiceTests
     {
-        private Mock<IUserService> _userServiceMock;
-        private Mock<IProductService> _productServiceMock;
+        private MyDBContext _context;
+        private UserService _userService;
+        private ProductService _productService;
 
         [SetUp]
         public void SetUp()
         {
-            _userServiceMock = new Mock<IUserService>();
-            _productServiceMock = new Mock<IProductService>();
+            _context = MockDbContext.GenerateMock();
+            _userService = new UserService(_context);
+            _productService = new ProductService(_context);
         }
 
         [Test]
-        public void GetMostFrequentBoughtItemAsync_ShouldReturnNull_WhenUserDoesNotExist()
+        public async Task GetMostFrequentBoughtItemAsync_ShouldReturnNull_WhenUserDoesNotExist()
         {
             // Arrange
             int userId = 1;
-            _userServiceMock.Setup(u => u.ValidateUserAsync(userId)).ReturnsAsync(false);
+            _context.Users.RemoveRange(_context.Users.ToList());
+            await _context.SaveChangesAsync();
 
             // Act
-            var result = _userServiceMock.Object.GetMostFrequentBoughtItemAsync(userId).Result;
+            var result = await _userService.GetMostFrequentBoughtItemAsync(userId);
 
             // Assert
             Assert.IsNull(result);
         }
 
         [Test]
-        public void GetMostFrequentBoughtItemAsync_ShouldReturnNull_WhenUserHasNoOrders()
+        public async Task GetMostFrequentBoughtItemAsync_ShouldReturnNull_WhenUserHasNoOrders()
         {
             // Arrange
             int userId = 1;
-            _userServiceMock.Setup(u => u.ValidateUserAsync(userId)).ReturnsAsync(true);
-            _userServiceMock.Setup(u => u.GetMostFrequentBoughtItemAsync(userId)).ReturnsAsync((OrderItemDto?)null);
+            _context.Orders.RemoveRange(_context.Orders.ToList());
+            _context.OrderItems.RemoveRange(_context.OrderItems.ToList());
+            await _context.SaveChangesAsync();
 
             // Act
-            var result = _userServiceMock.Object.GetMostFrequentBoughtItemAsync(userId).Result;
+            var result = await _userService.GetMostFrequentBoughtItemAsync(userId);
 
             // Assert
             Assert.IsNull(result);
         }
 
         [Test]
-        public void GetMostFrequentBoughtItemAsync_ShouldReturnMostFrequentItem_WhenUserHasOrders()
+        public async Task GetMostFrequentBoughtItemAsync_ShouldReturnMostFrequentItem_WhenUserHasOrders()
         {
             // Arrange
             int userId = 1;
-            var orderItemDto = new OrderItemDto { ProductId = 1, Quantity = 5 };
-            _userServiceMock.Setup(u => u.ValidateUserAsync(userId)).ReturnsAsync(true);
-            _userServiceMock.Setup(u => u.GetMostFrequentBoughtItemAsync(userId)).ReturnsAsync(orderItemDto);
+
+            var user = _context.Users.SingleOrDefault(u => u.Id == userId);
+            var orders = _context.Orders.Where(o => o.UserId == userId).ToList();
+            var orderItems = _context.OrderItems.Where(oi => orders.Select(o => o.Id).Contains(oi.OrderId)).ToList();
+
+            Assert.IsNotNull(user);
+            Assert.IsNotEmpty(orders);
+            Assert.IsNotEmpty(orderItems);
 
             // Act
-            var result = _userServiceMock.Object.GetMostFrequentBoughtItemAsync(userId).Result;
-
-            // Assert
-            Assert.AreEqual(orderItemDto, result);
-        }
-
-        [Test]
-        public void GetMostFrequentBoughtItemAsync_ShouldReturnNotNull_WhenUserHasOrders()
-        {
-            // Arrange
-            int userId = 1;
-            var orderItemDto = new OrderItemDto { ProductId = 1, Quantity = 5 };
-            _userServiceMock.Setup(u => u.ValidateUserAsync(userId)).ReturnsAsync(true);
-            _userServiceMock.Setup(u => u.GetMostFrequentBoughtItemAsync(userId)).ReturnsAsync(orderItemDto);
-
-            // Act
-            var result = _userServiceMock.Object.GetMostFrequentBoughtItemAsync(userId).Result;
+            var result = await _userService.GetMostFrequentBoughtItemAsync(userId);
 
             // Assert
             Assert.IsNotNull(result);
+
+            var mostFrequentOrderItem = orderItems
+                .GroupBy(oi => oi.ProductId)
+                .OrderByDescending(g => g.Sum(oi => oi.Quantity))
+                .FirstOrDefault();
+
+            Assert.AreEqual(mostFrequentOrderItem.Key, result.ProductId);
+            Assert.AreEqual(mostFrequentOrderItem.Sum(oi => oi.Quantity), result.Quantity);
         }
 
         [Test]
-        public void GetMostFrequentBoughtItemAsync_ShouldHandleMultipleConcurrentRequests()
+        public async Task GetMostFrequentBoughtItemAsync_ShouldReturnNotNull_WhenUserHasOrders()
         {
             // Arrange
             int userId = 1;
-            var orderItemDto = new OrderItemDto { ProductId = 1, Quantity = 5 };
-            _userServiceMock.Setup(u => u.ValidateUserAsync(userId)).ReturnsAsync(true);
-            _userServiceMock.Setup(u => u.GetMostFrequentBoughtItemAsync(userId)).ReturnsAsync(orderItemDto);
+
+            // Retrieve the user and related orders from the context
+            var user = _context.Users.SingleOrDefault(u => u.Id == userId);
+            var orders = _context.Orders.Where(o => o.UserId == userId).ToList();
+            var orderItems = _context.OrderItems.Where(oi => orders.Select(o => o.Id).Contains(oi.OrderId)).ToList();
+
+            // Make sure there is at least one order and order item for the user
+            Assert.IsNotNull(user);
+            Assert.IsNotEmpty(orders);
+            Assert.IsNotEmpty(orderItems);
+
+            // Act
+            var result = await _userService.GetMostFrequentBoughtItemAsync(userId);
+
+            // Assert
+            Assert.IsNotNull(result);
+
+            // Assuming the most frequent item is the one with the highest quantity
+            var mostFrequentOrderItem = orderItems
+                .GroupBy(oi => oi.ProductId)
+                .OrderByDescending(g => g.Sum(oi => oi.Quantity))
+                .FirstOrDefault();
+
+            Assert.AreEqual(mostFrequentOrderItem.Key, result.ProductId);
+            Assert.AreEqual(mostFrequentOrderItem.Sum(oi => oi.Quantity), result.Quantity);
+        }
+
+        [Test]
+        public async Task GetMostFrequentBoughtItemAsync_ShouldHandleMultipleConcurrentRequests()
+        {
+            // Arrange
+            int userId = 1;
+
+            // Retrieve the user and related orders from the context
+            var user = _context.Users.SingleOrDefault(u => u.Id == userId);
+            var orders = _context.Orders.Where(o => o.UserId == userId).ToList();
+            var orderItems = _context.OrderItems.Where(oi => orders.Select(o => o.Id).Contains(oi.OrderId)).ToList();
+
+            // Make sure there is at least one order and order item for the user
+            Assert.IsNotNull(user);
+            Assert.IsNotEmpty(orders);
+            Assert.IsNotEmpty(orderItems);
 
             // Act
             var tasks = new[]
             {
-            _userServiceMock.Object.GetMostFrequentBoughtItemAsync(userId),
-            _userServiceMock.Object.GetMostFrequentBoughtItemAsync(userId),
-            _userServiceMock.Object.GetMostFrequentBoughtItemAsync(userId)
-        };
+                _userService.GetMostFrequentBoughtItemAsync(userId),
+                _userService.GetMostFrequentBoughtItemAsync(userId),
+                _userService.GetMostFrequentBoughtItemAsync(userId)
+            };
 
-            Task.WaitAll(tasks);
+            var results = await Task.WhenAll(tasks);
 
             // Assert
-            foreach (var task in tasks)
+            foreach (var result in results)
             {
-                Assert.AreEqual(orderItemDto, task.Result);
+                Assert.IsNotNull(result);
+
+                // Assuming the most frequent item is the one with the highest quantity
+                var mostFrequentOrderItem = orderItems
+                    .GroupBy(oi => oi.ProductId)
+                    .OrderByDescending(g => g.Sum(oi => oi.Quantity))
+                    .FirstOrDefault();
+
+                Assert.AreEqual(mostFrequentOrderItem.Key, result.ProductId);
+                Assert.AreEqual(mostFrequentOrderItem.Sum(oi => oi.Quantity), result.Quantity);
             }
-
-            _userServiceMock.Verify(u => u.GetMostFrequentBoughtItemAsync(userId), Times.Exactly(3));
         }
 
-        [Test]
-        public void GetMostFrequentBoughtItemAsync_ShouldHandleOrdersWithIdenticalFrequencies()
-        {
-            // Arrange
-            int userId = 1;
-            var item1 = new OrderItemDto { ProductId = 1, Quantity = 5 };
-            var item2 = new OrderItemDto { ProductId = 2, Quantity = 5 };
-
-            _userServiceMock.Setup(u => u.ValidateUserAsync(userId)).ReturnsAsync(true);
-            // Simulate logic where first encountered frequent item is returned
-            _userServiceMock.Setup(u => u.GetMostFrequentBoughtItemAsync(userId)).ReturnsAsync(item1);
-
-            // Act
-            var result = _userServiceMock.Object.GetMostFrequentBoughtItemAsync(userId).Result;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(item1, result);
-            Assert.AreNotEqual(item2, result); // Ensure it's handling identical frequencies predictably
-        }
-
-        [Test]
-        public void GetMostFrequentBoughtItemAsync_ShouldHandleOrdersWithZeroQuantities()
-        {
-            // Arrange
-            int userId = 1;
-            var frequentItem = new OrderItemDto { ProductId = 1, Quantity = 0 }; // No valid purchases
-            _userServiceMock.Setup(u => u.ValidateUserAsync(userId)).ReturnsAsync(true);
-            _userServiceMock.Setup(u => u.GetMostFrequentBoughtItemAsync(userId)).ReturnsAsync(frequentItem);
-
-            // Act
-            var result = _userServiceMock.Object.GetMostFrequentBoughtItemAsync(userId).Result;
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(1, result.ProductId);
-            Assert.AreEqual(0, result.Quantity); // Ensure it gracefully handles zero quantity
-        }
+        
         /*
         [Test]
         public void GetCustomerSegmentsAsync_ShouldReturnCustomerSegments()
@@ -160,7 +174,6 @@ namespace Tests
             // Assert
             Assert.AreEqual(customerSegmentsDto, result);
         }
-        
         [Test]
         public void GetCustomerSegmentsAsync_ShouldReturnNull_WhenNoCustomers()
         {
