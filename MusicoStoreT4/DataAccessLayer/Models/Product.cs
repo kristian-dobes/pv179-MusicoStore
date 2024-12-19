@@ -27,5 +27,7 @@ namespace DataAccessLayer.Models
         public int ManufacturerId { get; set; }
         [ForeignKey(nameof(ManufacturerId))]
         public virtual Manufacturer? Manufacturer { get; set; }
+
+        public virtual ProductImage? Image { get; set; }
     }
 }

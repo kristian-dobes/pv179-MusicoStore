@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using BusinessLayer.DTOs;
 using DataAccessLayer.Models;
 using BusinessLayer.DTOs.Product;
+using Microsoft.AspNetCore.Http;
 
 namespace BusinessLayer.Services.Interfaces
 {

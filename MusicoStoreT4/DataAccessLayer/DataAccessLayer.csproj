@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Data\Images\" />
     <Folder Include="Models\Enums\" />
   </ItemGroup>
 
