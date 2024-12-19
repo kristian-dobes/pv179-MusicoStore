@@ -1,7 +1,10 @@
+using BusinessLayer.Services.Interfaces;
+using BusinessLayer.Services;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using WebMVC;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +22,13 @@ builder.Services.AddDbContext<MyDBContext>(options =>
         .LogTo(s => System.Diagnostics.Debug.WriteLine(s))
         .UseLazyLoadingProxies();
 });
+
+/* Register Services */
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+new MapsterConfig().RegisterMappings();
 
 builder.Services.AddIdentity<LocalIdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<MyDBContext>()

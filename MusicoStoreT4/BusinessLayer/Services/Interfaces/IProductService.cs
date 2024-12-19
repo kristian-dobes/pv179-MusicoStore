@@ -11,13 +11,15 @@ namespace BusinessLayer.Services.Interfaces
 {
     public interface IProductService : IBaseService
     {
+        Task<ICollection<ProductCompleteDTO>> GetProducts();
         Task ReassignProductsToManufacturerAsync(int sourceManufacturerId, int targetManufacturerId);
         Task<List<Product>> GetProductsByManufacturerAsync(int manufacturerId);
         Task UpdateProductManufacturerAsync(int productId, int newManufacturerId);
         Task<List<TopSellingProductDto>> GetTopSellingProductsByCategoryAsync(DateTime startDate, DateTime endDate, int topN = 5);
-        Task<Product> GetProductByIdAsync(int productId);
-        Task UpdateProductAsync(Product product, string modifiedBy);
+        Task<ProductCompleteDTO> GetProductByIdAsync(int productId);
+        Task<ProductCompleteDTO?> UpdateProductAsync(int id, ProductUpdateDTO productDto, string modifiedBy);
         Task<Product> CreateProductAsync(Product model, string createdBy);
+        Task<ProductCompleteDTO> CreateProductAsync(ProductCreateDTO model);
         Task DeleteProductAsync(int productId, string deletedBy);
     }
 }

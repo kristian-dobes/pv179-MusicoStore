@@ -1,0 +1,13 @@
+﻿@using WebMVC.Models.Product;
+@model IEnumerable<ProductSummaryViewModel>
+
+@foreach (var product in Model)
+{
+    <div class="row mb-4" style="background-color: #343a40; padding: 15px; border-radius: 5px;">
+        <!-- product summary list -->
+        @{
+            // You should use a summary instead of a detail here in production ;)
+            await Html.RenderPartialAsync("Summary", product);
+        }
+    </div>
+}

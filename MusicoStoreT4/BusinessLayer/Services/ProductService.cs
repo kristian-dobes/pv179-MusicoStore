@@ -7,6 +7,7 @@ using BusinessLayer.DTOs.Product;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Services
@@ -20,29 +21,54 @@ namespace BusinessLayer.Services
             _dBContext = dBContext;
         }
 
-        public async Task<Product> GetProductByIdAsync(int productId)
+        public async Task<ICollection<ProductCompleteDTO>> GetProducts()
         {
-            return await _dBContext.Products.FirstOrDefaultAsync(p => p.Id == productId);
+            //IQueryable<Product> productQuerry = _dBContext.Products;
+            //return (await productQuerry.ToListAsync()).Adapt<ICollection<ProductCompleteDTO>>();
+
+            IQueryable<Product> productQuery = _dBContext.Products;
+
+            // Fetch data into a list
+            var products = await productQuery.ToListAsync();
+
+            // Map to DTOs
+            var productDTOs = products.Adapt<ICollection<ProductCompleteDTO>>();
+
+            return productDTOs;
         }
 
-        public async Task UpdateProductAsync(Product model, string modifiedBy)
+        public async Task<ProductCompleteDTO?> GetProductByIdAsync(int productId)
         {
-            var product = await _dBContext.Products.FirstOrDefaultAsync(p => p.Id == model.Id);
+            var product = await _dBContext.Products.SingleOrDefaultAsync(a => a.Id == productId);
+
+            return product?.Adapt<ProductCompleteDTO>();
+        }
+
+        public async Task<ProductCompleteDTO?> UpdateProductAsync(int id, ProductUpdateDTO productDto, string modifiedBy)
+        {
+            var product = await _dBContext.Products.FindAsync(id);
 
             if (product == null)
-                throw new KeyNotFoundException($"Product with ID {model.Id} not found.");
+            {
+                //throw new KeyNotFoundException($"Product with ID {id} not found.");
+                return null;
+            }
 
-            product.Name = model.Name;
-            product.Description = model.Description;
-            product.Price = model.Price;
-            product.ManufacturerId = model.ManufacturerId;
-            product.CategoryId = model.CategoryId;
-            product.QuantityInStock = model.QuantityInStock;
+            product = productDto.Adapt(product);
 
+            //product.Name = productDto.Name;
+            //product.Description = productDto.Description;
+            //product.Price = productDto.Price;
+            //product.ManufacturerId = productDto.ManufacturerId;
+            //product.CategoryId = productDto.CategoryId;
+            //product.QuantityInStock = productDto.QuantityInStock;
             product.LastModifiedBy = modifiedBy;
             product.EditCount++;
 
-            await _dBContext.SaveChangesAsync();
+            _dBContext.Products.Update(product);
+            await SaveAsync(true);
+
+            return product.Adapt<ProductCompleteDTO>();
         }
 
         public async Task<Product> CreateProductAsync(Product model, string createdBy)
@@ -53,6 +79,18 @@ namespace BusinessLayer.Services
             await _dBContext.SaveChangesAsync();
 
             return model;
+        }
+
+        public async Task<ProductCompleteDTO> CreateProductAsync(ProductCreateDTO productDto)
+        {
+            var product = productDto.Adapt<Product>();
+
+            product.EditCount = 0;
+
+            _dBContext.Products.Add(product);
+            await SaveAsync(true);
+           
+            return product.Adapt<ProductCompleteDTO>();
         }
 
         public async Task ReassignProductsToManufacturerAsync(int sourceManufacturerId, int targetManufacturerId)
@@ -129,16 +167,19 @@ namespace BusinessLayer.Services
 
         public async Task DeleteProductAsync(int productId, string deletedBy)
         {
-            var product = await _dBContext.Products.FirstOrDefaultAsync(p => p.Id == productId);
+            var product = await _dBContext.Products.FindAsync(productId);
 
-            if (product == null)
-                throw new KeyNotFoundException($"Product with ID {productId} not found.");
+            if (product != null)
+            {
+                _dBContext.Products.Remove(product);
+                await SaveAsync(true);
+            }
+
+            //if (product == null)
+            //    throw new KeyNotFoundException($"Product with ID {productId} not found.");
 
             // Optionally log the delete action or use the deletedBy field for audit purposes
             // e.g., _auditLogService.LogAsync(productId, "Delete", deletedBy);
-
-            _dBContext.Products.Remove(product);
-            await _dBContext.SaveChangesAsync();
         }
     }
 }
