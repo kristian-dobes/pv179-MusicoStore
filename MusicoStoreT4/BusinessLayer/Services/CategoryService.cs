@@ -14,16 +14,16 @@ namespace BusinessLayer.Services
 {
     public class CategoryService : BaseService, ICategoryService
     {
-        private readonly MyDBContext _dBContext;
+        private readonly MyDBContext _dbContext;
 
         public CategoryService(MyDBContext dBContext) : base(dBContext)
         {
-            _dBContext = dBContext;
+            _dbContext = dBContext;
         }
 
         public async Task<List<CategorySummaryDto?>> GetCategoriesAsync()
         {
-            var categories = await _dBContext.Categories
+            var categories = await _dbContext.Categories
                 .Include(c => c.Products)
                 .ToListAsync();
 
@@ -39,7 +39,7 @@ namespace BusinessLayer.Services
 
         public async Task<CategorySummaryDto?> GetCategorySummaryAsync(int categoryId)
         {
-            var category = await _dBContext.Categories
+            var category = await _dbContext.Categories
                 .Include(c => c.Products)
                 .FirstOrDefaultAsync(c => c.Id == categoryId);
 
@@ -53,11 +53,11 @@ namespace BusinessLayer.Services
 
         public async Task<Category> MergeCategoriesAndCreateNewAsync(string newCategoryName, int sourceCategoryId1, int sourceCategoryId2, bool save = true)
         {
-            var sourceCategory1 = await _dBContext.Categories
+            var sourceCategory1 = await _dbContext.Categories
                 .Include(c => c.Products)
                 .FirstOrDefaultAsync(c => c.Id == sourceCategoryId1);
 
-            var sourceCategory2 = await _dBContext.Categories
+            var sourceCategory2 = await _dbContext.Categories
                 .Include(c => c.Products)
                 .FirstOrDefaultAsync(c => c.Id == sourceCategoryId2);
 
@@ -72,7 +72,7 @@ namespace BusinessLayer.Services
                 Products = new List<Product>()
             };
 
-            _dBContext.Categories.Add(newCategory);
+            _dbContext.Categories.Add(newCategory);
 
             if (sourceCategory1.Products != null)
             {
@@ -92,8 +92,8 @@ namespace BusinessLayer.Services
                 }
             }
 
-            _dBContext.Categories.Remove(sourceCategory1);
-            _dBContext.Categories.Remove(sourceCategory2);
+            _dbContext.Categories.Remove(sourceCategory1);
+            _dbContext.Categories.Remove(sourceCategory2);
 
             if (save)
             {

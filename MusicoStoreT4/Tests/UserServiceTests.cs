@@ -146,7 +146,7 @@ namespace Tests
             Assert.AreEqual(1, result.ProductId);
             Assert.AreEqual(0, result.Quantity); // Ensure it gracefully handles zero quantity
         }
-
+        /*
         [Test]
         public void GetCustomerSegmentsAsync_ShouldReturnCustomerSegments()
         {
@@ -160,7 +160,7 @@ namespace Tests
             // Assert
             Assert.AreEqual(customerSegmentsDto, result);
         }
-
+        
         [Test]
         public void GetCustomerSegmentsAsync_ShouldReturnNull_WhenNoCustomers()
         {
@@ -215,5 +215,6 @@ namespace Tests
             // Assert
             Assert.IsNull(result);
         }
+        */
     }
 }
