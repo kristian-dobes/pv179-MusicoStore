@@ -1,126 +1,118 @@
 using BusinessLayer.Facades;
+using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
+using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Moq;
+using Tests.Other;
 
 namespace Tests
 {
     [TestFixture]
     public class ManufacturerFacadeTests
     {
-        private Mock<IManufacturerService> _manufacturerServiceMock;
-        private Mock<IProductService> _productServiceMock;
+        private MyDBContext _context;
         private ManufacturerFacade _manufacturerFacade;
+        private ProductService _productService;
+        private ManufacturerService _manufacturerService;
 
         [SetUp]
         public void SetUp()
         {
-            _manufacturerServiceMock = new Mock<IManufacturerService>();
-            _productServiceMock = new Mock<IProductService>();
-            _manufacturerFacade = new ManufacturerFacade(_manufacturerServiceMock.Object, _productServiceMock.Object);
+            _context = MockDbContext.GenerateMock();
+
+            _productService = new ProductService(_context, new AuditLogService(_context));
+            _manufacturerService = new ManufacturerService(_context);
+            _manufacturerFacade = new ManufacturerFacade(_manufacturerService, _productService);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _context?.Dispose();
         }
 
         [Test]
-        public void MergeManufacturersAsync_ShouldThrowInvalidOperationException_WhenIdsAreSame()
+        public async Task MergeManufacturersAsync_ShouldThrowInvalidOperationException_WhenIdsAreSame()
         {
-            // Arrange //
-            var manufacturerId = 1;
+            // Arrange
+            var manufacturerId = 1; // Using a valid manufacturer ID from the mock data
 
-            // Act and Assert //
-            Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await _manufacturerFacade.MergeManufacturersAsync(manufacturerId, manufacturerId));
+            // Act & Assert
+            var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await _manufacturerFacade.MergeManufacturersAsync(manufacturerId, manufacturerId, -1));
+
+            Assert.AreEqual("Source and target manufacturers must be different.", ex.Message);
         }
 
         [Test]
-        public void MergeManufacturersAsync_ShouldThrowKeyNotFoundException_WhenSourceDoesNotExist()
+        public async Task MergeManufacturersAsync_ShouldThrowKeyNotFoundException_WhenSourceDoesNotExist()
         {
-            // Arrange //
-            _manufacturerServiceMock.Setup(s => s.ValidateManufacturerAsync(1)).ReturnsAsync(false);
-            _manufacturerServiceMock.Setup(s => s.ValidateManufacturerAsync(2)).ReturnsAsync(true);
+            // Arrange
+            var manufacturerId20 = 20;
+            var manufacturerId1 = 1;
 
-            // Act and Assert //
-            Assert.ThrowsAsync<KeyNotFoundException>(async () => await _manufacturerFacade.MergeManufacturersAsync(1, 2));
+            var manufacturer20 = _context.Manufacturers.SingleOrDefault(c => c.Id == manufacturerId20);
+            var manufacturer1 = _context.Manufacturers.SingleOrDefault(c => c.Id == manufacturerId1);
+
+            Assert.IsNull(manufacturer20, "Manufacturer with id 20 should not exist.");
+            Assert.IsNotNull(manufacturer1, "Manufacturer with id 1 should exist.");
+
+            // Act and Assert
+            var ex = Assert.ThrowsAsync<KeyNotFoundException>(async () =>
+                await _manufacturerFacade.MergeManufacturersAsync(manufacturerId20, manufacturerId1, -1));
+
+            Assert.AreEqual($"Source manufacturer with ID {manufacturerId20} not found.", ex.Message);
         }
 
         [Test]
-        public void MergeManufacturersAsync_ShouldThrowKeyNotFoundException_WhenTargetDoesNotExist()
+        public async Task MergeManufacturersAsync_ShouldThrowKeyNotFoundException_WhenTargetDoesNotExist()
         {
-            // Arrange //
-            _manufacturerServiceMock.Setup(s => s.ValidateManufacturerAsync(1)).ReturnsAsync(true);
-            _manufacturerServiceMock.Setup(s => s.ValidateManufacturerAsync(2)).ReturnsAsync(false);
+            // Arrange
+            var sourceManufacturerId = 1;
+            var targetManufacturerId = 20;
 
-            // Act and Assert //
-            Assert.ThrowsAsync<KeyNotFoundException>(async () => await _manufacturerFacade.MergeManufacturersAsync(1, 2));
+            var manufacturer1 = _context.Manufacturers.SingleOrDefault(c => c.Id == sourceManufacturerId);
+            var manufacturer20 = _context.Manufacturers.SingleOrDefault(c => c.Id == targetManufacturerId);
+
+            Assert.IsNotNull(manufacturer1, "Manufacturer with id 1 should exist.");
+            Assert.IsNull(manufacturer20, "Manufacturer with id 20 should not exist.");
+
+            // Act and Assert
+            var ex = Assert.ThrowsAsync<KeyNotFoundException>(async () =>
+                await _manufacturerFacade.MergeManufacturersAsync(sourceManufacturerId, targetManufacturerId, -1));
+
+            Assert.AreEqual($"Target manufacturer with ID {targetManufacturerId} not found.", ex.Message);
         }
+
 
         [Test]
         public async Task MergeManufacturersAsync_ShouldCallReassignAndDelete_WhenBothExist()
         {
-            // Arrange //
-            _manufacturerServiceMock.Setup(m => m.ValidateManufacturerAsync(It.IsAny<int>())).ReturnsAsync(true);
-            var sequence = new MockSequence();
-
-            _productServiceMock.InSequence(sequence)
-                .Setup(p => p.ReassignProductsToManufacturerAsync(It.IsAny<int>(), It.IsAny<int>()));
-            _manufacturerServiceMock.InSequence(sequence)
-                .Setup(m => m.DeleteManufacturerAsync(It.IsAny<int>()));
-
-            // Act //
-            await _manufacturerFacade.MergeManufacturersAsync(1, 2);
-
-            // Assert //
-            _manufacturerServiceMock.Verify(m => m.ValidateManufacturerAsync(1), Times.Once);
-            _manufacturerServiceMock.Verify(m => m.ValidateManufacturerAsync(2), Times.Once);
-
-            _productServiceMock.Verify(p => p.ReassignProductsToManufacturerAsync(1, 2), Times.Once);
-            _manufacturerServiceMock.Verify(m => m.DeleteManufacturerAsync(1), Times.Once);
-
-            _productServiceMock.VerifyNoOtherCalls();
-            _manufacturerServiceMock.VerifyNoOtherCalls();
-        }
-
-        [Test]
-        public async Task MergeManufacturersAsync_ShouldReassignSpecificProductsToTargetManufacturer()
-        {
             // Arrange
-            int sourceManufacturerId = 1;
-            int targetManufacturerId = 2;
+            var manufacturerId1 = 1;
+            var manufacturerId2 = 2;
 
-            var productsToReassign = new List<Product>
-    {
-        new Product { Id = 101, ManufacturerId = sourceManufacturerId },
-        new Product { Id = 102, ManufacturerId = sourceManufacturerId }
-    };
+            var manufacturer1 = _context.Manufacturers.SingleOrDefault(m => m.Id == manufacturerId1);
+            var manufacturer2 = _context.Manufacturers.SingleOrDefault(m => m.Id == manufacturerId2);
 
-            _manufacturerServiceMock.Setup(m => m.ValidateManufacturerAsync(sourceManufacturerId)).ReturnsAsync(true);
-            _manufacturerServiceMock.Setup(m => m.ValidateManufacturerAsync(targetManufacturerId)).ReturnsAsync(true);
+            Assert.IsNotNull(manufacturer1, "Manufacturer 1 should exist.");
+            Assert.IsNotNull(manufacturer2, "Manufacturer 2 should exist.");
 
-            _productServiceMock.Setup(p => p.GetProductsByManufacturerAsync(sourceManufacturerId))
-                .ReturnsAsync(productsToReassign);
-
-            _productServiceMock.Setup(p => p.ReassignProductsToManufacturerAsync(sourceManufacturerId, targetManufacturerId))
-                .Callback<int, int>((srcId, targetId) =>
-                {
-                    // Assert inside the callback
-                    Assert.AreEqual(sourceManufacturerId, srcId, "Source manufacturer ID mismatch.");
-                    Assert.AreEqual(targetManufacturerId, targetId, "Target manufacturer ID mismatch.");
-
-                    // Verify that all products were reassigned
-                    foreach (var product in productsToReassign)
-                    {
-                        Assert.AreEqual(targetManufacturerId, targetId, $"Product {product.Id} was not reassigned to the target manufacturer.");
-                    }
-                })
-                .Returns(Task.CompletedTask);
+            var productsOfMan1BeforeMerge = _context.Products.Where(p => p.ManufacturerId == manufacturerId1).ToList();
+            var productsOfMan2BeforeMergeCount = _context.Products.Where(p => p.ManufacturerId == manufacturerId2).Count();
+            Assert.IsNotEmpty(productsOfMan1BeforeMerge, "Manufacturer 1 should have products.");
 
             // Act
-            await _manufacturerFacade.MergeManufacturersAsync(sourceManufacturerId, targetManufacturerId);
+            await _manufacturerFacade.MergeManufacturersAsync(manufacturerId1, manufacturerId2, -1);
 
             // Assert
-            _manufacturerServiceMock.Verify(m => m.ValidateManufacturerAsync(sourceManufacturerId), Times.Once);
-            _manufacturerServiceMock.Verify(m => m.ValidateManufacturerAsync(targetManufacturerId), Times.Once);
-            _productServiceMock.Verify(p => p.ReassignProductsToManufacturerAsync(sourceManufacturerId, targetManufacturerId), Times.Once);
-            _manufacturerServiceMock.Verify(m => m.DeleteManufacturerAsync(sourceManufacturerId), Times.Once);
+            var man2ProductsAfterMerge = _context.Products.Where(p => p.ManufacturerId == manufacturerId2).ToList();
+            Assert.AreEqual(productsOfMan1BeforeMerge.Count + productsOfMan2BeforeMergeCount, man2ProductsAfterMerge.Count, "The number of reassigned products should match the original products of manufacturer 1.");
+            Assert.IsTrue(man2ProductsAfterMerge.All(p => p.ManufacturerId == manufacturerId2), "All products should be reassigned to the target manufacturer.");
+
+            var deletedManufacturer = _context.Manufacturers.SingleOrDefault(m => m.Id == manufacturerId1);
+            Assert.IsNull(deletedManufacturer, "The source manufacturer should be deleted.");
         }
     }
 }

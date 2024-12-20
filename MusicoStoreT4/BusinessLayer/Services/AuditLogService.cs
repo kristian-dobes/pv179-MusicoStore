@@ -1,4 +1,5 @@
-﻿using BusinessLayer.Services.Interfaces;
+﻿using BusinessLayer.Enums;
+using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using System;
@@ -18,13 +19,13 @@ namespace BusinessLayer.Services
             _context = context;
         }
 
-        public async Task LogAsync(int productId, string action, int modifiedBy)
+        public async Task LogAsync(int productId, AuditAction action, int modifiedBy)
         {
             var auditLog = new AuditLog
             {
                 ProductId = productId,
-                Action = action,
-                ModifiedBy = modifiedBy,
+                Action = action.ToString(),
+                ModifiedById = modifiedBy,
                 Created = DateTime.UtcNow
             };
 
