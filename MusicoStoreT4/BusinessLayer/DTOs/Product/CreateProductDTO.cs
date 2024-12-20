@@ -7,5 +7,6 @@
         public decimal Price { get; set; }
         public int CategoryId { get; set; }
         public int ManufacturerId { get; set; }
+        public int CreatedById { get; set; }
     }
 }

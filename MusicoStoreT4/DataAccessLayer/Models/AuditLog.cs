@@ -10,6 +10,6 @@ namespace DataAccessLayer.Models
     {
         public int ProductId { get; set; }
         public string Action { get; set; }  // crud
-        public int ModifiedBy { get; set; }
+        public int ModifiedById { get; set; }
     }
 }

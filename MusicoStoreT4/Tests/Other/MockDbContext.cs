@@ -79,7 +79,7 @@ namespace Tests.Other
                     QuantityInStock = 15,
                     CategoryId = 1,
                     ManufacturerId = 1,
-                    LastModifiedBy = "admin",
+                    LastModifiedById = -1,
                     EditCount = 1
                 },
                 new Product
@@ -91,7 +91,7 @@ namespace Tests.Other
                     QuantityInStock = 10,
                     CategoryId = 1,
                     ManufacturerId = 2,
-                    LastModifiedBy = "admin",
+                    LastModifiedById = -1,
                     EditCount = 1
                 },
                 new Product
@@ -103,7 +103,7 @@ namespace Tests.Other
                     QuantityInStock = 8,
                     CategoryId = 2,
                     ManufacturerId = 3,
-                    LastModifiedBy = "admin",
+                    LastModifiedById = -1,
                     EditCount = 1
                 },
                 new Product
@@ -115,7 +115,7 @@ namespace Tests.Other
                     QuantityInStock = 12,
                     CategoryId = 3,
                     ManufacturerId = 5,
-                    LastModifiedBy = "admin",
+                    LastModifiedById = -1,
                     EditCount = 1
                 },
                 new Product
@@ -127,7 +127,7 @@ namespace Tests.Other
                     QuantityInStock = 200,
                     CategoryId = 4,
                     ManufacturerId = 4,
-                    LastModifiedBy = "admin",
+                    LastModifiedById = -1,
                     EditCount = 1
                 }
             };

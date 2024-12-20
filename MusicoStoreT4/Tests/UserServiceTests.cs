@@ -23,7 +23,7 @@ namespace Tests
         {
             _context = MockDbContext.GenerateMock();
             _userService = new UserService(_context);
-            _productService = new ProductService(_context);
+            _productService = new ProductService(_context, new AuditLogService(_context));
         }
 
         [Test]

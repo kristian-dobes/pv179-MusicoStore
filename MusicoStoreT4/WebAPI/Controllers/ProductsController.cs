@@ -165,7 +165,7 @@ namespace WebAPI.Controllers
                 Price = createProductDTO.Price,
                 CategoryId = createProductDTO.CategoryId,
                 ManufacturerId = createProductDTO.ManufacturerId,
-                LastModifiedBy = "Admin",
+                LastModifiedById = createProductDTO.CreatedById,
                 EditCount = 0
             };
 
