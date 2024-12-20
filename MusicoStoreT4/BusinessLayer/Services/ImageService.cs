@@ -1,4 +1,5 @@
-﻿using BusinessLayer.Services.Interfaces;
+﻿using BusinessLayer.DTOs;
+using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Http;
@@ -40,7 +41,7 @@ namespace BusinessLayer.Services
             return productImage.FilePath;
         }
 
-        public async Task<FileResult> GetProductImageAsync(int productId)
+        public async Task<ImageDto?> GetProductImageAsync(int productId)
         {
             var product = await _dbContext.Products
                 .Include(p => p.Image)
@@ -53,22 +54,24 @@ namespace BusinessLayer.Services
 
             var fileBytes = await File.ReadAllBytesAsync(product.Image.FilePath);
 
-            return new FileContentResult(fileBytes, product.Image.MimeType)
+            return new ImageDto
             {
-                FileDownloadName = product.Image.FileName
+                FileName = product.Image.FileName,
+                MimeType = product.Image.MimeType,
+                FileContents = fileBytes
             };
         }
 
-        public async Task<List<FileResult>> GetAllProductsImagesAsync()
+        public async Task<List<ImageDto>> GetAllProductsImagesAsync()
         {
             var images = await _dbContext.ProductImages.ToListAsync();
 
             if (images == null || images.Count == 0)
             {
-                return new List<FileResult>();
+                return new List<ImageDto>();
             }
 
-            var results = new List<FileResult>();
+            var results = new List<ImageDto>();
 
             foreach (var image in images)
             {
@@ -87,9 +90,12 @@ namespace BusinessLayer.Services
                 try
                 {
                     var fileBytes = await File.ReadAllBytesAsync(image.FilePath);
-                    results.Add(new FileContentResult(fileBytes, image.MimeType)
+
+                    results.Add(new ImageDto
                     {
-                        FileDownloadName = image.FileName
+                        FileName = image.FileName,
+                        MimeType = image.MimeType,
+                        FileContents = fileBytes
                     });
                 }
                 catch (Exception)

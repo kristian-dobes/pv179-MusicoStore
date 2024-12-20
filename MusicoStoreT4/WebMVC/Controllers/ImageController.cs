@@ -17,14 +17,14 @@ namespace WebMVC.Controllers
 
         public async Task<IActionResult> GetImage(int productId)
         {
-            var imageResult = await _imageService.GetProductImageAsync(productId);
+            var imageDto = await _imageService.GetProductImageAsync(productId);
 
-            if (imageResult == null)
+            if (imageDto == null)
             {
-                return NotFound();
+                return NotFound(new { Message = "Image not found for this product." });
             }
 
-            return imageResult;
+            return File(imageDto.FileContents, imageDto.MimeType, imageDto.FileName);
         }
     }
 }

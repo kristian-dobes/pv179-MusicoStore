@@ -26,6 +26,36 @@ namespace WebAPI.Controllers
             _imageService = productService;
         }
 
+        [HttpGet("images")]
+        public async Task<IActionResult> Fetch()
+        {
+            var images = await _imageService.GetAllProductsImagesAsync();
+
+            if (images == null || !images.Any())
+            {
+                return NotFound(new { Message = "No images found." });
+            }
+
+            var fileResults = images.Select(image =>
+            {
+                var fileBytes = image.FileContents;
+                var mimeType = image.MimeType;
+                var fileName = image.FileName;
+
+                return new FileContentResult(fileBytes, mimeType)
+                {
+                    FileDownloadName = fileName
+                };
+            }).ToList();
+
+            return Ok(fileResults.Select(fileResult => new
+            {
+                fileResult.FileDownloadName,
+                fileResult.ContentType,
+                FileBytes = Convert.ToBase64String(fileResult.FileContents)
+            }));
+        }
+
         [HttpPost("UploadMetadata")]
         public async Task<IActionResult> UploadImageMetadata([FromBody] UploadImageMetadataDTO uploadImageMetadataDTO)
         {
@@ -57,45 +87,17 @@ namespace WebAPI.Controllers
             return Ok(productImageDTO);
         }
 
-        [HttpGet("{fileName}")]
-        public IActionResult GetImage(string fileName)
-        {
-            var filePath = Path.Combine("images", fileName);
-
-            if (!System.IO.File.Exists(filePath))
-                return NotFound();
-
-            var fileBytes = System.IO.File.ReadAllBytes(filePath);
-            var mimeType = "image/jpeg"; // Default mime type for images
-
-            if (fileName.EndsWith(".png"))
-                mimeType = "image/png";
-            else if (fileName.EndsWith(".gif"))
-                mimeType = "image/gif";
-            else if (fileName.EndsWith(".bmp"))
-                mimeType = "image/bmp";
-
-            return File(fileBytes, mimeType);
-        }
-
         [HttpGet("{productId}/file")]
         public async Task<IActionResult> GetImageFileByProductId(int productId)
         {
-            var productImage = await _context.ProductImages
-                .FirstOrDefaultAsync(pi => pi.ProductId == productId);
+            var image = await _imageService.GetProductImageAsync(productId);
 
-            if (productImage == null)
+            if (image == null)
             {
                 return NotFound(new { Message = "Image not found for this product." });
             }
 
-            if (!System.IO.File.Exists(productImage.FilePath))
-            {
-                return NotFound(new { Message = "Image file not found on server." });
-            }
-
-            var fileBytes = await System.IO.File.ReadAllBytesAsync(productImage.FilePath);
-            return File(fileBytes, productImage.MimeType);
+            return File(image.FileContents, image.MimeType, image.FileName);
         }
 
         [HttpPost("upload-image/{productId}")]
