@@ -1,8 +1,9 @@
 ﻿using BusinessLayer;
+using BusinessLayer.DTOs.Manufacturer;
 using BusinessLayer.DTOs.Product;
 using Mapster;
+using WebMVC.Models.Manufacturer;
 using WebMVC.Models.Product;
-//using WebMVC.Models.Shared;
 
 namespace WebMVC
 {
@@ -13,9 +14,12 @@ namespace WebMVC
             base.RegisterMappings();
 
             TypeAdapterConfig<ProductCompleteDTO, ProductDetailViewModel>.NewConfig()
-            .Map(dest => dest.Id, src => src.ProductId);
+                .Map(dest => dest.Id, src => src.ProductId);
             TypeAdapterConfig<ProductCompleteDTO, ProductSummaryViewModel>.NewConfig()
-            .Map(dest => dest.Id, src => src.ProductId);
+                .Map(dest => dest.Id, src => src.ProductId);
+
+            TypeAdapterConfig<ManufacturerSummaryDTO, ManufacturerSummaryViewModel>.NewConfig()
+                .Map(dest => dest.ManufacturerId, src => src.ManufacturerId);
         }
     }
 }

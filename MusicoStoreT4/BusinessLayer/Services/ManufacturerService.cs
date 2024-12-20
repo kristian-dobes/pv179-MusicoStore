@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BusinessLayer.DTOs;
+using BusinessLayer.DTOs.Manufacturer;
 using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
+using DataAccessLayer.Models;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Services
@@ -20,6 +23,52 @@ namespace BusinessLayer.Services
             _dBContext = dBContext;
         }
 
+        public async Task<ICollection<ManufacturerSummaryDTO>> GetManufacturers()
+        {
+            IQueryable<Manufacturer> manufacturerQuery = _dBContext.Manufacturers;
+            
+            // Fetch data into a list
+            var manufacturers = await manufacturerQuery.ToListAsync();
+            
+            // Map to DTOs
+            var manufacturerDTOs = manufacturers.Adapt<ICollection<ManufacturerSummaryDTO>>();
+            
+            return manufacturerDTOs;
+        }
+
+        public async Task<ManufacturerSummaryDTO?> GetManufacturerByIdAsync(int manufacturerId)
+        {
+            var manufacturer = await _dBContext.Manufacturers
+                .SingleOrDefaultAsync(m => m.Id == manufacturerId);
+           
+            return manufacturer?.Adapt<ManufacturerSummaryDTO>();
+        }
+
+        public async Task<ManufacturerDTO> CreateManufacturerAsync(ManufacturerNameDTO manufacturer)
+        {
+            var manufacturerEntity = manufacturer.Adapt<Manufacturer>();
+            
+            _dBContext.Manufacturers.Add(manufacturerEntity);
+            await SaveAsync(true);
+
+            return manufacturerEntity.Adapt<ManufacturerDTO>();
+        }
+
+        public async Task<ManufacturerDTO?> UpdateManufacturerAsync(int manufacturerId, ManufacturerNameDTO manufacturerDto)
+        {
+            var manufacturer = await _dBContext.Manufacturers.FindAsync(manufacturerId);
+
+            if (manufacturer == null)
+            {
+                return null;
+            }
+
+            manufacturer = manufacturerDto.Adapt(manufacturer);
+            _dBContext.Manufacturers.Update(manufacturer);
+            await SaveAsync(true);
+            return manufacturer.Adapt<ManufacturerDTO>();
+        }
+
         public async Task<bool> ValidateManufacturerAsync(int manufacturerId)
         {
             return await _dBContext.Manufacturers
@@ -29,15 +78,13 @@ namespace BusinessLayer.Services
         public async Task DeleteManufacturerAsync(int manufacturerId)
         {
             var manufacturer = await _dBContext.Manufacturers
-                .FirstOrDefaultAsync(m => m.Id == manufacturerId);
+                .FindAsync(manufacturerId);
 
-            if (manufacturer == null)
+            if (manufacturer != null)
             {
-                return;
+                _dBContext.Manufacturers.Remove(manufacturer);
+                await SaveAsync(true);
             }
-
-            _dBContext.Manufacturers.Remove(manufacturer);
-            await _dBContext.SaveChangesAsync();
         }
     }
 }

@@ -1,4 +1,5 @@
 using BusinessLayer.DTOs;
+using BusinessLayer.DTOs.Manufacturer;
 using BusinessLayer.DTOs.Product;
 using DataAccessLayer.Models;
 using System;
@@ -97,9 +98,9 @@ namespace BusinessLayer.Mapper
             };
         }
 
-        public static ManufacturerDto MapToManufacturerDTO(this Manufacturer manufacturer)
+        public static ManufacturerDTO MapToManufacturerDTO(this Manufacturer manufacturer)
         {
-            return new ManufacturerDto
+            return new ManufacturerDTO
             {
                 ManufacturerId = manufacturer.Id,
                 Name = manufacturer.Name,

@@ -1,4 +1,5 @@
 ﻿using BusinessLayer.DTOs;
+using BusinessLayer.DTOs.Manufacturer;
 using BusinessLayer.DTOs.Product;
 using DataAccessLayer.Models;
 using Mapster;
@@ -40,6 +41,11 @@ namespace BusinessLayer
                 .Map(dest => dest.OrderItems, src => src.OrderItems.Adapt<ICollection<OrderItemCompleteDTO>>())
                 .Map(dest => dest.CategoryId, src => src.CategoryId)
                 .Map(dest => dest.ManufacturerId, src => src.ManufacturerId);
+
+            TypeAdapterConfig<Manufacturer, ManufacturerSummaryDTO>.NewConfig()
+                .Map(dest => dest.ManufacturerId, src => src.Id)
+                .Map(dest => dest.Name, src => src.Name)
+                .Map(dest => dest.NumberOfProducts, src => src.Products != null ? src.Products.Count() : 0);
         }
     }
 }

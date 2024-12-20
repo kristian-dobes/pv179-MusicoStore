@@ -25,8 +25,7 @@ builder.Services.AddDbContext<MyDBContext>(options =>
 
 /* Register Services */
 builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddScoped<IAuditLogService, AuditLogService>();
-builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 
 new MapsterConfig().RegisterMappings();
 

@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLayer.DTOs
+namespace BusinessLayer.DTOs.Manufacturer
 {
-    public class ManufacturerDto
+    public class ManufacturerDTO
     {
         public int ManufacturerId { get; set; }
-        public string Name { get; set; }
-        public ICollection<ProductDto>? Products { get; set; }
+        public required string Name { get; set; }
+        public IEnumerable<ProductDto>? Products { get; set; }
     }
 }
