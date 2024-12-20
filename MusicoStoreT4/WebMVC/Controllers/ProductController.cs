@@ -1,7 +1,9 @@
 ﻿using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using WebMVC.Models;
 
 namespace WebMVC.Controllers
 {
@@ -10,12 +12,14 @@ namespace WebMVC.Controllers
         private readonly IProductService _productService;
         private readonly IAuditLogService _auditLogService;
         private readonly IUserService _userService;
+        private readonly IImageService _imageService;
 
-        public ProductController(IProductService productService, IAuditLogService auditLogService, IUserService userService)
+        public ProductController(IProductService productService, IAuditLogService auditLogService, IUserService userService, IImageService imageService)
         {
             _productService = productService;
             _auditLogService = auditLogService;
             _userService = userService;
+            _imageService = imageService;
         }
 
         [HttpGet]
@@ -78,6 +82,27 @@ namespace WebMVC.Controllers
             await _productService.DeleteProductAsync(id, userId);
 
             return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> ProductDetails(int productId)
+        {
+            Product product = await _productService.GetProductByIdAsync(productId);
+
+            if (product == null)
+                return NotFound();
+
+            string imageFilePath = await _imageService.GetImagePathByProductIdAsync(productId);
+
+            var productViewModel = new ProductViewModel
+            {
+                ProductId = product.Id,
+                ProductName = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                ImageFilePath = imageFilePath
+            };
+
+            return View(productViewModel);
         }
     }
 }

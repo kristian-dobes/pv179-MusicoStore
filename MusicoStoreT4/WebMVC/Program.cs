@@ -2,6 +2,10 @@ using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using BusinessLayer.Services.Interfaces;
+using BusinessLayer.Services;
+using BusinessLayer.Facades.Interfaces;
+using BusinessLayer.Facades;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,20 +13,43 @@ builder.Services.AddControllersWithViews();
 
 var databaseName = builder.Configuration["DatabaseName"];
 
+var folder = Environment.SpecialFolder.LocalApplicationData;
+var dbPath = Path.Join(Environment.GetFolderPath(folder), databaseName);
+string imagesFolder = Path.Combine(Path.GetDirectoryName(dbPath) ?? string.Empty, "ProductImages");
+
+if (!Directory.Exists(imagesFolder))
+{
+    Directory.CreateDirectory(imagesFolder);
+}
+
+// Register DbContext
 builder.Services.AddDbContext<MyDBContext>(options =>
 {
-    var folder = Environment.SpecialFolder.LocalApplicationData;
-    var dbPath = Path.Join(Environment.GetFolderPath(folder), databaseName);
-
     options
         .UseSqlite($"Data Source={dbPath}", x => x.MigrationsAssembly("DAL.SQLite.Migrations"))
         .LogTo(s => System.Diagnostics.Debug.WriteLine(s))
         .UseLazyLoadingProxies();
 });
 
+// Register Identity
 builder.Services.AddIdentity<LocalIdentityUser, IdentityRole>()
-                .AddEntityFrameworkStores<MyDBContext>()
-                .AddDefaultTokenProviders();
+    .AddEntityFrameworkStores<MyDBContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddSingleton(imagesFolder);
+
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IImageService>(provider =>
+{
+    var dbContext = provider.GetRequiredService<MyDBContext>();
+    var imagesPath = imagesFolder;
+    return new ImageService(dbContext, imagesPath);
+});
+builder.Services.AddScoped<IManufacturerFacade, ManufacturerFacade>();
+builder.Services.AddScoped<ILogService, LogService>();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
