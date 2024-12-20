@@ -1,4 +1,5 @@
-﻿using BusinessLayer.Services.Interfaces;
+﻿using BusinessLayer.DTOs.Product;
+using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -30,9 +31,9 @@ namespace WebMVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, Product model)
+        public async Task<IActionResult> Edit(int id, UpdateProductDTO productDto)
         {
-            if (id != model.Id)
+            if (id != productDto.Id)
                 return BadRequest();
 
             var existingProduct = await _productService.GetProductByIdAsync(id);
@@ -41,27 +42,27 @@ namespace WebMVC.Controllers
                 return NotFound();
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            await _productService.UpdateProductAsync(model, userId);
+            await _productService.UpdateProductAsync(productDto, userId);
             var action = "Update";
-            await _auditLogService.LogAsync(model.Id, action, int.Parse(userId));
+            await _auditLogService.LogAsync(productDto.Id, action, int.Parse(userId));
 
             return RedirectToAction("Index");
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Product model)
+        public async Task<IActionResult> Create(CreateProductDTO productDto)
         {
             if (ModelState.IsValid)
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var createdProduct = await _productService.CreateProductAsync(model, userId);
+                var createdProduct = await _productService.CreateProductAsync(productDto, userId);
                 var action = "Create";
                 await _auditLogService.LogAsync(createdProduct.Id, action, int.Parse(userId));
 
                 return RedirectToAction("Index");
             }
 
-            return View(model);
+            return View(productDto);
         }
 
         [HttpPost]
@@ -72,9 +73,9 @@ namespace WebMVC.Controllers
             if (product == null)
                 return NotFound();
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get the user ID from the claims
-            var action = "Delete"; // Action type (CRUD)
-            await _auditLogService.LogAsync(product.Id, action, int.Parse(userId));
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var action = "Delete";
+            await _auditLogService.LogAsync(id, action, int.Parse(userId));
             await _productService.DeleteProductAsync(id, userId);
 
             return RedirectToAction("Index");
