@@ -26,6 +26,12 @@ namespace Tests
             _manufacturerFacade = new ManufacturerFacade(_manufacturerService, _productService);
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            _context?.Dispose();
+        }
+
         [Test]
         public async Task MergeManufacturersAsync_ShouldThrowInvalidOperationException_WhenIdsAreSame()
         {
