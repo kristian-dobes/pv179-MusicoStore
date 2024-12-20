@@ -122,7 +122,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                await _manufacturerFacade.MergeManufacturersAsync(sourceManufacturerId, targetManufacturerId);
+                await _manufacturerFacade.MergeManufacturersAsync(sourceManufacturerId, targetManufacturerId, -1);
                 return Ok("Manufacturers merged successfully, source manufacturer was removed.");
             }
             catch (InvalidOperationException ex)

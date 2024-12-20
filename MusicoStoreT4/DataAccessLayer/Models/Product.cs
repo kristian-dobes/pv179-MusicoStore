@@ -15,7 +15,10 @@ namespace DataAccessLayer.Models
         public decimal Price { get; set; }
         public int QuantityInStock { get; set; }
 
-        public string LastModifiedBy { get; set; }
+        /// <summary>
+        /// -1 means it was last modified by Web API
+        /// </summary>
+        public int LastModifiedById { get; set; }
         public int EditCount { get; set; }
 
         public virtual ICollection<OrderItem>? OrderItems { get; set; }

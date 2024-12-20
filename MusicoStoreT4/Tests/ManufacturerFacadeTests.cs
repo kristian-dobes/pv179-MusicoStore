@@ -21,7 +21,7 @@ namespace Tests
         {
             _context = MockDbContext.GenerateMock();
 
-            _productService = new ProductService(_context);
+            _productService = new ProductService(_context, new AuditLogService(_context));
             _manufacturerService = new ManufacturerService(_context);
             _manufacturerFacade = new ManufacturerFacade(_manufacturerService, _productService);
         }
@@ -34,7 +34,7 @@ namespace Tests
 
             // Act & Assert
             var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await _manufacturerFacade.MergeManufacturersAsync(manufacturerId, manufacturerId));
+                await _manufacturerFacade.MergeManufacturersAsync(manufacturerId, manufacturerId, -1));
 
             Assert.AreEqual("Source and target manufacturers must be different.", ex.Message);
         }
@@ -54,7 +54,7 @@ namespace Tests
 
             // Act and Assert
             var ex = Assert.ThrowsAsync<KeyNotFoundException>(async () =>
-                await _manufacturerFacade.MergeManufacturersAsync(manufacturerId20, manufacturerId1));
+                await _manufacturerFacade.MergeManufacturersAsync(manufacturerId20, manufacturerId1, -1));
 
             Assert.AreEqual($"Source manufacturer with ID {manufacturerId20} not found.", ex.Message);
         }
@@ -74,7 +74,7 @@ namespace Tests
 
             // Act and Assert
             var ex = Assert.ThrowsAsync<KeyNotFoundException>(async () =>
-                await _manufacturerFacade.MergeManufacturersAsync(sourceManufacturerId, targetManufacturerId));
+                await _manufacturerFacade.MergeManufacturersAsync(sourceManufacturerId, targetManufacturerId, -1));
 
             Assert.AreEqual($"Target manufacturer with ID {targetManufacturerId} not found.", ex.Message);
         }
@@ -98,7 +98,7 @@ namespace Tests
             Assert.IsNotEmpty(productsOfMan1BeforeMerge, "Manufacturer 1 should have products.");
 
             // Act
-            await _manufacturerFacade.MergeManufacturersAsync(manufacturerId1, manufacturerId2);
+            await _manufacturerFacade.MergeManufacturersAsync(manufacturerId1, manufacturerId2, -1);
 
             // Assert
             var man2ProductsAfterMerge = _context.Products.Where(p => p.ManufacturerId == manufacturerId2).ToList();
