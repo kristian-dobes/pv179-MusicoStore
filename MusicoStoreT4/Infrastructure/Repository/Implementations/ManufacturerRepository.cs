@@ -1,4 +1,5 @@
-﻿using DataAccessLayer.Models;
+﻿using DataAccessLayer.Data;
+using DataAccessLayer.Models;
 using Infrastructure.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -11,29 +12,63 @@ namespace Infrastructure.Repository
 {
     public class ManufacturerRepository : IManufacturerRepository
     {
-        public Task<Manufacturer?> Add(Manufacturer entity)
+        private readonly MyDBContext _context;
+
+        public ManufacturerRepository(MyDBContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
         }
 
-        public Task<bool> Delete(int id)
+        public async Task<Manufacturer?> Add(Manufacturer entity)
         {
-            throw new NotImplementedException();
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            Manufacturer added = (await _context.Manufacturers.AddAsync(entity)).Entity;
+            await _context.SaveChangesAsync();
+
+            return added;
         }
 
-        public Task<IEnumerable<Manufacturer>> GetAll()
+        public async Task<bool> Delete(int id)
         {
-            throw new NotImplementedException();
+            var manufacturer = await _context.Manufacturers.FindAsync(id);
+
+            if (manufacturer == null)
+                return false;
+
+            _context.Manufacturers.Remove(manufacturer);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
 
-        public Task<Manufacturer?> GetById(int id)
+        public async Task<IEnumerable<Manufacturer>> GetAll()
         {
-            throw new NotImplementedException();
+            return await _context.Manufacturers.ToListAsync();
         }
 
-        public Task<bool> Update(Manufacturer entity)
+        public async Task<Manufacturer?> GetById(int id)
         {
-            throw new NotImplementedException();
+            return await _context.Manufacturers.FirstOrDefaultAsync(m => m.Id == id);
+        }
+
+        public async Task<bool> Update(Manufacturer entity)
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            var existingManufacturer = await _context.Manufacturers.FindAsync(entity.Id);
+
+            if (existingManufacturer == null)
+                return false;
+
+            existingManufacturer.Name = entity.Name;
+
+            _context.Manufacturers.Update(existingManufacturer);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using DataAccessLayer.Models;
+﻿using DataAccessLayer.Data;
+using DataAccessLayer.Models;
 using Infrastructure.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,29 +7,63 @@ namespace Infrastructure.Repository
 {
     public class OrderItemRepository : IOrderItemRepository
     {
-        public Task<OrderItem?> Add(OrderItem entity)
+        private readonly MyDBContext _context;
+
+        public OrderItemRepository(MyDBContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
         }
 
-        public Task<bool> Delete(int id)
+        public async Task<OrderItem?> Add(OrderItem entity)
         {
-            throw new NotImplementedException();
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            OrderItem added = (await _context.OrderItems.AddAsync(entity)).Entity;
+            await _context.SaveChangesAsync();
+            return added;
         }
 
-        public Task<IEnumerable<OrderItem>> GetAll()
+        public async Task<bool> Delete(int id)
         {
-            throw new NotImplementedException();
+            var orderItem = await _context.OrderItems.FindAsync(id);
+
+            if (orderItem == null)
+                return false;
+
+            _context.OrderItems.Remove(orderItem);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public Task<OrderItem?> GetById(int id)
+        public async Task<IEnumerable<OrderItem>> GetAll()
         {
-            throw new NotImplementedException();
+            return await _context.OrderItems.ToListAsync();
         }
 
-        public Task<bool> Update(OrderItem entity)
+        public async Task<OrderItem?> GetById(int id)
         {
-            throw new NotImplementedException();
+            return await _context.OrderItems.FirstOrDefaultAsync(oi => oi.Id == id);
+        }
+
+        public async Task<bool> Update(OrderItem entity)
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            var existingOrderItem = await _context.OrderItems.FindAsync(entity.Id);
+
+            if (existingOrderItem == null)
+                return false;
+
+            existingOrderItem.OrderId = entity.OrderId;
+            existingOrderItem.ProductId = entity.ProductId;
+            existingOrderItem.Quantity = entity.Quantity;
+            existingOrderItem.Price = entity.Price;
+
+            _context.OrderItems.Update(existingOrderItem);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using DataAccessLayer.Models;
+﻿using DataAccessLayer.Data;
+using DataAccessLayer.Models;
 using Infrastructure.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -11,29 +12,62 @@ namespace Infrastructure.Repository
 {
     public class ProductAuditRepository : IProductAuditRepository
     {
-        public Task<AuditLog?> Add(AuditLog entity)
+        private readonly MyDBContext _context;
+
+        public ProductAuditRepository(MyDBContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
         }
 
-        public Task<bool> Delete(int id)
+        public async Task<AuditLog?> Add(AuditLog entity)
         {
-            throw new NotImplementedException();
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            AuditLog added = (await _context.AuditLogs.AddAsync(entity)).Entity;
+            await _context.SaveChangesAsync();
+            return added;
         }
 
-        public Task<IEnumerable<AuditLog>> GetAll()
+        public async Task<bool> Delete(int id)
         {
-            throw new NotImplementedException();
+            var auditLog = await _context.AuditLogs.FindAsync(id);
+
+            if (auditLog == null)
+                return false;
+
+            _context.AuditLogs.Remove(auditLog);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public Task<AuditLog?> GetById(int id)
+        public async Task<IEnumerable<AuditLog>> GetAll()
         {
-            throw new NotImplementedException();
+            return await _context.AuditLogs.ToListAsync();
         }
 
-        public Task<bool> Update(AuditLog entity)
+        public async Task<AuditLog?> GetById(int id)
         {
-            throw new NotImplementedException();
+            return await _context.AuditLogs.FirstOrDefaultAsync(a => a.Id == id);
+        }
+
+        public async Task<bool> Update(AuditLog entity)
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            var existingAuditLog = await _context.AuditLogs.FindAsync(entity.Id);
+
+            if (existingAuditLog == null)
+                return false;
+
+            existingAuditLog.ProductId = entity.ProductId;
+            existingAuditLog.Action = entity.Action;
+            existingAuditLog.ModifiedById = entity.ModifiedById;
+
+            _context.AuditLogs.Update(existingAuditLog);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

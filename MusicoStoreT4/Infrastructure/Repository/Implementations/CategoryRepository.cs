@@ -12,29 +12,64 @@ namespace Infrastructure.Repository
 {
     public class CategoryRepository(MyDBContext _context) : ICategoryRepository
     {
-        public Task<Category?> Add(Category entity)
+        public async Task<Category?> Add(Category entity)
         {
-            throw new NotImplementedException();
+            if (entity == null)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+
+            var added = (await _context.Categories.AddAsync(entity)).Entity;
+            await _context.SaveChangesAsync();
+
+            return added;
         }
 
-        public Task<bool> Delete(int id)
+        public async Task<bool> Delete(int id)
         {
-            throw new NotImplementedException();
+            var category = await _context.Categories.FindAsync(id);
+
+            if (category == null)
+            {
+                return false;
+            }
+
+            _context.Categories.Remove(category);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
 
-        public Task<IEnumerable<Category>> GetAll()
+        public async Task<IEnumerable<Category>> GetAll()
         {
-            throw new NotImplementedException();
+            return await _context.Categories.ToListAsync();
         }
 
-        public Task<Category?> GetById(int id)
+        public async Task<Category?> GetById(int id)
         {
-            throw new NotImplementedException();
+            return await _context.Categories.FindAsync(id);
         }
 
-        public Task<bool> Update(Category entity)
+        public async Task<bool> Update(Category entity)
         {
-            throw new NotImplementedException();
+            if (entity == null)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+
+            var existingCategory = await _context.Categories.FindAsync(entity.Id);
+
+            if (existingCategory == null)
+            {
+                return false;
+            }
+
+            existingCategory.Name = entity.Name;
+
+            _context.Categories.Update(existingCategory);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
     }
 }

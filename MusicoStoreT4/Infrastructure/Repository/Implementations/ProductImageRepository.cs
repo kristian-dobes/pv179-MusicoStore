@@ -1,4 +1,5 @@
-﻿using DataAccessLayer.Models;
+﻿using DataAccessLayer.Data;
+using DataAccessLayer.Models;
 using Infrastructure.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -11,29 +12,63 @@ namespace Infrastructure.Repository
 {
     public class ProductImageRepository : IProductImageRepository
     {
-        public Task<ProductImage?> Add(ProductImage entity)
+        private readonly MyDBContext _context;
+
+        public ProductImageRepository(MyDBContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
         }
 
-        public Task<bool> Delete(int id)
+        public async Task<ProductImage?> Add(ProductImage entity)
         {
-            throw new NotImplementedException();
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            var addedEntity = (await _context.ProductImages.AddAsync(entity)).Entity;
+            await _context.SaveChangesAsync();
+            return addedEntity;
         }
 
-        public Task<IEnumerable<ProductImage>> GetAll()
+        public async Task<bool> Delete(int id)
         {
-            throw new NotImplementedException();
+            var productImage = await _context.ProductImages.FindAsync(id);
+
+            if (productImage == null)
+                return false;
+
+            _context.ProductImages.Remove(productImage);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public Task<ProductImage?> GetById(int id)
+        public async Task<IEnumerable<ProductImage>> GetAll()
         {
-            throw new NotImplementedException();
+            return await _context.ProductImages.ToListAsync();
         }
 
-        public Task<bool> Update(ProductImage entity)
+        public async Task<ProductImage?> GetById(int id)
         {
-            throw new NotImplementedException();
+            return await _context.ProductImages.FirstOrDefaultAsync(pi => pi.Id == id);
+        }
+
+        public async Task<bool> Update(ProductImage entity)
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            var existingImage = await _context.ProductImages.FindAsync(entity.Id);
+
+            if (existingImage == null)
+                return false;
+
+            existingImage.FilePath = entity.FilePath;
+            existingImage.FileName = entity.FileName;
+            existingImage.MimeType = entity.MimeType;
+            existingImage.ProductId = entity.ProductId;
+
+            _context.ProductImages.Update(existingImage);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }
