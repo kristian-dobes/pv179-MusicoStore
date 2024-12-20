@@ -1,20 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using DataAccessLayer.Data;
-using DataAccessLayer.Models;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using BusinessLayer.Services.Interfaces;
 using Mapster;
 using WebMVC.Models.Product;
-using BusinessLayer.Services;
-using System.Security.Claims;
 using BusinessLayer.DTOs.Product;
-using Microsoft.AspNetCore.Identity;
 
 namespace WebMVC.Areas.Admin.Controllers
 {
@@ -22,12 +11,10 @@ namespace WebMVC.Areas.Admin.Controllers
     [Authorize(Roles = "Admin")]
     public class ProductController : Controller
     {
-        private readonly MyDBContext _context; // TODO REMOVE ANY REFERENCES TO THIS
         private readonly IProductService _productService;
 
-        public ProductController(MyDBContext context, IProductService productService)
+        public ProductController(IProductService productService)
         {
-            _context = context;
             _productService = productService;
         }
 
@@ -60,8 +47,8 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/Product/Create
         public IActionResult Create()
         {
-            // TODO use list of categories and manufacturers from the database
-            // not like this tho
+            // TODO use list of available categories and manufacturers
+            // not like this:
             //ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
             //ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "Id", "Name");
 
@@ -70,7 +57,6 @@ namespace WebMVC.Areas.Admin.Controllers
 
         // POST: Admin/Product/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ProductCreateViewModel model)
         {
             if (!ModelState.IsValid)
@@ -102,7 +88,6 @@ namespace WebMVC.Areas.Admin.Controllers
         }
 
         // POST: Admin/Product/Edit/5
-        //[ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Edit(int id, ProductUpdateViewModel model)
         {
@@ -137,22 +122,14 @@ namespace WebMVC.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            Console.WriteLine("GET Delete product end");
-
             return View(product.Adapt<ProductDetailViewModel>());
         }
 
         // POST: Admin/Product/Delete/5
-        //[ValidateAntiForgeryToken]
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirm(int id)
         {
-            Console.WriteLine("Delete product start");
-            
             await _productService.DeleteProductAsync(id);
-            await _context.SaveChangesAsync();
-
-            Console.WriteLine("Delete product end");
 
             return RedirectToAction("Index");
         }

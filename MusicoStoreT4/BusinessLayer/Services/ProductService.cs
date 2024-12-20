@@ -23,9 +23,6 @@ namespace BusinessLayer.Services
 
         public async Task<ICollection<ProductCompleteDTO>> GetProducts()
         {
-            //IQueryable<Product> productQuerry = _dBContext.Products;
-            //return (await productQuerry.ToListAsync()).Adapt<ICollection<ProductCompleteDTO>>();
-
             IQueryable<Product> productQuery = _dBContext.Products;
 
             // Fetch data into a list
@@ -55,14 +52,6 @@ namespace BusinessLayer.Services
             }
 
             product = productDto.Adapt(product);
-
-            //product.Name = productDto.Name;
-            //product.Description = productDto.Description;
-            //product.Price = productDto.Price;
-            //product.ManufacturerId = productDto.ManufacturerId;
-            //product.CategoryId = productDto.CategoryId;
-            //product.QuantityInStock = productDto.QuantityInStock;
-            //product.LastModifiedBy = modifiedBy;
             product.EditCount++;
 
             _dBContext.Products.Update(product);
@@ -168,6 +157,8 @@ namespace BusinessLayer.Services
         public async Task DeleteProductAsync(int productId)
         {
             //TODO does this method need string deletedBy?
+            // Optionally log the delete action or use the deletedBy field for audit purposes
+            // e.g., _auditLogService.LogAsync(productId, "Delete", deletedBy);
 
             var product = await _dBContext.Products.FindAsync(productId);
 
@@ -179,9 +170,6 @@ namespace BusinessLayer.Services
 
             //if (product == null)
             //    throw new KeyNotFoundException($"Product with ID {productId} not found.");
-
-            // Optionally log the delete action or use the deletedBy field for audit purposes
-            // e.g., _auditLogService.LogAsync(productId, "Delete", deletedBy);
         }
 
         public async Task<Boolean> IsProductValidAsync(int productId) 
