@@ -27,6 +27,12 @@ namespace Tests
             _service = new CategoryService(_context);
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            _context?.Dispose();
+        }
+
         [Test]
         public async Task GetCategoriesAsync_ShouldReturnCategories()
         {

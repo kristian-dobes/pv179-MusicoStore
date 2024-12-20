@@ -26,6 +26,12 @@ namespace Tests
             _productService = new ProductService(_context, new AuditLogService(_context));
         }
 
+        [TearDown]
+        public void TearDown()
+        {
+            _context?.Dispose();
+        }
+
         [Test]
         public async Task GetMostFrequentBoughtItemAsync_ShouldReturnNull_WhenUserDoesNotExist()
         {
