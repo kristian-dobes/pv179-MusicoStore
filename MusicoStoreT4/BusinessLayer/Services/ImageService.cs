@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace BusinessLayer.Services
 {
@@ -56,6 +57,48 @@ namespace BusinessLayer.Services
             {
                 FileDownloadName = product.Image.FileName
             };
+        }
+
+        public async Task<List<FileResult>> GetAllProductsImagesAsync()
+        {
+            var images = await _dbContext.ProductImages.ToListAsync();
+
+            if (images == null || images.Count == 0)
+            {
+                return new List<FileResult>();
+            }
+
+            var results = new List<FileResult>();
+
+            foreach (var image in images)
+            {
+                if (string.IsNullOrEmpty(image.FilePath) ||
+                    string.IsNullOrEmpty(image.MimeType) ||
+                    string.IsNullOrEmpty(image.FileName))
+                {
+                    continue;
+                }
+
+                if (!File.Exists(image.FilePath))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    var fileBytes = await File.ReadAllBytesAsync(image.FilePath);
+                    results.Add(new FileContentResult(fileBytes, image.MimeType)
+                    {
+                        FileDownloadName = image.FileName
+                    });
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
+
+            return results;
         }
 
         public async Task<bool> ChangeOrAssignProductImageAsync(int productId, IFormFile newFile)
