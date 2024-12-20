@@ -52,7 +52,7 @@ namespace BusinessLayer.Services
                     highValueCustomers.Add(customer.MapToCustomerDto());
                 }
 
-                if (customer.Orders.All(o => (currentDate - o.Date).Days > 180))
+                if (customer.Orders.Any() && customer.Orders.All(o => (currentDate - o.Date).Days > 180))
                 {
                     infrequentCustomers.Add(customer.MapToCustomerDto());
                 }
@@ -104,10 +104,10 @@ namespace BusinessLayer.Services
                 .ToListAsync();
 
             var userSummaries = new List<UserSummaryDto>();
+
             foreach (var user in users)
             {
                 var totalExpenditure = await CalculateTotalExpenditureAsync(user.Id);
-
                 userSummaries.Add(user.MapToUserSummaryDto(totalExpenditure));
             }
 

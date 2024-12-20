@@ -45,6 +45,19 @@ namespace BusinessLayer.Mapper
             };
         }
 
+        public static UserDto MapToUserDto(this Customer customer)
+        {
+            return new UserDto
+            {
+                UserId = customer.Id,
+                Email = customer.Email,
+                Username = customer.Username,
+                Role = customer.Role,
+                Created = customer.Created,
+                CustomerDetails = customer.MapToCustomerDetailsDto()
+            };
+        }
+
         public static CustomerDetailsDto MapToCustomerDetailsDto(this Customer customer)
         {
             return new CustomerDetailsDto

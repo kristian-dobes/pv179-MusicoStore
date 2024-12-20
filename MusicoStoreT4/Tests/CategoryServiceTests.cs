@@ -176,17 +176,14 @@ namespace Tests
             Assert.IsNotNull(result);
             Assert.AreEqual(newCategoryName, result.Name);
 
-            // Verify that the new category is saved in the database
             var savedCategory = _context.Categories.SingleOrDefault(c => c.Name == newCategoryName);
             Assert.IsNotNull(savedCategory);
 
-            // Verify that the products are reassigned to the new category
             var reassignedProducts = _context.Products.Where(p => p.CategoryId == savedCategory.Id).ToList();
             Assert.AreEqual(3, reassignedProducts.Count);
             Assert.Contains(product1, reassignedProducts);
             Assert.Contains(product2, reassignedProducts);
 
-            // Verify that the source categories are removed
             var sourceCategories = _context.Categories.Where(c => c.Id == 1 || c.Id == 2).ToList();
             Assert.IsEmpty(sourceCategories, "Source categories should be removed after merging.");
         }
