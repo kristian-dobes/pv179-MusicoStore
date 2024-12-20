@@ -1,6 +1,7 @@
 ﻿using BusinessLayer.DTOs;
 using BusinessLayer.DTOs.User;
 using BusinessLayer.Facades;
+using BusinessLayer.Mapper;
 using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
@@ -96,7 +97,6 @@ namespace Tests
             var orders = _context.Orders.Where(o => o.UserId == userId).ToList();
             var orderItems = _context.OrderItems.Where(oi => orders.Select(o => o.Id).Contains(oi.OrderId)).ToList();
 
-            // Make sure there is at least one order and order item for the user
             Assert.IsNotNull(user);
             Assert.IsNotEmpty(orders);
             Assert.IsNotEmpty(orderItems);
@@ -107,7 +107,6 @@ namespace Tests
             // Assert
             Assert.IsNotNull(result);
 
-            // Assuming the most frequent item is the one with the highest quantity
             var mostFrequentOrderItem = orderItems
                 .GroupBy(oi => oi.ProductId)
                 .OrderByDescending(g => g.Sum(oi => oi.Quantity))
@@ -123,12 +122,10 @@ namespace Tests
             // Arrange
             int userId = 1;
 
-            // Retrieve the user and related orders from the context
             var user = _context.Users.SingleOrDefault(u => u.Id == userId);
             var orders = _context.Orders.Where(o => o.UserId == userId).ToList();
             var orderItems = _context.OrderItems.Where(oi => orders.Select(o => o.Id).Contains(oi.OrderId)).ToList();
 
-            // Make sure there is at least one order and order item for the user
             Assert.IsNotNull(user);
             Assert.IsNotEmpty(orders);
             Assert.IsNotEmpty(orderItems);
@@ -148,7 +145,6 @@ namespace Tests
             {
                 Assert.IsNotNull(result);
 
-                // Assuming the most frequent item is the one with the highest quantity
                 var mostFrequentOrderItem = orderItems
                     .GroupBy(oi => oi.ProductId)
                     .OrderByDescending(g => g.Sum(oi => oi.Quantity))
@@ -159,75 +155,54 @@ namespace Tests
             }
         }
 
+        [Test]
+        public async Task GetCustomerSegmentsAsync_ShouldReturnCustomerSegments()
+        {
+            // Arrange
+            var customerSegmentsDto = new CustomerSegmentsDto()
+            {
+                HighValueCustomers = new List<CustomerDto>() { _context.Customers.FirstOrDefault(u => u.Id == 3).MapToCustomerDto(),
+                                                               _context.Customers.FirstOrDefault(u => u.Id == 4).MapToCustomerDto() },
+                InfrequentCustomers = new List<CustomerDto>()
+            };
+
+            // Act
+            var result = await _userService.GetCustomerSegmentsAsync();
+
+            // Assert
+            CollectionAssert.AreEquivalent(customerSegmentsDto.HighValueCustomers, result.HighValueCustomers);
+            CollectionAssert.AreEquivalent(customerSegmentsDto.InfrequentCustomers, result.InfrequentCustomers);
+        }
+
         
-        /*
         [Test]
-        public void GetCustomerSegmentsAsync_ShouldReturnCustomerSegments()
+        public async Task GetCustomerSegmentsAsync_ShouldReturnEmptyLists_WhenNoCustomers()
         {
             // Arrange
-            var customerSegmentsDto = new CustomerSegmentsDto();
-            _userServiceMock.Setup(u => u.GetCustomerSegmentsAsync()).ReturnsAsync(customerSegmentsDto);
+            _context.Customers.RemoveRange(_context.Customers.ToList());
+            await _context.SaveChangesAsync();
 
             // Act
-            var result = _userServiceMock.Object.GetCustomerSegmentsAsync().Result;
+            var result = await _userService.GetCustomerSegmentsAsync();
 
             // Assert
-            Assert.AreEqual(customerSegmentsDto, result);
-        }
-        [Test]
-        public void GetCustomerSegmentsAsync_ShouldReturnNull_WhenNoCustomers()
-        {
-            // Arrange
-            _userServiceMock.Setup(u => u.GetCustomerSegmentsAsync()).ReturnsAsync((CustomerSegmentsDto)null);
-
-            // Act
-            var result = _userServiceMock.Object.GetCustomerSegmentsAsync().Result;
-
-            // Assert
-            Assert.IsNull(result);
+            Assert.IsEmpty(result.HighValueCustomers);
+            Assert.IsEmpty(result.InfrequentCustomers);
         }
 
         [Test]
-        public void GetUserSummariesAsync_ShouldReturnUserSummaries()
+        public async Task GetUserSummariesAsync_ShouldReturnEmpty_WhenDatasetIsEmpty()
         {
             // Arrange
-            var userSummaries = new List<UserSummaryDto>();
-            _userServiceMock.Setup(u => u.GetUserSummariesAsync()).ReturnsAsync(userSummaries);
+            _context.Users.RemoveRange(_context.Users.ToList());
+            _context.Customers.RemoveRange(_context.Customers.ToList());
+            await _context.SaveChangesAsync();
 
             // Act
-            var result = _userServiceMock.Object.GetUserSummariesAsync().Result;
+            var result = await _userService.GetUserSummariesAsync();
 
             // Assert
-            Assert.AreEqual(userSummaries, result);
+            Assert.IsEmpty(result);
         }
-
-        [Test]
-        public void GetUserSummariesAsync_ShouldHandleLargeDataset()
-        {
-            // Arrange
-            var largeDataset = Enumerable.Range(1, 1000).Select(i => new UserSummaryDto { UserId = i }).ToList();
-            _userServiceMock.Setup(u => u.GetUserSummariesAsync()).ReturnsAsync(largeDataset);
-
-            // Act
-            var result = _userServiceMock.Object.GetUserSummariesAsync().Result;
-
-            // Assert
-            Assert.AreEqual(1000, result.Count);
-            CollectionAssert.AreEqual(largeDataset, result);
-        }
-
-        [Test]
-        public void GetUserSummariesAsync_ShouldReturnNull_WhenDatasetIsEmpty()
-        {
-            // Arrange
-            _userServiceMock.Setup(u => u.GetUserSummariesAsync()).ReturnsAsync((List<UserSummaryDto>)null);
-
-            // Act
-            var result = _userServiceMock.Object.GetUserSummariesAsync().Result;
-
-            // Assert
-            Assert.IsNull(result);
-        }
-        */
     }
 }

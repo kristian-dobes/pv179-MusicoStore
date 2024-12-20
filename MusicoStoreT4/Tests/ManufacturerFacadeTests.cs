@@ -101,12 +101,10 @@ namespace Tests
             await _manufacturerFacade.MergeManufacturersAsync(manufacturerId1, manufacturerId2);
 
             // Assert
-            // Check that products previously associated with manufacturer 1 are now assigned to manufacturer 2
             var man2ProductsAfterMerge = _context.Products.Where(p => p.ManufacturerId == manufacturerId2).ToList();
             Assert.AreEqual(productsOfMan1BeforeMerge.Count + productsOfMan2BeforeMergeCount, man2ProductsAfterMerge.Count, "The number of reassigned products should match the original products of manufacturer 1.");
             Assert.IsTrue(man2ProductsAfterMerge.All(p => p.ManufacturerId == manufacturerId2), "All products should be reassigned to the target manufacturer.");
 
-            // Ensure that the source manufacturer (manufacturer 1) is deleted
             var deletedManufacturer = _context.Manufacturers.SingleOrDefault(m => m.Id == manufacturerId1);
             Assert.IsNull(deletedManufacturer, "The source manufacturer should be deleted.");
         }

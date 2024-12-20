@@ -170,10 +170,10 @@ namespace Tests.Other
             return new List<OrderItem>
             {
                 new OrderItem { Id = 1, OrderId = 1, ProductId = 1, Quantity = 1, Price = 699.99m },  // Fender Stratocaster
-                new OrderItem { Id = 2, OrderId = 1, ProductId = 2, Quantity = 1, Price = 1199.99m }, // Gibson Les Paul
+                new OrderItem { Id = 2, OrderId = 1, ProductId = 2, Quantity = 1, Price = 200m }, // Gibson Les Paul
                 new OrderItem { Id = 3, OrderId = 2, ProductId = 3, Quantity = 2, Price = 599.99m }, // Yamaha Acoustic Drum Kit
                 new OrderItem { Id = 4, OrderId = 3, ProductId = 4, Quantity = 1, Price = 799.99m }, // Roland Digital Piano
-                new OrderItem { Id = 5, OrderId = 3, ProductId = 5, Quantity = 3, Price = 14.99m },  // Pearl Drumsticks
+                new OrderItem { Id = 5, OrderId = 3, ProductId = 5, Quantity = 3, Price = 300m },  // Pearl Drumsticks
                 new OrderItem { Id = 6, OrderId = 4, ProductId = 1, Quantity = 2, Price = 699.99m },  // Fender Stratocaster
                 new OrderItem { Id = 7, OrderId = 4, ProductId = 2, Quantity = 1, Price = 1199.99m }, // Gibson Les Paul
                 new OrderItem { Id = 8, OrderId = 4, ProductId = 3, Quantity = 1, Price = 599.99m },  // Yamaha Acoustic Drum Kit
