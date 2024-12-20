@@ -98,7 +98,7 @@ namespace WebMVC.Controllers
 
         public async Task<IActionResult> ProductDetails(int productId)
         {
-            Product product = await _productService.GetProductByIdAsync(productId);
+            ProductDto product = await _productService.GetProductByIdAsync(productId);
 
             if (product == null)
                 return NotFound();

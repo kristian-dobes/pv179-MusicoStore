@@ -1,3 +1,4 @@
+using BusinessLayer.DTOs.Product;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -12,17 +13,19 @@ namespace WebMVC.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IProductService _productService;
+        private readonly IImageService _imageService;
 
-        public HomeController(ILogger<HomeController> logger, IProductService productService)
+        public HomeController(ILogger<HomeController> logger, IProductService productService, IImageService imageService)
         {
             _logger = logger;
             _productService = productService;
+            _imageService = imageService;
         }
 
         public async Task<IActionResult> Index()
         {
             int productId = 3;
-            Product product = await _productService.GetProductByIdAsync(productId);
+            ProductDto product = await _productService.GetProductByIdAsync(productId);
 
             if (product == null)
                 return NotFound();
@@ -33,7 +36,7 @@ namespace WebMVC.Controllers
                 ProductName = product.Name,
                 Description = product.Description,
                 Price = product.Price,
-                ImageFilePath = product.Image?.FilePath
+                ImageFilePath = await _imageService.GetImagePathByProductIdAsync(productId)
             };
 
             return View(productViewModel);

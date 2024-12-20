@@ -1,4 +1,5 @@
 using BusinessLayer.DTOs.Product;
+using BusinessLayer.Mapper;
 using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
@@ -116,14 +117,7 @@ namespace WebAPI.Controllers
             var products = await productsQuery
                 .Include(p => p.Category)
                 .Include(p => p.Manufacturer)
-                .Select(p => new ProductDto
-                {
-                    Name = p.Name,
-                    Description = p.Description,
-                    Price = p.Price,
-                    CategoryName = p.Category.Name,
-                    ManufacturerName = p.Manufacturer.Name
-                })
+                .Select(p => p.MapToProductDTO())
                 .ToListAsync();
 
             return Ok(products);

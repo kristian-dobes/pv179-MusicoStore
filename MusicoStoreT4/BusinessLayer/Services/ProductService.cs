@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BusinessLayer.DTOs.Product;
 using BusinessLayer.Enums;
+using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
@@ -34,14 +35,7 @@ namespace BusinessLayer.Services
             if (product == null)
                 return null;
 
-            return new ProductDto
-            {
-                Name = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                CategoryName = product.Category?.Name,
-                ManufacturerName = product.Manufacturer?.Name
-            };
+            return product.MapToProductDTO();
         }
 
         public async Task UpdateProductAsync(UpdateProductDTO productDto, int modifiedById)
