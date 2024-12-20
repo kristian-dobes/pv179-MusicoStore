@@ -10,7 +10,7 @@ namespace Infrastructure.UnitOfWork
     public interface IUnitOfWork
     {
         //IRepository<LogMessage> LogMessageRepository { get; }
-        //IRepository<Image> ImageRepository { get; }
+        //IRepository<Image> ImageRepository { get; } 
 
         void Commit();
         void Rollback();

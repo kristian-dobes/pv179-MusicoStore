@@ -14,4 +14,5 @@ namespace Infrastructure.Repository
         IEnumerable<TEntity> GetAll();
         void SaveChanges();
     }
+
 }
