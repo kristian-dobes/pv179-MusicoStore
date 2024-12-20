@@ -16,9 +16,9 @@ namespace BusinessLayer.Services.Interfaces
         Task<List<Product>> GetProductsByManufacturerAsync(int manufacturerId);
         Task UpdateProductManufacturerAsync(int productId, int newManufacturerId);
         Task<List<TopSellingProductDto>> GetTopSellingProductsByCategoryAsync(DateTime startDate, DateTime endDate, int topN = 5);
-        Task<Product> GetProductByIdAsync(int productId);
-        Task UpdateProductAsync(Product product, string modifiedBy);
-        Task<Product> CreateProductAsync(Product model, string createdBy);
+        Task<ProductDto> GetProductByIdAsync(int productId);
+        Task UpdateProductAsync(UpdateProductDTO productDto, string modifiedBy);
+        Task<Product> CreateProductAsync(CreateProductDTO productDto, string createdBy);
         Task DeleteProductAsync(int productId, string deletedBy);
     }
 }

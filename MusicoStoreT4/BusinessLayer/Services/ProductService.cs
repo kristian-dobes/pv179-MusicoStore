@@ -22,24 +22,47 @@ namespace BusinessLayer.Services
             _dbContext = dBContext;
         }
 
-        public async Task<Product> GetProductByIdAsync(int productId)
+        public async Task<ProductDto> GetProductByIdAsync(int productId)
         {
-            return await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == productId);
-        }
-
-        public async Task UpdateProductAsync(Product model, string modifiedBy)
-        {
-            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == model.Id);
+            var product = await _dbContext.Products
+                .FirstOrDefaultAsync(p => p.Id == productId);
 
             if (product == null)
-                throw new KeyNotFoundException($"Product with ID {model.Id} not found.");
+                return null;
 
-            product.Name = model.Name;
-            product.Description = model.Description;
-            product.Price = model.Price;
-            product.ManufacturerId = model.ManufacturerId;
-            product.CategoryId = model.CategoryId;
-            product.QuantityInStock = model.QuantityInStock;
+            return new ProductDto
+            {
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                CategoryName = product.Category?.Name,
+                ManufacturerName = product.Manufacturer?.Name
+            };
+        }
+
+        public async Task UpdateProductAsync(UpdateProductDTO productDto, string modifiedBy)
+        {
+            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == productDto.Id);
+
+            if (product == null)
+                throw new KeyNotFoundException($"Product with ID {productDto.Id} not found.");
+
+            var manufacturer = await _dbContext.Manufacturers.FirstOrDefaultAsync(m => m.Id == productDto.ManufacturerId);
+            if (manufacturer == null)
+                throw new KeyNotFoundException($"Manufacturer with ID {productDto.ManufacturerId} not found.");
+
+            var category = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Id == productDto.CategoryId);
+            if (category == null)
+                throw new KeyNotFoundException($"Category with ID {productDto.CategoryId} not found.");
+
+            product.Name = productDto.Name;
+            product.Description = productDto.Description;
+
+            if (productDto.Price.HasValue)
+                product.Price = productDto.Price.Value;
+
+            product.Manufacturer = manufacturer;
+            product.Category = category;
 
             product.LastModifiedBy = modifiedBy;
             product.EditCount++;
@@ -47,14 +70,25 @@ namespace BusinessLayer.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<Product> CreateProductAsync(Product model, string createdBy)
+        public async Task<Product> CreateProductAsync(CreateProductDTO productDto, string createdBy)
         {
-            model.LastModifiedBy = createdBy;
-            model.EditCount = 0;
-            _dbContext.Products.Add(model);
+            // Map CreateProductDTO to Product entity
+            var product = new Product
+            {
+                Name = productDto.Name,
+                Description = productDto.Description,
+                Price = productDto.Price,
+                CategoryId = productDto.CategoryId,
+                ManufacturerId = productDto.ManufacturerId,
+                LastModifiedBy = createdBy,
+                EditCount = 0
+            };
+
+            // Add the product to the database
+            _dbContext.Products.Add(product);
             await _dbContext.SaveChangesAsync();
 
-            return model;
+            return product;
         }
 
         public async Task ReassignProductsToManufacturerAsync(int sourceManufacturerId, int targetManufacturerId)
