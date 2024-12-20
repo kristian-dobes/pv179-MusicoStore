@@ -29,34 +29,28 @@ namespace BusinessLayer.Services
         {
             var currentDate = DateTime.UtcNow;
 
-            var customers = await _dbContext
-                .Users.Where(u => u.Role == Role.Customer)
-                .Include(c => c.Orders)
-                .Select(u => u as Customer)
+            var customersWithStats = await _dbContext.Users
+                .Where(u => u.Role == Role.Customer)
+                .Select(u => new
+                {
+                    Customer = u as Customer,
+                    TotalExpenditure = u.Orders
+                        .SelectMany(o => o.OrderItems)
+                        .Sum(oi => oi.Price * oi.Quantity),
+                    IsInfrequent = u.Orders.Any() &&
+                                   u.Orders.All(o => (currentDate - o.Date).Days > 180)
+                })
                 .ToListAsync();
 
-            var highValueCustomers = new List<CustomerDto>();
-            var infrequentCustomers = new List<CustomerDto>();
+            var highValueCustomers = customersWithStats
+                .Where(c => c.TotalExpenditure > 1000)
+                .Select(c => c.Customer.MapToCustomerDto())
+                .ToList();
 
-            foreach (var customer in customers)
-            {
-                if (customer == null || customer.Orders == null)
-                {
-                    continue;
-                }
-
-                var totalExpenditure = await CalculateTotalExpenditureAsync(customer.Id); // Use the async method for total expenditure
-
-                if (totalExpenditure > 1000)
-                {
-                    highValueCustomers.Add(customer.MapToCustomerDto());
-                }
-
-                if (customer.Orders.Any() && customer.Orders.All(o => (currentDate - o.Date).Days > 180))
-                {
-                    infrequentCustomers.Add(customer.MapToCustomerDto());
-                }
-            }
+            var infrequentCustomers = customersWithStats
+                .Where(c => c.IsInfrequent)
+                .Select(c => c.Customer.MapToCustomerDto())
+                .ToList();
 
             return new CustomerSegmentsDto
             {
@@ -68,19 +62,20 @@ namespace BusinessLayer.Services
         public async Task<OrderItemDto?> GetMostFrequentBoughtItemAsync(int userId)
         {
             var user = await _dbContext
-                .Users.Include(u => u.Orders)
-                .ThenInclude(o => o.OrderItems)
+                .Users
+                .Include(u => u.Orders)
+                    .ThenInclude(o => o.OrderItems)
                 .FirstOrDefaultAsync(u => u.Id == userId);
 
-            if (user == null || user.Orders == null)
+            if (user == null || !user.Orders.Any())
             {
                 return null;
             }
 
-            var mostFrequentItem = user
-                .Orders.SelectMany(o => o.OrderItems)
+            var mostFrequentItem = user.Orders
+                .SelectMany(o => o.OrderItems)
                 .GroupBy(oi => oi.ProductId)
-                .Select(g => new { ProductId = g.Key, Quantity = g.Sum(oi => oi.Quantity) })
+                .Select(g => new { ProductId = g.Key.Value, Quantity = g.Sum(oi => oi.Quantity) })
                 .OrderByDescending(g => g.Quantity)
                 .FirstOrDefault();
 
@@ -89,27 +84,28 @@ namespace BusinessLayer.Services
                 return null;
             }
 
-            return new OrderItem
+            // Create a new OrderItemDto based on the most frequent item
+            return new OrderItemDto
             {
                 ProductId = mostFrequentItem.ProductId,
                 Quantity = mostFrequentItem.Quantity
-            }.MapToOrderItemDto();
+            };
         }
 
         public async Task<List<UserSummaryDto>> GetUserSummariesAsync()
         {
-            var users = await _dbContext
-                .Users.Include(u => u.Orders)
-                .ThenInclude(o => o.OrderItems)
+            var userSummaries = await _dbContext.Users
+                .Where(u => u.Role == Role.Customer)
+                .Select(u => new UserSummaryDto
+                {
+                    UserId = u.Id,
+                    Username = u.Username,
+                    Role = u.Role,
+                    TotalExpenditure = u.Orders
+                        .SelectMany(o => o.OrderItems)
+                        .Sum(oi => oi.Price * oi.Quantity)
+                })
                 .ToListAsync();
-
-            var userSummaries = new List<UserSummaryDto>();
-
-            foreach (var user in users)
-            {
-                var totalExpenditure = await CalculateTotalExpenditureAsync(user.Id);
-                userSummaries.Add(user.MapToUserSummaryDto(totalExpenditure));
-            }
 
             return userSummaries;
         }
@@ -199,12 +195,12 @@ namespace BusinessLayer.Services
             return users.Select(u => u.MapToUserDetailDto());
         }
 
-        public async Task<decimal> CalculateTotalExpenditureAsync(int userId)
+        public static IQueryable<decimal> CalculateCustomerExpenditure(IQueryable<Order> orders)
         {
-            return await _dbContext
-                .Orders.Where(o => o.UserId == userId)
+            return orders
                 .SelectMany(o => o.OrderItems)
-                .SumAsync(oi => oi.Price * oi.Quantity);
+                .GroupBy(oi => oi.Order.UserId)
+                .Select(group => group.Sum(oi => oi.Price * oi.Quantity));
         }
     }
 }
