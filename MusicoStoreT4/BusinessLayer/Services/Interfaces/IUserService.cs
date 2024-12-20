@@ -23,6 +23,5 @@ namespace BusinessLayer.Services.Interfaces
         public Task UpdateAdminAsync(int userId, AdminDto adminDto);
         public Task UpdateCustomerAsync(int userId, CustomerDto customerDto);
         public Task DeleteUserAsync(int userId);
-        public Task<decimal> CalculateTotalExpenditureAsync(int userId);
     }
 }
