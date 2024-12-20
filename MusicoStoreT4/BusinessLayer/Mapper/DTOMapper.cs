@@ -13,9 +13,6 @@ namespace BusinessLayer.Mapper
 {
     public static class DTOMapper
     {
-        private const int HighValueCustomerThreshold = 1000;
-        private const int DaysOfInactivityThreshold = 180;
-
         public static bool IsAdmin(this User user)
         {
             return user.Role == Role.Admin;
