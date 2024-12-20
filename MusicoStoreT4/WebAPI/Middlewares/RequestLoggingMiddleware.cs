@@ -1,4 +1,6 @@
-﻿namespace WebAPI.Middlewares
+﻿using BusinessLayer.Services.Interfaces;
+
+namespace WebAPI.Middlewares
 {
     public class RequestLoggingMiddleware
     {
@@ -11,9 +13,14 @@
             _logger = logger;
         }
 
-        public async Task Invoke(HttpContext context)
+        public async Task Invoke(HttpContext context, ILogService logService)
         {
-            _logger.LogInformation($"Received request: {context.Request.Method} {context.Request.Path}");
+            var method = context.Request.Method;
+            var path = context.Request.Path;
+
+            _logger.LogInformation($"Received request: {method} {path}");
+
+            await logService.LogRequestAsync(method, path);
 
             await _next(context);
         }

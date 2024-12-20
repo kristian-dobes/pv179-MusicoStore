@@ -1,3 +1,5 @@
+using BusinessLayer.Facades.Interfaces;
+using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +12,16 @@ namespace WebAPI.Controllers
     public class ManufacturersController : Controller
     {
         private readonly MyDBContext _dBContext;
+        private readonly IManufacturerService _manufacturerService;
+        private readonly IProductService _productService;
+        private readonly IManufacturerFacade _manufacturerFacade;
 
-        public ManufacturersController(MyDBContext dBContext)
+        public ManufacturersController(MyDBContext dBContext, IManufacturerService manufacturerService, IProductService productService, IManufacturerFacade manufacturer)
         {
             _dBContext = dBContext;
+            _manufacturerService = manufacturerService;
+            _productService = productService;
+            _manufacturerFacade = manufacturer;
         }
 
         [HttpGet]
@@ -107,6 +115,24 @@ namespace WebAPI.Controllers
                 ManufacturerName = manufacturer.Name,
                 DateOfCreation = manufacturer.Created,
             });
+        }
+
+        [HttpPut("MergeManufacturers")]
+        public async Task<IActionResult> MergeManufacturers(int sourceManufacturerId, int targetManufacturerId)
+        {
+            try
+            {
+                await _manufacturerFacade.MergeManufacturersAsync(sourceManufacturerId, targetManufacturerId, -1);
+                return Ok("Manufacturers merged successfully, source manufacturer was removed.");
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpDelete("{manufacturerId}")]

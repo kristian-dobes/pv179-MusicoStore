@@ -15,6 +15,12 @@ namespace DataAccessLayer.Models
         public decimal Price { get; set; }
         public int QuantityInStock { get; set; }
 
+        /// <summary>
+        /// -1 means it was last modified by Web API
+        /// </summary>
+        public int LastModifiedById { get; set; }
+        public int EditCount { get; set; }
+
         public virtual ICollection<OrderItem>? OrderItems { get; set; }
 
         public int CategoryId { get; set; }
@@ -24,5 +30,7 @@ namespace DataAccessLayer.Models
         public int ManufacturerId { get; set; }
         [ForeignKey(nameof(ManufacturerId))]
         public virtual Manufacturer? Manufacturer { get; set; }
+
+        public virtual ProductImage? Image { get; set; }
     }
 }

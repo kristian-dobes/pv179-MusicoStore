@@ -1,8 +1,11 @@
+using BusinessLayer.DTOs.Product;
+using BusinessLayer.Mapper;
+using BusinessLayer.Services;
+using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebAPI.DTOs.Product;
 
 namespace WebAPI.Controllers
 {
@@ -11,10 +14,12 @@ namespace WebAPI.Controllers
     public class ProductsController : Controller
     {
         private readonly MyDBContext _dBContext;
+        private IProductService _productService;
 
-        public ProductsController(MyDBContext dBContext)
+        public ProductsController(MyDBContext dBContext, IProductService productService)
         {
             _dBContext = dBContext;
+            _productService = productService;
         }
 
         [HttpGet]
@@ -22,51 +27,61 @@ namespace WebAPI.Controllers
         {
             var products = await _dBContext.Products.ToListAsync();
 
-            return Ok(products.Select(a => new
-            {
-                ProductId = a.Id,
-                ProductDateOfCreation = a.Created,
-                ProductName = a.Name,
-                ProductDescription = a.Description,
-                ProductPrice = a.Price,
-                ProductQuantityInStock = a.QuantityInStock,
-            }));
+            return Ok(
+                products.Select(a => new
+                {
+                    ProductId = a.Id,
+                    ProductDateOfCreation = a.Created,
+                    ProductName = a.Name,
+                    ProductDescription = a.Description,
+                    ProductPrice = a.Price,
+                    ProductQuantityInStock = a.QuantityInStock,
+                    ProductManufacturer = a.ManufacturerId,
+                    ProductCategory = a.CategoryId
+                })
+            );
         }
 
         [HttpGet("detail")]
         public async Task<IActionResult> FetchWithOrderItems()
         {
-            var products = await _dBContext.Products
-                                           .Include(a => a.OrderItems)
-                                           .ToListAsync();
+            var products = await _dBContext.Products.Include(a => a.OrderItems).ToListAsync();
 
-            return Ok(products.Select(a => new
-            {
-                ProductId = a.Id,
-                ProductName = a.Name,
-                ProductDateOfCreation = a.Created,
-                ProductDescription = a.Description,
-                ProductPrice = a.Price,
-                ProductQuantityInStock = a.QuantityInStock,
-                OrderItems = a.OrderItems?.Select(orderItem => new
+            return Ok(
+                products.Select(a => new
                 {
-                    OrderItemId = orderItem.Id,
-                    OrderItemQuantity = orderItem.Quantity,
-                    OrderItemDateOfCreation = orderItem.Created,
-                }),
-                Category = a.Category == null ? null : new
-                {
-                    CategoryId = a.Category.Id,
-                    CategoryName = a.Category.Name,
-                    CategoryDateOfCreation = a.Category.Created,
-                },
-                Manufacturer = a.Manufacturer == null ? null : new
-                {
-                    ManufacturerId = a.Manufacturer.Id,
-                    ManufacturerName = a.Manufacturer.Name,
-                    ManufacturerDateOfCreation = a.Manufacturer.Created,
-                }
-            }));
+                    ProductId = a.Id,
+                    ProductName = a.Name,
+                    ProductDateOfCreation = a.Created,
+                    ProductDescription = a.Description,
+                    ProductPrice = a.Price,
+                    ProductQuantityInStock = a.QuantityInStock,
+                    ProductManufacturer = a.ManufacturerId,
+                    ProductCategory = a.CategoryId,
+                    OrderItems = a.OrderItems?.Select(orderItem => new
+                    {
+                        OrderItemId = orderItem.Id,
+                        OrderItemQuantity = orderItem.Quantity,
+                        OrderItemDateOfCreation = orderItem.Created,
+                    }),
+                    Category = a.Category == null
+                        ? null
+                        : new
+                        {
+                            CategoryId = a.Category.Id,
+                            CategoryName = a.Category.Name,
+                            CategoryDateOfCreation = a.Category.Created,
+                        },
+                    Manufacturer = a.Manufacturer == null
+                        ? null
+                        : new
+                        {
+                            ManufacturerId = a.Manufacturer.Id,
+                            ManufacturerName = a.Manufacturer.Name,
+                            ManufacturerDateOfCreation = a.Manufacturer.Created,
+                        }
+                })
+            );
         }
 
         [HttpPost("filter")]
@@ -75,10 +90,14 @@ namespace WebAPI.Controllers
             var productsQuery = _dBContext.Products.AsQueryable();
 
             if (!string.IsNullOrEmpty(filterProductDTO.Name))
-                productsQuery = productsQuery.Where(p => p.Name.ToLower().Contains(filterProductDTO.Name.ToLower()));
+                productsQuery = productsQuery.Where(p =>
+                    p.Name.ToLower().Contains(filterProductDTO.Name.ToLower())
+                );
 
             if (!string.IsNullOrEmpty(filterProductDTO.Description))
-                productsQuery = productsQuery.Where(p => p.Description.ToLower().Contains(filterProductDTO.Description.ToLower()));
+                productsQuery = productsQuery.Where(p =>
+                    p.Description.ToLower().Contains(filterProductDTO.Description.ToLower())
+                );
 
             decimal minPrice = filterProductDTO.MinPrice ?? decimal.MinValue;
             decimal maxPrice = filterProductDTO.MaxPrice ?? decimal.MaxValue;
@@ -86,22 +105,19 @@ namespace WebAPI.Controllers
             productsQuery = productsQuery.Where(p => p.Price >= minPrice && minPrice <= maxPrice);
 
             if (filterProductDTO.CategoryId.HasValue)
-                productsQuery = productsQuery.Where(p => p.CategoryId == filterProductDTO.CategoryId);
+                productsQuery = productsQuery.Where(p =>
+                    p.CategoryId == filterProductDTO.CategoryId
+                );
 
             if (filterProductDTO.ManufacturerId.HasValue)
-                productsQuery = productsQuery.Where(p => p.ManufacturerId == filterProductDTO.ManufacturerId);
+                productsQuery = productsQuery.Where(p =>
+                    p.ManufacturerId == filterProductDTO.ManufacturerId
+                );
 
             var products = await productsQuery
                 .Include(p => p.Category)
                 .Include(p => p.Manufacturer)
-                .Select(p => new ProductDto
-                {
-                    Name = p.Name,
-                    Description = p.Description,
-                    Price = p.Price,
-                    CategoryName = p.Category.Name,
-                    ManufacturerName = p.Manufacturer.Name
-                })
+                .Select(p => p.MapToProductDTO())
                 .ToListAsync();
 
             return Ok(products);
@@ -125,8 +141,16 @@ namespace WebAPI.Controllers
             if (!(await _dBContext.Categories.AnyAsync(c => c.Id == createProductDTO.CategoryId)))
                 return BadRequest($"Category with id {createProductDTO.CategoryId} not found");
 
-            if (!(await _dBContext.Manufacturers.AnyAsync(m => m.Id == createProductDTO.ManufacturerId)))
-                return BadRequest($"Manufacturer with id {createProductDTO.ManufacturerId} not found");
+            if (
+                !(
+                    await _dBContext.Manufacturers.AnyAsync(m =>
+                        m.Id == createProductDTO.ManufacturerId
+                    )
+                )
+            )
+                return BadRequest(
+                    $"Manufacturer with id {createProductDTO.ManufacturerId} not found"
+                );
 
             var product = new Product
             {
@@ -134,7 +158,9 @@ namespace WebAPI.Controllers
                 Description = createProductDTO.Description,
                 Price = createProductDTO.Price,
                 CategoryId = createProductDTO.CategoryId,
-                ManufacturerId = createProductDTO.ManufacturerId
+                ManufacturerId = createProductDTO.ManufacturerId,
+                LastModifiedById = createProductDTO.CreatedById,
+                EditCount = 0
             };
 
             await _dBContext.Products.AddAsync(product);
@@ -146,9 +172,9 @@ namespace WebAPI.Controllers
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] UpdateProductDTO updateProductDTO)
         {
-            var product = await _dBContext.Products
-                                          .Where(a => a.Id == updateProductDTO.Id)
-                                          .FirstOrDefaultAsync();
+            var product = await _dBContext
+                .Products.Where(a => a.Id == updateProductDTO.Id)
+                .FirstOrDefaultAsync();
 
             if (product == null)
                 return BadRequest("ProductID not found");
@@ -156,18 +182,34 @@ namespace WebAPI.Controllers
             if (updateProductDTO.Price <= 0)
                 return BadRequest("Price must be valid");
 
-            if (await _dBContext.Products.AnyAsync(a => a.Name == updateProductDTO.Name && a.Id != updateProductDTO.Id))
+            if (
+                await _dBContext.Products.AnyAsync(a =>
+                    a.Name == updateProductDTO.Name && a.Id != updateProductDTO.Id
+                )
+            )
                 return BadRequest($"Product with name '{updateProductDTO.Name}' already exists");
 
-            if (updateProductDTO.CategoryId != null && !(await _dBContext.Categories.AnyAsync(c => c.Id == updateProductDTO.CategoryId)))
+            if (
+                updateProductDTO.CategoryId != null
+                && !(await _dBContext.Categories.AnyAsync(c => c.Id == updateProductDTO.CategoryId))
+            )
                 return BadRequest($"Category with id {updateProductDTO.CategoryId} not found");
 
-            if (updateProductDTO.ManufacturerId != null && !(await _dBContext.Manufacturers.AnyAsync(m => m.Id == updateProductDTO.ManufacturerId)))
-                return BadRequest($"Manufacturer with id {updateProductDTO.ManufacturerId} not found");
+            if (
+                updateProductDTO.ManufacturerId != null
+                && !(
+                    await _dBContext.Manufacturers.AnyAsync(m =>
+                        m.Id == updateProductDTO.ManufacturerId
+                    )
+                )
+            )
+                return BadRequest(
+                    $"Manufacturer with id {updateProductDTO.ManufacturerId} not found"
+                );
 
             if (updateProductDTO.Name != null)
                 product.Name = updateProductDTO.Name;
-            
+
             if (updateProductDTO.Description != null)
                 product.Description = updateProductDTO.Description;
 
@@ -182,24 +224,26 @@ namespace WebAPI.Controllers
 
             await _dBContext.SaveChangesAsync();
 
-            return Ok(new
-            {
-                Message = "Product updated successfully.",
-                ProductId = product.Id,
-                DateOfCreation = product.Created,
-                ProductName = product.Name,
-                ProductDescription = product.Description,
-                ProductPrice = product.Price,
-                ProductQuantityInStock = product.QuantityInStock,
-            });
+            return Ok(
+                new
+                {
+                    Message = "Product updated successfully.",
+                    ProductId = product.Id,
+                    DateOfCreation = product.Created,
+                    ProductName = product.Name,
+                    ProductDescription = product.Description,
+                    ProductPrice = product.Price,
+                    ProductQuantityInStock = product.QuantityInStock,
+                }
+            );
         }
 
         [HttpDelete("{productId}")]
         public async Task<IActionResult> Delete(int productId)
         {
-            var product = await _dBContext.Products
-                                          .Where(a => a.Id == productId)
-                                          .FirstOrDefaultAsync();
+            var product = await _dBContext
+                .Products.Where(a => a.Id == productId)
+                .FirstOrDefaultAsync();
 
             if (product != null)
             {
@@ -210,6 +254,17 @@ namespace WebAPI.Controllers
                 return NotFound();
 
             return Ok();
+        }
+
+        [HttpGet("top-selling-products")]
+        public async Task<IActionResult> TopSellingProducts(DateTime startDate, DateTime endDate)
+        {
+            var result = await _productService.GetTopSellingProductsByCategoryAsync(
+                startDate,
+                endDate
+            );
+
+            return Ok(result);
         }
     }
 }

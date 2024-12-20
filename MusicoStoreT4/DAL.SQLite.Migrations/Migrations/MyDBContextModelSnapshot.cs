@@ -21,6 +21,30 @@ namespace DAL.SQLite.Migrations.Migrations
                 .HasAnnotation("Proxies:CheckEquality", false)
                 .HasAnnotation("Proxies:LazyLoading", true);
 
+            modelBuilder.Entity("DataAccessLayer.Models.AuditLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ModifiedById")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AuditLogs");
+                });
+
             modelBuilder.Entity("DataAccessLayer.Models.Category", b =>
                 {
                     b.Property<int>("Id")
@@ -42,21 +66,112 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2753),
-                            Name = "Musical Instruments"
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 41, DateTimeKind.Local).AddTicks(7663),
+                            Name = "Instruments"
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2758),
-                            Name = "Audio Equipment"
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 41, DateTimeKind.Local).AddTicks(7709),
+                            Name = "Accessories"
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2761),
-                            Name = "Accessories"
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 41, DateTimeKind.Local).AddTicks(7711),
+                            Name = "Equipment"
                         });
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Models.LocalIdentityUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Models.Log", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Logs");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Models.Manufacturer", b =>
@@ -80,26 +195,32 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2767),
-                            Name = "Shure"
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 43, DateTimeKind.Local).AddTicks(2586),
+                            Name = "Simonis - Gusikowski"
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2770),
-                            Name = "Yamaha"
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 43, DateTimeKind.Local).AddTicks(5610),
+                            Name = "Hane LLC"
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2773),
-                            Name = "Fender"
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 43, DateTimeKind.Local).AddTicks(8571),
+                            Name = "Zboncak, Gulgowski and Boehm"
                         },
                         new
                         {
                             Id = 4,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2776),
-                            Name = "Sennheiser"
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 43, DateTimeKind.Local).AddTicks(8811),
+                            Name = "Fay, Blick and MacGyver"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 43, DateTimeKind.Local).AddTicks(8920),
+                            Name = "Funk, Herman and Gulgowski"
                         });
                 });
 
@@ -115,15 +236,10 @@ namespace DAL.SQLite.Migrations.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("OrderItemId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OrderItemId");
 
                     b.HasIndex("UserId");
 
@@ -133,35 +249,35 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2649),
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5177),
                             Date = new DateTime(2024, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 2
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2658),
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5183),
                             Date = new DateTime(2024, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 3
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2663),
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5186),
                             Date = new DateTime(2024, 12, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 3
                         },
                         new
                         {
                             Id = 4,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2667),
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5190),
                             Date = new DateTime(2025, 1, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 2
                         },
                         new
                         {
                             Id = 5,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2673),
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5194),
                             Date = new DateTime(2025, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 2
                         });
@@ -200,7 +316,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2723),
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5202),
                             OrderId = 1,
                             Price = 99.99m,
                             ProductId = 1,
@@ -209,7 +325,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2727),
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5213),
                             OrderId = 1,
                             Price = 21.99m,
                             ProductId = 2,
@@ -218,7 +334,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2731),
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5216),
                             OrderId = 2,
                             Price = 280m,
                             ProductId = 3,
@@ -227,7 +343,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 4,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2735),
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5219),
                             OrderId = 3,
                             Price = 499.99m,
                             ProductId = 4,
@@ -236,7 +352,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 5,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2738),
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5222),
                             OrderId = 4,
                             Price = 720.05m,
                             ProductId = 5,
@@ -245,7 +361,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 6,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2742),
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5225),
                             OrderId = 5,
                             Price = 29.99m,
                             ProductId = 6,
@@ -254,7 +370,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 7,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2746),
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5228),
                             OrderId = 4,
                             Price = 25.54m,
                             ProductId = 6,
@@ -277,6 +393,12 @@ namespace DAL.SQLite.Migrations.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("EditCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("LastModifiedById")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("ManufacturerId")
                         .HasColumnType("INTEGER");
@@ -304,111 +426,144 @@ namespace DAL.SQLite.Migrations.Migrations
                         {
                             Id = 1,
                             CategoryId = 3,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2681),
-                            Description = "Professional condenser microphone for studio recording",
-                            ManufacturerId = 4,
-                            Name = "Microphone",
-                            Price = 99.99m,
-                            QuantityInStock = 10
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 45, DateTimeKind.Local).AddTicks(4548),
+                            Description = "New range of formal shirts are designed keeping you in mind. With fits and styling that will make you stand apart",
+                            EditCount = 8,
+                            LastModifiedById = 1,
+                            ManufacturerId = 2,
+                            Name = "Studio Monitors",
+                            Price = 285.440906448078580m,
+                            QuantityInStock = 64
                         },
                         new
                         {
                             Id = 2,
                             CategoryId = 1,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2688),
-                            Description = "Music concert DVD of popular artist",
-                            ManufacturerId = 2,
-                            Name = "DVD",
-                            Price = 19.99m,
-                            QuantityInStock = 50
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 45, DateTimeKind.Local).AddTicks(6568),
+                            Description = "The slim & simple Maple Gaming Keyboard from Dev Byte comes with a sleek body and 7- Color RGB LED Back-lighting for smart functionality",
+                            EditCount = 6,
+                            LastModifiedById = 1,
+                            ManufacturerId = 4,
+                            Name = "Studio Monitors",
+                            Price = 888.376722137502940m,
+                            QuantityInStock = 11
                         },
                         new
                         {
                             Id = 3,
                             CategoryId = 3,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2691),
-                            Description = "Acoustic guitar with solid spruce top",
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 45, DateTimeKind.Local).AddTicks(6631),
+                            Description = "The Football Is Good For Training And Recreational Purposes",
+                            EditCount = 5,
+                            LastModifiedById = 1,
                             ManufacturerId = 1,
-                            Name = "Guitar",
-                            Price = 299.99m,
-                            QuantityInStock = 5
+                            Name = "Amplifiers",
+                            Price = 832.920864068872360m,
+                            QuantityInStock = 60
                         },
                         new
                         {
                             Id = 4,
-                            CategoryId = 2,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2694),
-                            Description = "Digital keyboard with weighted keys",
-                            ManufacturerId = 3,
-                            Name = "Keyboard",
-                            Price = 499.99m,
-                            QuantityInStock = 3
+                            CategoryId = 3,
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 45, DateTimeKind.Local).AddTicks(6655),
+                            Description = "Ergonomic executive chair upholstered in bonded black leather and PVC padded seat and back for all-day comfort and support",
+                            EditCount = 5,
+                            LastModifiedById = 1,
+                            ManufacturerId = 1,
+                            Name = "Microphone Stands",
+                            Price = 142.659807442379470m,
+                            QuantityInStock = 82
                         },
                         new
                         {
                             Id = 5,
-                            CategoryId = 3,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2698),
-                            Description = "5-piece drum set with cymbals and hardware",
-                            ManufacturerId = 1,
-                            Name = "Drum Set",
-                            Price = 699.99m,
-                            QuantityInStock = 2
+                            CategoryId = 2,
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 45, DateTimeKind.Local).AddTicks(6674),
+                            Description = "Andy shoes are designed to keeping in mind durability as well as trends, the most stylish range of shoes & sandals",
+                            EditCount = 9,
+                            LastModifiedById = 1,
+                            ManufacturerId = 4,
+                            Name = "PA Systems",
+                            Price = 260.263970053370020m,
+                            QuantityInStock = 46
                         },
                         new
                         {
                             Id = 6,
-                            CategoryId = 1,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2702),
-                            Description = "Adjustable microphone stand with boom arm",
-                            ManufacturerId = 1,
-                            Name = "Microphone Stand",
-                            Price = 29.99m,
-                            QuantityInStock = 20
+                            CategoryId = 2,
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 45, DateTimeKind.Local).AddTicks(6693),
+                            Description = "Andy shoes are designed to keeping in mind durability as well as trends, the most stylish range of shoes & sandals",
+                            EditCount = 5,
+                            LastModifiedById = 1,
+                            ManufacturerId = 2,
+                            Name = "Tuners",
+                            Price = 794.708059541154760m,
+                            QuantityInStock = 9
                         },
                         new
                         {
                             Id = 7,
                             CategoryId = 3,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2705),
-                            Description = "Electric bass guitar with active pickups",
-                            ManufacturerId = 4,
-                            Name = "Bass Guitar",
-                            Price = 399.99m,
-                            QuantityInStock = 8
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 45, DateTimeKind.Local).AddTicks(6711),
+                            Description = "The beautiful range of Apple Naturalé that has an exciting mix of natural ingredients. With the Goodness of 100% Natural Ingredients",
+                            EditCount = 3,
+                            LastModifiedById = 1,
+                            ManufacturerId = 2,
+                            Name = "Digital Piano",
+                            Price = 566.440561047907360m,
+                            QuantityInStock = 91
+                        });
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Models.ProductImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MimeType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId")
+                        .IsUnique();
+
+                    b.ToTable("ProductImages");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Created = new DateTime(2024, 12, 20, 18, 12, 32, 47, DateTimeKind.Utc).AddTicks(5287),
+                            FileName = "drums.png",
+                            FilePath = "images\\drums.png",
+                            MimeType = "image/png",
+                            ProductId = 3
                         },
                         new
                         {
-                            Id = 8,
-                            CategoryId = 2,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2709),
-                            Description = "Digital piano with weighted keys and built-in speakers",
-                            ManufacturerId = 3,
-                            Name = "Piano",
-                            Price = 899.99m,
-                            QuantityInStock = 4
-                        },
-                        new
-                        {
-                            Id = 9,
-                            CategoryId = 3,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2712),
-                            Description = "Full-size violin with bow and case",
-                            ManufacturerId = 4,
-                            Name = "Violin",
-                            Price = 199.99m,
-                            QuantityInStock = 6
-                        },
-                        new
-                        {
-                            Id = 10,
-                            CategoryId = 1,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2716),
-                            Description = "Active studio monitor speaker",
-                            ManufacturerId = 4,
-                            Name = "Studio Monitor",
-                            Price = 149.99m,
-                            QuantityInStock = 12
+                            Id = 2,
+                            Created = new DateTime(2024, 12, 20, 18, 12, 32, 47, DateTimeKind.Utc).AddTicks(5291),
+                            FileName = "guitar.png",
+                            FilePath = "images\\guitar.png",
+                            MimeType = "image/png",
+                            ProductId = 5
                         });
                 });
 
@@ -430,12 +585,12 @@ namespace DAL.SQLite.Migrations.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("Role")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -444,16 +599,134 @@ namespace DAL.SQLite.Migrations.Migrations
                     b.HasDiscriminator().HasValue("User");
 
                     b.UseTphMappingStrategy();
+                });
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2781),
-                            Email = "admin@bestmusic.com",
-                            Name = "Admin",
-                            Role = 0
-                        });
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex");
+
+                    b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
                 });
 
             modelBuilder.Entity("DataAccessLayer.Models.Customer", b =>
@@ -486,37 +759,70 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2787),
-                            Email = "johnny@samurai.nc",
-                            Name = "Johnny Silverhand",
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(1181),
+                            Email = "Dedrick11_Osinski62@gmail.com",
                             Role = 1,
-                            Address = "Straight 68, NC",
-                            City = "Night City",
-                            PhoneNumber = "+04 0578 457 666",
-                            PostalCode = "1020",
-                            State = "The Free City of Night City"
+                            Username = "Dedrick11",
+                            Address = "55444 Joanie Brooks",
+                            City = "Lonietown",
+                            PhoneNumber = "+573 337 181 092",
+                            PostalCode = "06867",
+                            State = "Alaska"
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 10, 21, 9, 17, 40, 878, DateTimeKind.Local).AddTicks(2793),
-                            Email = "hluchymuzikant@seznam.cz",
-                            Name = "Martin Hluchý",
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(4127),
+                            Email = "Scottie.Botsford.Flatley@hotmail.com",
                             Role = 1,
-                            Address = "Botanická 69",
-                            City = "Brno",
-                            PhoneNumber = "+420 556 556 000",
-                            PostalCode = "602 00",
-                            State = "Czechia"
+                            Username = "Scottie.Botsford",
+                            Address = "586 Hayley Canyon",
+                            City = "Port Jefferyhaven",
+                            PhoneNumber = "+351 446 428 244",
+                            PostalCode = "10860-7758",
+                            State = "Ohio"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(4449),
+                            Email = "Freida_Block_Kling@hotmail.com",
+                            Role = 1,
+                            Username = "Freida_Block",
+                            Address = "64850 Gunner Corners",
+                            City = "South Francesview",
+                            PhoneNumber = "+682 498 654 825",
+                            PostalCode = "65335",
+                            State = "Maine"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(4685),
+                            Email = "Quinton25_Denesik70@hotmail.com",
+                            Role = 1,
+                            Username = "Quinton25",
+                            Address = "83154 Roberts Circles",
+                            City = "Brockside",
+                            PhoneNumber = "+523 090 604 967",
+                            PostalCode = "86363",
+                            State = "Arkansas"
                         });
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Models.LocalIdentityUser", b =>
+                {
+                    b.HasOne("DataAccessLayer.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Models.Order", b =>
                 {
-                    b.HasOne("DataAccessLayer.Models.OrderItem", null)
-                        .WithMany("Comments")
-                        .HasForeignKey("OrderItemId");
-
                     b.HasOne("DataAccessLayer.Models.User", "User")
                         .WithMany("Orders")
                         .HasForeignKey("UserId")
@@ -563,6 +869,68 @@ namespace DAL.SQLite.Migrations.Migrations
                     b.Navigation("Manufacturer");
                 });
 
+            modelBuilder.Entity("DataAccessLayer.Models.ProductImage", b =>
+                {
+                    b.HasOne("DataAccessLayer.Models.Product", "Product")
+                        .WithOne("Image")
+                        .HasForeignKey("DataAccessLayer.Models.ProductImage", "ProductId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.HasOne("DataAccessLayer.Models.LocalIdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.HasOne("DataAccessLayer.Models.LocalIdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DataAccessLayer.Models.LocalIdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.HasOne("DataAccessLayer.Models.LocalIdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("DataAccessLayer.Models.Category", b =>
                 {
                     b.Navigation("Products");
@@ -578,13 +946,10 @@ namespace DAL.SQLite.Migrations.Migrations
                     b.Navigation("OrderItems");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Models.OrderItem", b =>
-                {
-                    b.Navigation("Comments");
-                });
-
             modelBuilder.Entity("DataAccessLayer.Models.Product", b =>
                 {
+                    b.Navigation("Image");
+
                     b.Navigation("OrderItems");
                 });
 

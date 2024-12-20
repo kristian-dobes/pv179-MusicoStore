@@ -1,7 +1,10 @@
-﻿using DataAccessLayer.Data;
+﻿using BusinessLayer.Services;
+﻿using BusinessLayer.Services.Interfaces;
+using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebAPI.DTOs;
 
 namespace WebAPI.Controllers
 {
@@ -10,10 +13,12 @@ namespace WebAPI.Controllers
     public class CategoriesController : Controller
     {
         private readonly MyDBContext _dBContext;
+        private readonly ICategoryService _categoryService;
 
-        public CategoriesController(MyDBContext dBContext)
+        public CategoriesController(MyDBContext dBContext, ICategoryService categoryService)
         {
             _dBContext = dBContext;
+            _categoryService = categoryService;
         }
 
         [HttpGet]
@@ -27,6 +32,30 @@ namespace WebAPI.Controllers
                 CategoryName = a.Name,
                 CategoryDateOfCreation = a.Created,
             }));
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetCategoryById(int id)
+        {
+            var category = await _dBContext.Categories
+                .Where(a => a.Id == id)
+                .FirstOrDefaultAsync();
+
+            if (category == null)
+                return NotFound();
+
+            return Ok(new
+            {
+                CategoryId = category.Id,
+                CategoryName = category.Name,
+                CategoryDateOfCreation = category.Created,
+            });
+        }
+
+        [HttpGet("fetch/summary")]
+        public async Task<IActionResult> FetchCategoriesSummary()
+        {
+            return Ok(await _categoryService.GetCategoriesAsync());
         }
 
         [HttpGet("detail")]
@@ -48,6 +77,19 @@ namespace WebAPI.Controllers
                     ProductDateOfCreation = product.Created,
                 }),
             }));
+        }
+
+        [HttpGet("fetch/{categoryId}/summary")]
+        public async Task<IActionResult> FetchCategorySummary(int categoryId)
+        {
+            var category = await _categoryService.GetCategorySummaryAsync(categoryId);
+
+            if (category == null)
+            {
+                return BadRequest();
+            }
+
+            return Ok(category);
         }
 
         [HttpPost]
@@ -109,6 +151,36 @@ namespace WebAPI.Controllers
                 return NotFound();
 
             return Ok();
+        }
+
+        [HttpPost("merge")]
+        public async Task<IActionResult> MergeCategories([FromBody] MergeCategoriesDTO mergeCategoriesDTO)
+        {
+            if (mergeCategoriesDTO == null)
+                return BadRequest("Invalid request.");
+
+            try
+            {
+                var newCategory = await _categoryService.MergeCategoriesAndCreateNewAsync(
+                    mergeCategoriesDTO.NewCategoryName,
+                    mergeCategoriesDTO.SourceCategoryId1,
+                    mergeCategoriesDTO.SourceCategoryId2,
+                    save: true
+                );
+
+                var result = CreatedAtAction("GetCategoryById", new { id = newCategory.Id }, new
+                {
+                    CategoryId = newCategory.Id,
+                    CategoryName = newCategory.Name,
+                    CategoryCreated = newCategory.Created
+                });
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

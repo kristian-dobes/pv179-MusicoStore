@@ -1,9 +1,25 @@
+using BusinessLayer.Services;
+using BusinessLayer.Facades;
+using BusinessLayer.Facades.Interfaces;
 using DataAccessLayer.Data;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using WebAPI.Middlewares;
+using BusinessLayer.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin", policy =>
+    {
+        policy.WithOrigins("https://localhost:7256", "https://localhost:5270")  // Web MVC origin (https and http)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -38,11 +54,13 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+var databaseName = builder.Configuration["DatabaseName"];
+var folder = Environment.SpecialFolder.LocalApplicationData;
+var dbPath = Path.Join(Environment.GetFolderPath(folder), databaseName);
+string imagesFolder = Path.Combine(Path.GetDirectoryName(dbPath) ?? string.Empty, "ProductImages");
+
 builder.Services.AddDbContextFactory<MyDBContext>(options =>
 {
-    var folder = Environment.SpecialFolder.LocalApplicationData;
-    var dbPath = Path.Join(Environment.GetFolderPath(folder), "MusicoStore.db");
-
     options
         .UseSqlite(
             $"Data Source={dbPath}",
@@ -53,6 +71,22 @@ builder.Services.AddDbContextFactory<MyDBContext>(options =>
         ;
 });
 
+builder.Services.AddScoped<IUserService, UserService>();
+
+// Register Services
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<IImageService>(provider =>
+{
+    var dbContext = provider.GetRequiredService<MyDBContext>();
+    var imagesPath = imagesFolder;
+    return new ImageService(dbContext, imagesPath);
+});
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IManufacturerFacade, ManufacturerFacade>();
+builder.Services.AddScoped<ILogService, LogService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -61,10 +95,36 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseMiddleware<RequestLoggingMiddleware>(); // Logging middleware
-app.UseMiddleware<TokenAuthenticationMiddleware>(); // Token authentication middleware
+app.Use((context, next) =>
+{
+    var allowedOrigins = new[] { "http://localhost:5270", "https://localhost:7256" };
+
+    var origin = context.Request.Headers["Origin"].ToString();
+
+    if (allowedOrigins.Contains(origin))
+    {
+        context.Response.Headers["Access-Control-Allow-Origin"] = origin;
+        context.Response.Headers["Access-Control-Allow-Methods"] = "OPTIONS, GET, POST, PUT, PATCH, DELETE";
+        context.Response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization";
+    }
+
+    if (context.Request.Method == "OPTIONS")
+    {
+        context.Response.StatusCode = 200; // Respond to OPTIONS preflight request
+        return Task.CompletedTask;
+    }
+
+    return next();
+});
+
+app.UseMiddleware<RequestLoggingMiddleware>();
+app.UseMiddleware<TokenAuthenticationMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
+app.UseCors("AllowSpecificOrigin");
+
+app.UseMiddleware<JsonToXmlMiddleware>();
+
 app.MapControllers();
 app.Run();
