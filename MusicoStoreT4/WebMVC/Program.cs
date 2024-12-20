@@ -39,6 +39,8 @@ builder.Services.AddIdentity<LocalIdentityUser, IdentityRole>()
 builder.Services.AddSingleton(imagesFolder);
 
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 builder.Services.AddScoped<IProductService, ProductService>();

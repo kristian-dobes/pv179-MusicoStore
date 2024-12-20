@@ -55,12 +55,12 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var databaseName = builder.Configuration["DatabaseName"];
+var folder = Environment.SpecialFolder.LocalApplicationData;
+var dbPath = Path.Join(Environment.GetFolderPath(folder), databaseName);
+string imagesFolder = Path.Combine(Path.GetDirectoryName(dbPath) ?? string.Empty, "ProductImages");
 
 builder.Services.AddDbContextFactory<MyDBContext>(options =>
 {
-    var folder = Environment.SpecialFolder.LocalApplicationData;
-    var dbPath = Path.Join(Environment.GetFolderPath(folder), databaseName);
-
     options
         .UseSqlite(
             $"Data Source={dbPath}",
@@ -75,6 +75,12 @@ builder.Services.AddScoped<IUserService, UserService>();
 
 // Register Services
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<IImageService>(provider =>
+{
+    var dbContext = provider.GetRequiredService<MyDBContext>();
+    var imagesPath = imagesFolder;
+    return new ImageService(dbContext, imagesPath);
+});
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
