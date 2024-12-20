@@ -1,4 +1,5 @@
 ﻿using Infrastructure.Repository;
+using Infrastructure.Repository.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,18 @@ namespace Infrastructure.UnitOfWork
 {
     public interface IUnitOfWork
     {
-        //IRepository<LogMessage> LogMessageRepository { get; }
-        //IRepository<Image> ImageRepository { get; } 
+        IUserRepository Users { get; }
+        ICategoryRepository Categories { get; }
+        IManufacturerRepository Manufacturers { get; }
+        IOrderRepository Orders { get; }
+        IOrderItemRepository OrderItems { get; }
+        IProductRepository Products { get; }
+        IProductImageRepository ProductImages { get; }
+        IProductAuditRepository ProductAudits { get; }
 
-        void Commit();
-        void Rollback();
+        Task<int> SaveAsync();
+        void BeginTransaction();
+        Task CommitAsync();
+        Task RollbackAsync();
     }
 }

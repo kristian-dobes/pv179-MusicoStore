@@ -12,4 +12,12 @@
     <None Remove="Models\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DataAccessLayer\DataAccessLayer.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Repository\Implementations\" />
+  </ItemGroup>
+
 </Project>
