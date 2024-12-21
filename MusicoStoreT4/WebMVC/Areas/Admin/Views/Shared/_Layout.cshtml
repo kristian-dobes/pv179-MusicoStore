@@ -28,10 +28,14 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="Admin" asp-controller="Home" asp-action="Index">Admin Section</a>
-                        </li>
-                        <partial name="_AdminMenuPartial" />
+                        @if (SignInManager.IsSignedIn(User) && UserManager.IsInRoleAsync(UserManager.GetUserAsync(User).Result, "Admin").Result)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="Admin" asp-controller="Home" asp-action="Index">Admin Section</a>
+                            </li>
+                            <partial name="_AdminMenuPartial" />
+                        }
+
                     </ul>
                     <!-- Align the logout button to the right -->
                     <ul class="navbar-nav ms-auto">
