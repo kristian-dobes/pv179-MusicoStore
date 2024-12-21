@@ -25,9 +25,6 @@ namespace BusinessLayer.Services
             if (productId <= 0)
                 throw new ArgumentException("Invalid product ID.", nameof(productId));
 
-            if (modifiedBy <= 0)
-                throw new ArgumentException("Invalid user ID.", nameof(modifiedBy));
-
             var auditLog = new AuditLog
             {
                 ProductId = productId,

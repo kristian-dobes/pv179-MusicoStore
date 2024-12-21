@@ -6,6 +6,9 @@ using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
+using Infrastructure.Repository.Implementations.Implementations;
+using Infrastructure.Repository.Implementations;
+using Infrastructure.UnitOfWork;
 using Moq;
 using Tests.Other;
 
@@ -14,23 +17,24 @@ namespace Tests
     [TestFixture]
     public class UserServiceTests
     {
-        private MyDBContext _context;
         private UserService _userService;
-        private ProductService _productService;
+        private IUnitOfWork _uow;
 
-        /*
         [SetUp]
         public void SetUp()
         {
-            _context = MockDbContext.GenerateMock();
-            _userService = new UserService(_context);
-            _productService = new ProductService(_context, new AuditLogService(_context));
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            _context?.Dispose();
+            var context = MockDbContext.GenerateMock();
+            _uow = new UnitOfWork(context,
+                                  new UserRepository(context),
+                                  new CategoryRepository(context),
+                                  new ManufacturerRepository(context),
+                                  new OrderRepository(context),
+                                  new OrderItemRepository(context),
+                                  new ProductRepository(context),
+                                  new ProductImageRepository(context),
+                                  new AuditLogRepository(context),
+                                  new LogRepository(context));
+            _userService = new UserService(_uow);
         }
 
         [Test]
@@ -38,8 +42,7 @@ namespace Tests
         {
             // Arrange
             int userId = 1;
-            _context.Users.RemoveRange(_context.Users.ToList());
-            await _context.SaveChangesAsync();
+            await _uow.UsersRep.DeleteByIdsAsync((await _uow.UsersRep.GetAllAsync()).Select(u => u.Id));
 
             // Act
             var result = await _userService.GetMostFrequentBoughtItemAsync(userId);
@@ -53,9 +56,8 @@ namespace Tests
         {
             // Arrange
             int userId = 1;
-            _context.Orders.RemoveRange(_context.Orders.ToList());
-            _context.OrderItems.RemoveRange(_context.OrderItems.ToList());
-            await _context.SaveChangesAsync();
+            await _uow.OrdersRep.DeleteByIdsAsync((await _uow.OrdersRep.GetAllAsync()).Select(o => o.Id));
+            await _uow.OrderItemsRep.DeleteByIdsAsync((await _uow.OrderItemsRep.GetAllAsync()).Select(oi => oi.Id));
 
             // Act
             var result = await _userService.GetMostFrequentBoughtItemAsync(userId);
@@ -70,9 +72,9 @@ namespace Tests
             // Arrange
             int userId = 1;
 
-            var user = _context.Users.SingleOrDefault(u => u.Id == userId);
-            var orders = _context.Orders.Where(o => o.UserId == userId).ToList();
-            var orderItems = _context.OrderItems.Where(oi => orders.Select(o => o.Id).Contains(oi.OrderId)).ToList();
+            var user = await _uow.UsersRep.GetByIdAsync(userId);
+            var orders = await _uow.OrdersRep.WhereAsync(o => o.UserId == userId);
+            var orderItems = await _uow.OrderItemsRep.WhereAsync(oi => orders.Select(o => o.Id).Contains(oi.OrderId));
 
             Assert.IsNotNull(user);
             Assert.IsNotEmpty(orders);
@@ -99,10 +101,10 @@ namespace Tests
             // Arrange
             int userId = 1;
 
-            // Retrieve the user and related orders from the context
-            var user = _context.Users.SingleOrDefault(u => u.Id == userId);
-            var orders = _context.Orders.Where(o => o.UserId == userId).ToList();
-            var orderItems = _context.OrderItems.Where(oi => orders.Select(o => o.Id).Contains(oi.OrderId)).ToList();
+            // Retrieve the user and related orders from the unit of work
+            var user = await _uow.UsersRep.GetByIdAsync(userId);
+            var orders = await _uow.OrdersRep.WhereAsync(o => o.UserId == userId);
+            var orderItems = await _uow.OrderItemsRep.WhereAsync(oi => orders.Select(o => o.Id).Contains(oi.OrderId));
 
             Assert.IsNotNull(user);
             Assert.IsNotEmpty(orders);
@@ -129,9 +131,9 @@ namespace Tests
             // Arrange
             int userId = 1;
 
-            var user = _context.Users.SingleOrDefault(u => u.Id == userId);
-            var orders = _context.Orders.Where(o => o.UserId == userId).ToList();
-            var orderItems = _context.OrderItems.Where(oi => orders.Select(o => o.Id).Contains(oi.OrderId)).ToList();
+            var user = await _uow.UsersRep.GetByIdAsync(userId);
+            var orders = await _uow.OrdersRep.WhereAsync(o => o.UserId == userId);
+            var orderItems = await _uow.OrderItemsRep.WhereAsync(oi => orders.Select(o => o.Id).Contains(oi.OrderId));
 
             Assert.IsNotNull(user);
             Assert.IsNotEmpty(orders);
@@ -166,10 +168,16 @@ namespace Tests
         public async Task GetCustomerSegmentsAsync_ShouldReturnCustomerSegments()
         {
             // Arrange
+            var customer1 = (Customer?)(await _uow.UsersRep.GetByIdAsync(3));
+            var customer2 = (Customer?)(await _uow.UsersRep.GetByIdAsync(4));
+
             var customerSegmentsDto = new CustomerSegmentsDto()
             {
-                HighValueCustomers = new List<CustomerDto>() { _context.Customers.FirstOrDefault(u => u.Id == 3).MapToCustomerDto(),
-                                                               _context.Customers.FirstOrDefault(u => u.Id == 4).MapToCustomerDto() },
+                HighValueCustomers = new List<CustomerDto>()
+                {
+                    customer1.MapToCustomerDto(),
+                    customer2.MapToCustomerDto()
+                },
                 InfrequentCustomers = new List<CustomerDto>()
             };
 
@@ -181,13 +189,13 @@ namespace Tests
             CollectionAssert.AreEquivalent(customerSegmentsDto.InfrequentCustomers, result.InfrequentCustomers);
         }
 
-        
         [Test]
         public async Task GetCustomerSegmentsAsync_ShouldReturnEmptyLists_WhenNoCustomers()
         {
             // Arrange
-            _context.Customers.RemoveRange(_context.Customers.ToList());
-            await _context.SaveChangesAsync();
+            var customers = await _uow.UsersRep.GetAllAsync();
+            await _uow.UsersRep.DeleteByIdsAsync(customers.Select(c => c.Id));
+            await _uow.SaveAsync();
 
             // Act
             var result = await _userService.GetCustomerSegmentsAsync();
@@ -201,9 +209,12 @@ namespace Tests
         public async Task GetUserSummariesAsync_ShouldReturnEmpty_WhenDatasetIsEmpty()
         {
             // Arrange
-            _context.Users.RemoveRange(_context.Users.ToList());
-            _context.Customers.RemoveRange(_context.Customers.ToList());
-            await _context.SaveChangesAsync();
+            var userIds = (await _uow.UsersRep.GetAllAsync()).Select(u => u.Id);
+            var customerIds = (await _uow.UsersRep.GetAllAsync()).Select(c => c.Id);
+
+            await _uow.UsersRep.DeleteByIdsAsync(userIds);
+            await _uow.UsersRep.DeleteByIdsAsync(customerIds);
+            await _uow.SaveAsync();
 
             // Act
             var result = await _userService.GetUserSummariesAsync();
@@ -211,6 +222,5 @@ namespace Tests
             // Assert
             Assert.IsEmpty(result);
         }
-        */
     }
 }
