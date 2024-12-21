@@ -23,9 +23,14 @@ namespace BusinessLayer.Services
             _uow = unitOfWork;
         }
 
-        public async Task<List<CategorySummaryDto>> GetCategoriesAsync()
+        public async Task<List<CategoryDto>> GetCategoriesAsync()
         {
-            return await _uow.CategoriesRep.GetCategorySummariesAsync();
+            return (await _uow.CategoriesRep.GetAllAsync()).Select(c => c.MapToCategoryDTO()).ToList();
+        }
+
+        public async Task<List<CategorySummaryDto>> GetCategoriesSummariesAsync()
+        {
+            return await _uow.CategoriesRep.GetCategoriesSummariesAsync();
         }
 
         public async Task<CategorySummaryDto?> GetCategorySummaryAsync(int categoryId)
@@ -36,11 +41,8 @@ namespace BusinessLayer.Services
         public async Task<Category> MergeCategoriesAndCreateNewAsync(string newCategoryName, int sourceCategoryId1,
                                                                      int sourceCategoryId2, bool save = true)
         {
-            var categories = await _uow.CategoriesRep
-                .WhereAsync(c => c.Id == sourceCategoryId1 || c.Id == sourceCategoryId2);
-
-            var sourceCategory1 = categories.FirstOrDefault(c => c.Id == sourceCategoryId1);
-            var sourceCategory2 = categories.FirstOrDefault(c => c.Id == sourceCategoryId2);
+            var sourceCategory1 = (await _uow.CategoriesRep.WhereAsync(c => c.Id == sourceCategoryId1)).FirstOrDefault();
+            var sourceCategory2 = (await _uow.CategoriesRep.WhereAsync(c => c.Id == sourceCategoryId2)).FirstOrDefault();
 
             if (sourceCategory1 == null || sourceCategory2 == null)
             {

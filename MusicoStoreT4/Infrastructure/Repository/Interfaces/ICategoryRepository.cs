@@ -11,7 +11,7 @@ namespace Infrastructure.Repository.Interfaces
 {
     public interface ICategoryRepository : IRepository<Category>
     {
-        Task<List<CategorySummaryDto>> GetCategorySummariesAsync();
+        Task<List<CategorySummaryDto>> GetCategoriesSummariesAsync();
         Task<CategorySummaryDto?> GetCategorySummaryAsync(int categoryId);
     }
 }

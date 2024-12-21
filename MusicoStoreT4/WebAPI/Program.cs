@@ -7,6 +7,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using WebAPI.Middlewares;
 using BusinessLayer.Services.Interfaces;
+using Infrastructure.Repository.Interfaces;
+using Infrastructure.Repository;
+using Infrastructure.UnitOfWork;
+using Infrastructure.Repository.Implementations;
+using Infrastructure.Repository.Implementations.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,13 +78,27 @@ builder.Services.AddDbContextFactory<MyDBContext>(options =>
 
 builder.Services.AddScoped<IUserService, UserService>();
 
+// Register Repositories
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IManufacturerRepository, ManufacturerRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+builder.Services.AddScoped<ILogRepository, LogRepository>();
+
+// Register Unit of Work
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 // Register Services
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IImageService>(provider =>
 {
-    var dbContext = provider.GetRequiredService<MyDBContext>();
+    var uow = provider.GetRequiredService<IUnitOfWork>();
     var imagesPath = imagesFolder;
-    return new ImageService(dbContext, imagesPath);
+    return new ImageService(uow, imagesPath);
 });
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IManufacturerService, ManufacturerService>();

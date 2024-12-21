@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Repository
+namespace Infrastructure.Repository.Implementations
 {
     public class CategoryRepository(MyDBContext _context) : ICategoryRepository
     {
@@ -74,7 +74,7 @@ namespace Infrastructure.Repository
             return true;
         }
 
-        public async Task<List<CategorySummaryDto>> GetCategorySummariesAsync()
+        public async Task<List<CategorySummaryDto>> GetCategoriesSummariesAsync()
         {
             var categories = await _context.Categories
                 .Select(c => new CategorySummaryDto

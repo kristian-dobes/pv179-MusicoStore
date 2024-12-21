@@ -55,7 +55,7 @@ namespace WebAPI.Controllers
         [HttpGet("fetch/summary")]
         public async Task<IActionResult> FetchCategoriesSummary()
         {
-            return Ok(await _categoryService.GetCategoriesAsync());
+            return Ok(await _categoryService.GetCategoriesSummariesAsync());
         }
 
         [HttpGet("detail")]

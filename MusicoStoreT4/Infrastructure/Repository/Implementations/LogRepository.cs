@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Repository.Implementations
+namespace Infrastructure.Repository.Implementations.Implementations
 {
     public class LogRepository : ILogRepository
     {

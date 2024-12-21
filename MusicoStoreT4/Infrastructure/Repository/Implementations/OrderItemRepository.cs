@@ -4,7 +4,7 @@ using Infrastructure.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace Infrastructure.Repository
+namespace Infrastructure.Repository.Implementations
 {
     public class OrderItemRepository : IOrderItemRepository
     {

@@ -6,6 +6,10 @@ using BusinessLayer.Services.Interfaces;
 using BusinessLayer.Services;
 using BusinessLayer.Facades.Interfaces;
 using BusinessLayer.Facades;
+using Infrastructure.Repository.Implementations.Implementations;
+using Infrastructure.Repository.Implementations;
+using Infrastructure.Repository.Interfaces;
+using Infrastructure.UnitOfWork;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,7 +40,19 @@ builder.Services.AddIdentity<LocalIdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<MyDBContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.AddSingleton(imagesFolder);
+// Register Repositories
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IManufacturerRepository, ManufacturerRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+builder.Services.AddScoped<ILogRepository, LogRepository>();
+
+// Register Unit of Work
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
@@ -46,9 +62,9 @@ builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IImageService>(provider =>
 {
-    var dbContext = provider.GetRequiredService<MyDBContext>();
+    var uow = provider.GetRequiredService<IUnitOfWork>();
     var imagesPath = imagesFolder;
-    return new ImageService(dbContext, imagesPath);
+    return new ImageService(uow, imagesPath);
 });
 builder.Services.AddScoped<IManufacturerFacade, ManufacturerFacade>();
 builder.Services.AddScoped<ILogService, LogService>();

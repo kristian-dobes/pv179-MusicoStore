@@ -1,5 +1,4 @@
-﻿using BusinessLayer.DTOs.User;
-using DataAccessLayer.Data;
+﻿using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using DataAccessLayer.Models.Enums;
 using Infrastructure.Repository.Interfaces;
@@ -7,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Shared.DTOs;
 using System.Linq.Expressions;
 
-namespace Infrastructure.Repository
+namespace Infrastructure.Repository.Implementations
 {
     public class UserRepository : IUserRepository
     {
