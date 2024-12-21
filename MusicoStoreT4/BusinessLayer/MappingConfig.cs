@@ -27,7 +27,7 @@ namespace BusinessLayer
                 .Map(dest => dest.Description, src => src.Description)
                 .Map(dest => dest.Price, src => src.Price)
                 .Map(dest => dest.QuantityInStock, src => src.QuantityInStock)
-                .Map(dest => dest.LastModifiedBy, src => src.LastModifiedBy)
+                .Map(dest => dest.LastModifiedById, src => src.LastModifiedById)
                 .Map(dest => dest.EditCount, src => src.EditCount)
                 .Map(dest => dest.OrderItems, src => src.OrderItems.Adapt<ICollection<OrderItem>>())
                 .Map(dest => dest.CategoryId, src => src.CategoryId)

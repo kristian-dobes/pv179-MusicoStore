@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
+﻿using BusinessLayer.DTOs.Product;
 using BusinessLayer.Services.Interfaces;
+using DataAccessLayer.Models;
 using Mapster;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using WebMVC.Models.Product;
-using BusinessLayer.DTOs.Product;
 
 namespace WebMVC.Areas.Admin.Controllers
 {
@@ -12,10 +14,12 @@ namespace WebMVC.Areas.Admin.Controllers
     public class ProductController : Controller
     {
         private readonly IProductService _productService;
+        private readonly UserManager<LocalIdentityUser> _userManager;
 
-        public ProductController(IProductService productService)
+        public ProductController(IProductService productService, UserManager<LocalIdentityUser> userManager)
         {
             _productService = productService;
+            _userManager = userManager;
         }
 
         // GET: Admin/Product
@@ -64,10 +68,15 @@ namespace WebMVC.Areas.Admin.Controllers
                 return BadRequest(ModelState);
             }
 
-            var product = model.Adapt<ProductCreateDTO>();
-            product.LastModifiedBy = User.Identity.Name; // created by the currently logged-in user
+            // Retrieve the userId of the currently logged-in user
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized("User must be authenticated to create the product.");
 
-            var productResult = await _productService.CreateProductAsync(product);
+            var product = model.Adapt<ProductCreateDTO>();
+            product.LastModifiedById = user.UserId;
+
+            await _productService.CreateProductAsync(product);
 
             //ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
             //ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "Id", "Name", product.ManufacturerId);
@@ -99,17 +108,15 @@ namespace WebMVC.Areas.Admin.Controllers
 
             var product = model.Adapt<ProductUpdateDTO>();
 
-            // Retrieve the username of the currently logged-in user
-            string username = User.Identity.Name;
-            if (string.IsNullOrEmpty(username))
-            {
-                return Unauthorized("User must be authenticated to update the product.");
-            }
-            product.LastModifiedBy = User.Identity.Name; // created by the currently logged-in user
-            
-            var productResult = await _productService.UpdateProductAsync(id, product); // TODO use real username
+            // Retrieve the userId of the currently logged-in user
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized("User must be authenticated to edit the product.");
+            product.LastModifiedById = user.UserId;
 
-            return View(productResult.Adapt<ProductUpdateViewModel>()); // TODO return to index
+            var productResult = await _productService.UpdateProductAsync(id, product);
+
+            return View(productResult.Adapt<ProductUpdateViewModel>()); // TODO return to index?
         }
 
         // GET: Admin/Product/Delete/5
@@ -129,7 +136,12 @@ namespace WebMVC.Areas.Admin.Controllers
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirm(int id)
         {
-            await _productService.DeleteProductAsync(id);
+            // Retrieve the userId of the currently logged-in user
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized("User must be authenticated to delete the product.");
+
+            await _productService.DeleteProductAsync(id, user.UserId);
 
             return RedirectToAction("Index");
         }

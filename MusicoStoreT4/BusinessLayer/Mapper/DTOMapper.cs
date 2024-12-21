@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BusinessLayer.DTOs;
+using BusinessLayer.DTOs.Manufacturer;
 using BusinessLayer.DTOs.Product;
 using BusinessLayer.DTOs.User;
 using DataAccessLayer.Models;

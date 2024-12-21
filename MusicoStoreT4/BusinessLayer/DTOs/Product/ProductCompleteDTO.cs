@@ -13,7 +13,7 @@ namespace BusinessLayer.DTOs.Product
         public string Description { get; set; }
         public decimal Price { get; set; }
         public int QuantityInStock { get; set; }
-        public string LastModifiedBy { get; set; }
+        public int LastModifiedById { get; set; }
         public int EditCount { get; set; }
         public ICollection<OrderItemCompleteDTO>? OrderItems { get; set; }
         public int CategoryId { get; set; }
