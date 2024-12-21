@@ -25,14 +25,14 @@ namespace WebMVC.Controllers
         public async Task<IActionResult> Index()
         {
             int productId = 3;
-            ProductDto product = await _productService.GetProductByIdAsync(productId);
+            ProductCompleteDTO? product = await _productService.GetProductByIdAsync(productId);
 
             if (product == null)
                 return NotFound();
 
             var productViewModel = new ProductViewModel
             {
-                ProductId = product.Id,
+                ProductId = product.ProductId,
                 ProductName = product.Name,
                 Description = product.Description,
                 Price = product.Price,
