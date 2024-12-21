@@ -81,14 +81,10 @@ namespace BusinessLayer.Services
                 .FirstOrDefaultAsync(c => c.Id == categoryId);
 
             if (category == null)
-            {
                 throw new Exception("Category not found.");
-            }
 
             if (category.Products != null && category.Products.Count > 0)
-            {
                 throw new Exception("Category has products, cannot delete.");
-            }
 
             _dbContext.Categories.Remove(category);
             await SaveAsync(true);

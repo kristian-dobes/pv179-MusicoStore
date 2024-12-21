@@ -77,21 +77,17 @@ namespace BusinessLayer.Services
 
         public async Task DeleteManufacturerAsync(int manufacturerId)
         {
-            var manufacturer = await _dBContext.Categories
+            var manufacturer = await _dBContext.Manufacturers
                 .Include(c => c.Products)
                 .FirstOrDefaultAsync(c => c.Id == manufacturerId);
 
             if (manufacturer == null)
-            {
                 throw new Exception("Manufacturer not found.");
-            }
 
             if (manufacturer.Products != null && manufacturer.Products.Count > 0)
-            {
                 throw new Exception("Manufacturer has products, cannot delete.");
-            }
 
-            _dBContext.Categories.Remove(manufacturer);
+            _dBContext.Manufacturers.Remove(manufacturer);
             await SaveAsync(true);
         }
     }

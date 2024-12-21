@@ -109,14 +109,10 @@ namespace WebMVC.Areas.Admin.Controllers
             var manufacturer = await _manufacturerService.GetManufacturerByIdAsync(id);
 
             if (manufacturer == null)
-            {
                 return NotFound();
-            }
 
             if (manufacturer.ProductCount > 0)
-            {
                 return BadRequest("Manufacturer has products, cannot delete.");
-            }
 
             return View(manufacturer.Adapt<ManufacturerSummaryViewModel>());
         }

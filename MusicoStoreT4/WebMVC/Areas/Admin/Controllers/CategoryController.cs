@@ -108,14 +108,10 @@ namespace WebMVC.Areas.Admin.Controllers
             var category = await _categoryService.GetCategoryByIdAsync(id);
 
             if (category == null)
-            {
                 return NotFound();
-            }
 
             if (category.ProductCount > 0)
-            {
                 return BadRequest("Category has products, cannot delete.");
-            }
 
             return View(category.Adapt<CategorySummaryViewModel>());
         }
