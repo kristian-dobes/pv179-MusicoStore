@@ -1,7 +1,9 @@
 ﻿using BusinessLayer;
+using BusinessLayer.DTOs.Category;
 using BusinessLayer.DTOs.Manufacturer;
 using BusinessLayer.DTOs.Product;
 using Mapster;
+using WebMVC.Models.Category;
 using WebMVC.Models.Manufacturer;
 using WebMVC.Models.Product;
 
@@ -20,6 +22,9 @@ namespace WebMVC
 
             TypeAdapterConfig<ManufacturerSummaryDTO, ManufacturerSummaryViewModel>.NewConfig()
                 .Map(dest => dest.ManufacturerId, src => src.ManufacturerId);
+
+            TypeAdapterConfig<CategorySummaryDTO, CategorySummaryViewModel>.NewConfig()
+               .Map(dest => dest.CategoryId, src => src.CategoryId);
         }
     }
 }

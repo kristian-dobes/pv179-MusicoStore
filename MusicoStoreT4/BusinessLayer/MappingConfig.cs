@@ -1,4 +1,5 @@
 ﻿using BusinessLayer.DTOs;
+using BusinessLayer.DTOs.Category;
 using BusinessLayer.DTOs.Manufacturer;
 using BusinessLayer.DTOs.Product;
 using DataAccessLayer.Models;
@@ -45,7 +46,12 @@ namespace BusinessLayer
             TypeAdapterConfig<Manufacturer, ManufacturerSummaryDTO>.NewConfig()
                 .Map(dest => dest.ManufacturerId, src => src.Id)
                 .Map(dest => dest.Name, src => src.Name)
-                .Map(dest => dest.NumberOfProducts, src => src.Products != null ? src.Products.Count() : 0);
+                .Map(dest => dest.ProductCount, src => src.Products != null ? src.Products.Count() : 0);
+
+            TypeAdapterConfig<Category, CategorySummaryDTO>.NewConfig()
+                .Map(dest => dest.CategoryId, src => src.Id)
+                .Map(dest => dest.Name, src => src.Name)
+                .Map(dest => dest.ProductCount, src => src.Products != null ? src.Products.Count() : 0);
         }
     }
 }

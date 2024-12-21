@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BusinessLayer.Services.Interfaces;
-using BusinessLayer.DTOs;
 using DataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
 using BusinessLayer.Mapper;
 using DataAccessLayer.Models;
+using BusinessLayer.DTOs.Category;
+using Mapster;
 
 namespace BusinessLayer.Services
 {
@@ -21,33 +22,76 @@ namespace BusinessLayer.Services
             _dbContext = dBContext;
         }
 
-        public async Task<List<CategorySummaryDto>> GetCategoriesAsync()
+        public async Task<List<CategorySummaryDTO>> GetCategoriesAsync()
         {
-            var categories = await _dbContext.Categories
-                .Select(c => new CategorySummaryDto
-                {
-                    CategoryId = c.Id,
-                    Name = c.Name,
-                    ProductCount = c.Products.Count()
-                })
-                .ToListAsync();
+            IQueryable<Category> categoryQuery = _dbContext.Categories;
 
-            return categories;
+            // Fetch data into a list
+            var categories = await categoryQuery.ToListAsync();
+
+            // Map to DTOs
+            var categoryDTOs = categories.Adapt<List<CategorySummaryDTO>>();
+            return categoryDTOs;
         }
 
-        public async Task<CategorySummaryDto?> GetCategorySummaryAsync(int categoryId)
+        // will later use different DTO
+        public async Task<CategorySummaryDTO?> GetCategoryByIdAsync(int id)
         {
-            var categorySummary = await _dbContext.Categories
-                .Where(c => c.Id == categoryId)
-                .Select(c => new CategorySummaryDto
-                {
-                    CategoryId = c.Id,
-                    Name = c.Name,
-                    ProductCount = c.Products.Count()
-                })
-                .FirstOrDefaultAsync();
+            var category = await _dbContext.Categories
+                .SingleOrDefaultAsync(m => m.Id == id);
 
-            return categorySummary;
+            return category?.Adapt<CategorySummaryDTO>();
+        }
+
+        public async Task<CategorySummaryDTO?> GetCategorySummaryAsync(int id)
+        {
+            var category = await _dbContext.Categories
+                .SingleOrDefaultAsync(m => m.Id == id);
+
+            return category?.Adapt<CategorySummaryDTO>();
+        }
+
+        public async Task<CategoryDTO> CreateCategoryAsync(CategoryNameDTO category)
+        {
+            var categoryEntity = category.Adapt<Category>();
+
+            _dbContext.Categories.Add(categoryEntity);
+            await SaveAsync(true);
+
+            return categoryEntity.Adapt<CategoryDTO>();
+        }
+
+        public async Task<CategoryDTO?> UpdateCategoryAsync(int categoryId, CategoryNameDTO categoryDto)
+        {
+            var category = await _dbContext.Categories.FindAsync(categoryId);
+            if (category == null)
+            {
+                return null;
+            }
+            category = categoryDto.Adapt(category);
+            _dbContext.Categories.Update(category);
+            await SaveAsync(true);
+            return category.Adapt<CategoryDTO>();
+        }
+
+        public async Task DeleteCategoryAsync(int categoryId)
+        {
+            var category = await _dbContext.Categories
+                .Include(c => c.Products)
+                .FirstOrDefaultAsync(c => c.Id == categoryId);
+
+            if (category == null)
+            {
+                throw new Exception("Category not found.");
+            }
+
+            if (category.Products != null && category.Products.Count > 0)
+            {
+                throw new Exception("Category has products, cannot delete.");
+            }
+
+            _dbContext.Categories.Remove(category);
+            await SaveAsync(true);
         }
 
         public async Task<Category> MergeCategoriesAndCreateNewAsync(string newCategoryName, int sourceCategoryId1, int sourceCategoryId2, bool save = true)
