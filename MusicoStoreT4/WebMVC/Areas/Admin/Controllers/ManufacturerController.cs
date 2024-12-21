@@ -4,6 +4,7 @@ using BusinessLayer.Services.Interfaces;
 using Mapster;
 using WebMVC.Models.Manufacturer;
 using BusinessLayer.DTOs.Manufacturer;
+using DataAccessLayer.Models;
 
 namespace WebMVC.Areas.Admin.Controllers
 {
@@ -110,6 +111,11 @@ namespace WebMVC.Areas.Admin.Controllers
             if (manufacturer == null)
             {
                 return NotFound();
+            }
+
+            if (manufacturer.ProductCount > 0)
+            {
+                return BadRequest("Manufacturer has products, cannot delete.");
             }
 
             return View(manufacturer.Adapt<ManufacturerSummaryViewModel>());

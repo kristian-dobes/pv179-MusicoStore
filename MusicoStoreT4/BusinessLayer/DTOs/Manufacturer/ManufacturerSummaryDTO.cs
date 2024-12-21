@@ -10,6 +10,6 @@ namespace BusinessLayer.DTOs.Manufacturer
     {
         public int ManufacturerId { get; set; }
         public required string Name { get; set; }
-        public int NumberOfProducts { get; set; }
+        public int ProductCount { get; set; }
     }
 }
