@@ -9,7 +9,7 @@ public static class DataGenerator
 {
     public static void Seed(this ModelBuilder modelBuilder)
     {
-        //Bogus Seeding for simple entities (Categories, Manufacturers, Products, Customers)
+        // Bogus Seeding for simple entities (Categories, Manufacturers, Products, Customers)
         var categories = GenerateCategories();
         var manufacturers = GenerateManufacturers(5);
         var products = GenerateProducts(7, categories, manufacturers);
@@ -27,6 +27,7 @@ public static class DataGenerator
         modelBuilder.Entity<Order>().HasData(orders);
         modelBuilder.Entity<OrderItem>().HasData(orderItems);
 
+        // Images
         var images = PrepareImagesModels();
         modelBuilder.Entity<ProductImage>().HasData(images);
     }
@@ -74,7 +75,7 @@ public static class DataGenerator
             })
             .RuleFor(p => p.Description, f => f.Commerce.ProductDescription())
             .RuleFor(p => p.Price, f => f.Random.Decimal(10, 1000))
-            .RuleFor(p => p.LastModifiedBy, f => f.Internet.UserName())
+            .RuleFor(p => p.LastModifiedById, f => 1)
             .RuleFor(p => p.CategoryId, f => f.PickRandom(categories).Id)
             .RuleFor(p => p.EditCount, f => f.Random.Int(1, 10))
             .RuleFor(p => p.ManufacturerId, f => f.PickRandom(manufacturers).Id)
@@ -202,25 +203,25 @@ public static class DataGenerator
     private static List<ProductImage> PrepareImagesModels()
     {
         return new List<ProductImage>()
+        {
+            new ProductImage()
             {
-                new ProductImage()
-                {
-                    Id = 1,
-                    ProductId = 3,
-                    FilePath = "images\\drums.png",
-                    FileName = "drums.png",
-                    MimeType = "image/png",
-                    Created = DateTime.UtcNow
-                },
-                new ProductImage()
-                {
-                    Id = 2,
-                    ProductId = 5,
-                    FilePath = "images\\guitar.png",
-                    FileName = "guitar.png",
-                    MimeType = "image/png",
-                    Created = DateTime.UtcNow
-                }
-            };
+                Id = 1,
+                ProductId = 3,
+                FilePath = "images\\drums.png",
+                FileName = "drums.png",
+                MimeType = "image/png",
+                Created = DateTime.UtcNow
+            },
+            new ProductImage()
+            {
+                Id = 2,
+                ProductId = 5,
+                FilePath = "images\\guitar.png",
+                FileName = "guitar.png",
+                MimeType = "image/png",
+                Created = DateTime.UtcNow
+            }
+        };
     }
 }

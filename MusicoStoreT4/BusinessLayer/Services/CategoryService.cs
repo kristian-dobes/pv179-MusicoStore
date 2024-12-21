@@ -14,52 +14,50 @@ namespace BusinessLayer.Services
 {
     public class CategoryService : BaseService, ICategoryService
     {
-        private readonly MyDBContext _dBContext;
+        private readonly MyDBContext _dbContext;
 
         public CategoryService(MyDBContext dBContext) : base(dBContext)
         {
-            _dBContext = dBContext;
+            _dbContext = dBContext;
         }
 
-        public async Task<List<CategorySummaryDto?>> GetCategoriesAsync()
+        public async Task<List<CategorySummaryDto>> GetCategoriesAsync()
         {
-            var categories = await _dBContext.Categories
-                .Include(c => c.Products)
+            var categories = await _dbContext.Categories
+                .Select(c => new CategorySummaryDto
+                {
+                    CategoryId = c.Id,
+                    Name = c.Name,
+                    ProductCount = c.Products.Count()
+                })
                 .ToListAsync();
 
-            if (categories == null)
-            {
-                return new();
-            }
-
-            return categories
-                    .Select(c => c.MapToCategorySummaryDTO())
-                    .ToList();
+            return categories;
         }
 
         public async Task<CategorySummaryDto?> GetCategorySummaryAsync(int categoryId)
         {
-            var category = await _dBContext.Categories
-                .Include(c => c.Products)
-                .FirstOrDefaultAsync(c => c.Id == categoryId);
+            var categorySummary = await _dbContext.Categories
+                .Where(c => c.Id == categoryId)
+                .Select(c => new CategorySummaryDto
+                {
+                    CategoryId = c.Id,
+                    Name = c.Name,
+                    ProductCount = c.Products.Count()
+                })
+                .FirstOrDefaultAsync();
 
-            if (category == null)
-            {
-                return null;
-            }
-
-            return category.MapToCategorySummaryDTO();
+            return categorySummary;
         }
 
         public async Task<Category> MergeCategoriesAndCreateNewAsync(string newCategoryName, int sourceCategoryId1, int sourceCategoryId2, bool save = true)
         {
-            var sourceCategory1 = await _dBContext.Categories
-                .Include(c => c.Products)
-                .FirstOrDefaultAsync(c => c.Id == sourceCategoryId1);
+            var categories = await _dbContext.Categories
+                .Where(c => c.Id == sourceCategoryId1 || c.Id == sourceCategoryId2)
+                .ToListAsync();
 
-            var sourceCategory2 = await _dBContext.Categories
-                .Include(c => c.Products)
-                .FirstOrDefaultAsync(c => c.Id == sourceCategoryId2);
+            var sourceCategory1 = categories.FirstOrDefault(c => c.Id == sourceCategoryId1);
+            var sourceCategory2 = categories.FirstOrDefault(c => c.Id == sourceCategoryId2);
 
             if (sourceCategory1 == null || sourceCategory2 == null)
             {
@@ -68,32 +66,19 @@ namespace BusinessLayer.Services
 
             var newCategory = new Category
             {
-                Name = newCategoryName,
-                Products = new List<Product>()
+                Name = newCategoryName
             };
 
-            _dBContext.Categories.Add(newCategory);
+            _dbContext.Categories.Add(newCategory);
 
-            if (sourceCategory1.Products != null)
+            var productsToMove = sourceCategory1.Products.Concat(sourceCategory2.Products).ToList();
+            foreach (var product in productsToMove)
             {
-                foreach (var product in sourceCategory1.Products)
-                {
-                    product.CategoryId = newCategory.Id;
-                    newCategory.Products.Add(product);
-                }
+                product.CategoryId = newCategory.Id;
             }
 
-            if (sourceCategory2.Products != null)
-            {
-                foreach (var product in sourceCategory2.Products)
-                {
-                    product.CategoryId = newCategory.Id;
-                    newCategory.Products.Add(product);
-                }
-            }
-
-            _dBContext.Categories.Remove(sourceCategory1);
-            _dBContext.Categories.Remove(sourceCategory2);
+            _dbContext.Categories.Remove(sourceCategory1);
+            _dbContext.Categories.Remove(sourceCategory2);
 
             if (save)
             {

@@ -19,7 +19,7 @@ namespace BusinessLayer.Facades
             _productService = productService;
         }
 
-        public async Task MergeManufacturersAsync(int sourceManufacturerId, int targetManufacturerId)
+        public async Task MergeManufacturersAsync(int sourceManufacturerId, int targetManufacturerId, int modifiedById)
         {
             if (sourceManufacturerId == targetManufacturerId)
             {
@@ -39,7 +39,7 @@ namespace BusinessLayer.Facades
                 throw new KeyNotFoundException($"Target manufacturer with ID {targetManufacturerId} not found.");
             }
 
-            await _productService.ReassignProductsToManufacturerAsync(sourceManufacturerId, targetManufacturerId);
+            await _productService.ReassignProductsToManufacturerAsync(sourceManufacturerId, targetManufacturerId, modifiedById);
             await _manufacturerService.DeleteManufacturerAsync(sourceManufacturerId);
         }
     }

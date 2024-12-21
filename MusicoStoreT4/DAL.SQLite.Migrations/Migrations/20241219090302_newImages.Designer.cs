@@ -3,6 +3,7 @@ using System;
 using DataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.SQLite.Migrations.Migrations
 {
     [DbContext(typeof(MyDBContext))]
-    partial class MyDBContextModelSnapshot : ModelSnapshot
+    [Migration("20241219090302_newImages")]
+    partial class newImages
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +37,7 @@ namespace DAL.SQLite.Migrations.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("ModifiedById")
+                    b.Property<int>("ModifiedBy")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("ProductId")
@@ -66,19 +69,19 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 41, DateTimeKind.Local).AddTicks(7663),
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 91, DateTimeKind.Local).AddTicks(9175),
                             Name = "Instruments"
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 41, DateTimeKind.Local).AddTicks(7709),
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 91, DateTimeKind.Local).AddTicks(9219),
                             Name = "Accessories"
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 41, DateTimeKind.Local).AddTicks(7711),
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 91, DateTimeKind.Local).AddTicks(9222),
                             Name = "Equipment"
                         });
                 });
@@ -195,32 +198,32 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 43, DateTimeKind.Local).AddTicks(2586),
-                            Name = "Simonis - Gusikowski"
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 94, DateTimeKind.Local).AddTicks(2554),
+                            Name = "Boyle, Jakubowski and Marks"
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 43, DateTimeKind.Local).AddTicks(5610),
-                            Name = "Hane LLC"
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 94, DateTimeKind.Local).AddTicks(5232),
+                            Name = "Altenwerth Group"
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 43, DateTimeKind.Local).AddTicks(8571),
-                            Name = "Zboncak, Gulgowski and Boehm"
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 94, DateTimeKind.Local).AddTicks(6577),
+                            Name = "Price, Harber and Zulauf"
                         },
                         new
                         {
                             Id = 4,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 43, DateTimeKind.Local).AddTicks(8811),
-                            Name = "Fay, Blick and MacGyver"
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 94, DateTimeKind.Local).AddTicks(6885),
+                            Name = "Haley, Cronin and Deckow"
                         },
                         new
                         {
                             Id = 5,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 43, DateTimeKind.Local).AddTicks(8920),
-                            Name = "Funk, Herman and Gulgowski"
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 94, DateTimeKind.Local).AddTicks(7013),
+                            Name = "Mohr Inc"
                         });
                 });
 
@@ -249,35 +252,35 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5177),
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 107, DateTimeKind.Local).AddTicks(1979),
                             Date = new DateTime(2024, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 2
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5183),
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 107, DateTimeKind.Local).AddTicks(1989),
                             Date = new DateTime(2024, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 3
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5186),
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 107, DateTimeKind.Local).AddTicks(1993),
                             Date = new DateTime(2024, 12, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 3
                         },
                         new
                         {
                             Id = 4,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5190),
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 107, DateTimeKind.Local).AddTicks(1997),
                             Date = new DateTime(2025, 1, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 2
                         },
                         new
                         {
                             Id = 5,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5194),
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 107, DateTimeKind.Local).AddTicks(2001),
                             Date = new DateTime(2025, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = 2
                         });
@@ -316,7 +319,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5202),
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 107, DateTimeKind.Local).AddTicks(2008),
                             OrderId = 1,
                             Price = 99.99m,
                             ProductId = 1,
@@ -325,7 +328,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5213),
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 107, DateTimeKind.Local).AddTicks(2012),
                             OrderId = 1,
                             Price = 21.99m,
                             ProductId = 2,
@@ -334,7 +337,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5216),
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 107, DateTimeKind.Local).AddTicks(2015),
                             OrderId = 2,
                             Price = 280m,
                             ProductId = 3,
@@ -343,7 +346,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 4,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5219),
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 107, DateTimeKind.Local).AddTicks(2020),
                             OrderId = 3,
                             Price = 499.99m,
                             ProductId = 4,
@@ -352,7 +355,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 5,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5222),
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 107, DateTimeKind.Local).AddTicks(2022),
                             OrderId = 4,
                             Price = 720.05m,
                             ProductId = 5,
@@ -361,7 +364,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 6,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5225),
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 107, DateTimeKind.Local).AddTicks(2025),
                             OrderId = 5,
                             Price = 29.99m,
                             ProductId = 6,
@@ -370,7 +373,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 7,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5228),
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 107, DateTimeKind.Local).AddTicks(2028),
                             OrderId = 4,
                             Price = 25.54m,
                             ProductId = 6,
@@ -397,8 +400,9 @@ namespace DAL.SQLite.Migrations.Migrations
                     b.Property<int>("EditCount")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("LastModifiedById")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("LastModifiedBy")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("ManufacturerId")
                         .HasColumnType("INTEGER");
@@ -425,93 +429,93 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 1,
-                            CategoryId = 3,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 45, DateTimeKind.Local).AddTicks(4548),
+                            CategoryId = 2,
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 103, DateTimeKind.Local).AddTicks(2140),
                             Description = "New range of formal shirts are designed keeping you in mind. With fits and styling that will make you stand apart",
-                            EditCount = 8,
-                            LastModifiedById = 1,
-                            ManufacturerId = 2,
-                            Name = "Studio Monitors",
-                            Price = 285.440906448078580m,
-                            QuantityInStock = 64
+                            EditCount = 10,
+                            LastModifiedBy = "Brisa69",
+                            ManufacturerId = 3,
+                            Name = "Acoustic Guitar",
+                            Price = 579.945262138154650m,
+                            QuantityInStock = 20
                         },
                         new
                         {
                             Id = 2,
                             CategoryId = 1,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 45, DateTimeKind.Local).AddTicks(6568),
-                            Description = "The slim & simple Maple Gaming Keyboard from Dev Byte comes with a sleek body and 7- Color RGB LED Back-lighting for smart functionality",
-                            EditCount = 6,
-                            LastModifiedById = 1,
-                            ManufacturerId = 4,
-                            Name = "Studio Monitors",
-                            Price = 888.376722137502940m,
-                            QuantityInStock = 11
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 103, DateTimeKind.Local).AddTicks(4374),
+                            Description = "The Apollotech B340 is an affordable wireless mouse with reliable connectivity, 12 months battery life and modern design",
+                            EditCount = 7,
+                            LastModifiedBy = "Earl.Jast",
+                            ManufacturerId = 5,
+                            Name = "Saxophone",
+                            Price = 354.353250661768810m,
+                            QuantityInStock = 72
                         },
                         new
                         {
                             Id = 3,
                             CategoryId = 3,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 45, DateTimeKind.Local).AddTicks(6631),
-                            Description = "The Football Is Good For Training And Recreational Purposes",
-                            EditCount = 5,
-                            LastModifiedById = 1,
-                            ManufacturerId = 1,
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 103, DateTimeKind.Local).AddTicks(4477),
+                            Description = "The Nagasaki Lander is the trademarked name of several series of Nagasaki sport bikes, that started with the 1984 ABC800J",
+                            EditCount = 10,
+                            LastModifiedBy = "Rene_Bailey",
+                            ManufacturerId = 5,
                             Name = "Amplifiers",
-                            Price = 832.920864068872360m,
-                            QuantityInStock = 60
+                            Price = 23.5002587558028850m,
+                            QuantityInStock = 23
                         },
                         new
                         {
                             Id = 4,
                             CategoryId = 3,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 45, DateTimeKind.Local).AddTicks(6655),
-                            Description = "Ergonomic executive chair upholstered in bonded black leather and PVC padded seat and back for all-day comfort and support",
-                            EditCount = 5,
-                            LastModifiedById = 1,
-                            ManufacturerId = 1,
-                            Name = "Microphone Stands",
-                            Price = 142.659807442379470m,
-                            QuantityInStock = 82
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 103, DateTimeKind.Local).AddTicks(4531),
+                            Description = "The Nagasaki Lander is the trademarked name of several series of Nagasaki sport bikes, that started with the 1984 ABC800J",
+                            EditCount = 1,
+                            LastModifiedBy = "Giles_Rice",
+                            ManufacturerId = 3,
+                            Name = "Saxophone",
+                            Price = 367.616889434167660m,
+                            QuantityInStock = 62
                         },
                         new
                         {
                             Id = 5,
                             CategoryId = 2,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 45, DateTimeKind.Local).AddTicks(6674),
-                            Description = "Andy shoes are designed to keeping in mind durability as well as trends, the most stylish range of shoes & sandals",
-                            EditCount = 9,
-                            LastModifiedById = 1,
-                            ManufacturerId = 4,
-                            Name = "PA Systems",
-                            Price = 260.263970053370020m,
-                            QuantityInStock = 46
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 103, DateTimeKind.Local).AddTicks(4591),
+                            Description = "The Nagasaki Lander is the trademarked name of several series of Nagasaki sport bikes, that started with the 1984 ABC800J",
+                            EditCount = 2,
+                            LastModifiedBy = "Kayleigh.Koepp",
+                            ManufacturerId = 5,
+                            Name = "Tuners",
+                            Price = 202.777747449093730m,
+                            QuantityInStock = 15
                         },
                         new
                         {
                             Id = 6,
-                            CategoryId = 2,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 45, DateTimeKind.Local).AddTicks(6693),
-                            Description = "Andy shoes are designed to keeping in mind durability as well as trends, the most stylish range of shoes & sandals",
-                            EditCount = 5,
-                            LastModifiedById = 1,
-                            ManufacturerId = 2,
-                            Name = "Tuners",
-                            Price = 794.708059541154760m,
-                            QuantityInStock = 9
+                            CategoryId = 1,
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 103, DateTimeKind.Local).AddTicks(4649),
+                            Description = "The beautiful range of Apple Naturalé that has an exciting mix of natural ingredients. With the Goodness of 100% Natural Ingredients",
+                            EditCount = 8,
+                            LastModifiedBy = "Virgil.Thompson94",
+                            ManufacturerId = 1,
+                            Name = "PA Systems",
+                            Price = 37.9141941191793130m,
+                            QuantityInStock = 82
                         },
                         new
                         {
                             Id = 7,
                             CategoryId = 3,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 45, DateTimeKind.Local).AddTicks(6711),
-                            Description = "The beautiful range of Apple Naturalé that has an exciting mix of natural ingredients. With the Goodness of 100% Natural Ingredients",
-                            EditCount = 3,
-                            LastModifiedById = 1,
-                            ManufacturerId = 2,
-                            Name = "Digital Piano",
-                            Price = 566.440561047907360m,
-                            QuantityInStock = 91
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 103, DateTimeKind.Local).AddTicks(4720),
+                            Description = "The Apollotech B340 is an affordable wireless mouse with reliable connectivity, 12 months battery life and modern design",
+                            EditCount = 7,
+                            LastModifiedBy = "Casimir_Kling",
+                            ManufacturerId = 3,
+                            Name = "Studio Monitors",
+                            Price = 500.171984279610490m,
+                            QuantityInStock = 27
                         });
                 });
 
@@ -550,7 +554,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 12, 20, 18, 12, 32, 47, DateTimeKind.Utc).AddTicks(5287),
+                            Created = new DateTime(2024, 12, 19, 9, 3, 2, 107, DateTimeKind.Utc).AddTicks(2117),
                             FileName = "drums.png",
                             FilePath = "images\\drums.png",
                             MimeType = "image/png",
@@ -559,7 +563,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 12, 20, 18, 12, 32, 47, DateTimeKind.Utc).AddTicks(5291),
+                            Created = new DateTime(2024, 12, 19, 9, 3, 2, 107, DateTimeKind.Utc).AddTicks(2120),
                             FileName = "guitar.png",
                             FilePath = "images\\guitar.png",
                             MimeType = "image/png",
@@ -759,54 +763,54 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(1181),
-                            Email = "Dedrick11_Osinski62@gmail.com",
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 105, DateTimeKind.Local).AddTicks(505),
+                            Email = "Dexter.Johns.Thiel25@gmail.com",
                             Role = 1,
-                            Username = "Dedrick11",
-                            Address = "55444 Joanie Brooks",
-                            City = "Lonietown",
-                            PhoneNumber = "+573 337 181 092",
-                            PostalCode = "06867",
-                            State = "Alaska"
+                            Username = "Dexter.Johns",
+                            Address = "268 Hoppe Ridges",
+                            City = "East Anastaciofurt",
+                            PhoneNumber = "+995 861 942 885",
+                            PostalCode = "99819",
+                            State = "South Carolina"
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(4127),
-                            Email = "Scottie.Botsford.Flatley@hotmail.com",
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 105, DateTimeKind.Local).AddTicks(3004),
+                            Email = "Abigayle_Collier9.Wilkinson@yahoo.com",
                             Role = 1,
-                            Username = "Scottie.Botsford",
-                            Address = "586 Hayley Canyon",
-                            City = "Port Jefferyhaven",
-                            PhoneNumber = "+351 446 428 244",
-                            PostalCode = "10860-7758",
-                            State = "Ohio"
+                            Username = "Abigayle_Collier9",
+                            Address = "9271 Rau Burgs",
+                            City = "Port Javiermouth",
+                            PhoneNumber = "+826 433 273 775",
+                            PostalCode = "75457",
+                            State = "New Hampshire"
                         },
                         new
                         {
                             Id = 4,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(4449),
-                            Email = "Freida_Block_Kling@hotmail.com",
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 105, DateTimeKind.Local).AddTicks(3321),
+                            Email = "Jon_Kulas79@hotmail.com",
                             Role = 1,
-                            Username = "Freida_Block",
-                            Address = "64850 Gunner Corners",
-                            City = "South Francesview",
-                            PhoneNumber = "+682 498 654 825",
-                            PostalCode = "65335",
-                            State = "Maine"
+                            Username = "Jon_Kulas",
+                            Address = "68189 Electa Circle",
+                            City = "Feilport",
+                            PhoneNumber = "+231 534 101 423",
+                            PostalCode = "08080-1607",
+                            State = "New Mexico"
                         },
                         new
                         {
                             Id = 5,
-                            Created = new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(4685),
-                            Email = "Quinton25_Denesik70@hotmail.com",
+                            Created = new DateTime(2024, 12, 19, 10, 3, 2, 105, DateTimeKind.Local).AddTicks(3541),
+                            Email = "Jane_Reinger31@yahoo.com",
                             Role = 1,
-                            Username = "Quinton25",
-                            Address = "83154 Roberts Circles",
-                            City = "Brockside",
-                            PhoneNumber = "+523 090 604 967",
-                            PostalCode = "86363",
-                            State = "Arkansas"
+                            Username = "Jane_Reinger",
+                            Address = "014 Rosendo Green",
+                            City = "West Casimirfurt",
+                            PhoneNumber = "+757 832 451 417",
+                            PostalCode = "83533-0079",
+                            State = "Iowa"
                         });
                 });
 

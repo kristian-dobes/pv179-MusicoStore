@@ -1,4 +1,5 @@
-﻿using DataAccessLayer.Data;
+﻿using BusinessLayer.Services.Interfaces;
+using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -16,11 +17,43 @@ namespace WebAPI.Controllers
     {
         private readonly MyDBContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private IImageService _imageService;
 
-        public ImagesController(MyDBContext context, IWebHostEnvironment webHostEnvironment)
+        public ImagesController(MyDBContext context, IWebHostEnvironment webHostEnvironment, IImageService productService)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _imageService = productService;
+        }
+
+        [HttpGet("images")]
+        public async Task<IActionResult> Fetch()
+        {
+            var images = await _imageService.GetAllProductsImagesAsync();
+
+            if (images == null || !images.Any())
+            {
+                return NotFound(new { Message = "No images found." });
+            }
+
+            var fileResults = images.Select(image =>
+            {
+                var fileBytes = image.FileContents;
+                var mimeType = image.MimeType;
+                var fileName = image.FileName;
+
+                return new FileContentResult(fileBytes, mimeType)
+                {
+                    FileDownloadName = fileName
+                };
+            }).ToList();
+
+            return Ok(fileResults.Select(fileResult => new
+            {
+                fileResult.FileDownloadName,
+                fileResult.ContentType,
+                FileBytes = Convert.ToBase64String(fileResult.FileContents)
+            }));
         }
 
         [HttpPost("UploadMetadata")]
@@ -54,55 +87,66 @@ namespace WebAPI.Controllers
             return Ok(productImageDTO);
         }
 
-        [HttpGet("{fileName}")]
-        public IActionResult GetImage(string fileName)
-        {
-            var filePath = Path.Combine("images", fileName);
-
-            if (!System.IO.File.Exists(filePath))
-                return NotFound();
-
-            var fileBytes = System.IO.File.ReadAllBytes(filePath);
-            var mimeType = "image/jpeg"; // Default mime type for images
-
-            if (fileName.EndsWith(".png"))
-                mimeType = "image/png";
-            else if (fileName.EndsWith(".gif"))
-                mimeType = "image/gif";
-            else if (fileName.EndsWith(".bmp"))
-                mimeType = "image/bmp";
-
-            return File(fileBytes, mimeType);
-        }
-
         [HttpGet("{productId}/file")]
         public async Task<IActionResult> GetImageFileByProductId(int productId)
         {
-            // Fetch the product image record from the database
-            var productImage = await _context.ProductImages
-                .FirstOrDefaultAsync(pi => pi.ProductId == productId);
+            var image = await _imageService.GetProductImageAsync(productId);
 
-            if (productImage == null)
+            if (image == null)
             {
                 return NotFound(new { Message = "Image not found for this product." });
             }
 
-            // Construct the full file path for the image, using ContentRootPath
-            // Example: images folder at the root of the project
-            var imageFolderPath = _webHostEnvironment.ContentRootPath;
-            var filePath = Path.Combine(imageFolderPath, productImage.FilePath);
+            return File(image.FileContents, image.MimeType, image.FileName);
+        }
 
-            // Check if the file exists before trying to read it
-            if (!System.IO.File.Exists(filePath))
+        [HttpPost("upload-image/{productId}")]
+        public async Task<IActionResult> UploadImageForProduct(int productId, IFormFile file)
+        {
+            if (file == null || file.Length == 0)
             {
-                return NotFound(new { Message = "Image file not found on server." });
+                return BadRequest("No file uploaded.");
             }
 
-            // Read the file content
-            var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+            bool isImageUploaded = await _imageService.ChangeOrAssignProductImageAsync(productId, file);
 
-            // Return the file content with the correct MIME type
-            return File(fileBytes, productImage.MimeType);
+            if (!isImageUploaded)
+            {
+                return BadRequest("Failed to upload image.");
+            }
+
+            return Ok(new { message = "Image uploaded successfully." });
+        }
+
+        [HttpPut("change-image/{productId}")]
+        public async Task<IActionResult> ChangeProductImage(int productId, IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file uploaded.");
+            }
+
+            var updated = await _imageService.ChangeOrAssignProductImageAsync(productId, file);
+
+            if (!updated)
+            {
+                return NotFound($"Image with for product with ID {productId} not found.");
+            }
+
+            return NoContent();
+        }
+
+        [HttpDelete("delete-image/{productId}")]
+        public async Task<IActionResult> DeleteProductImage(int productId)
+        {
+            var deleted = await _imageService.DeleteProductImageAsync(productId);
+
+            if (!deleted)
+            {
+                return NotFound($"Image for product with ID {productId} not found.");
+            }
+
+            return NoContent();
         }
     }
 }

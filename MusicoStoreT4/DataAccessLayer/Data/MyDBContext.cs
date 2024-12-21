@@ -17,6 +17,7 @@ namespace DataAccessLayer.Data
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Manufacturer> Manufacturers { get; set; }
         public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Customer> Customers { get; set; }
         public virtual DbSet<ProductImage> ProductImages { get; set; }
         public virtual DbSet<Log> Logs { get; set; }
         public virtual DbSet<AuditLog> AuditLogs { get; set; }
