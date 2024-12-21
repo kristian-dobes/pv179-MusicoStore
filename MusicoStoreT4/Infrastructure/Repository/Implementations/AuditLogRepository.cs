@@ -5,21 +5,22 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Repository
 {
-    public class ProductAuditRepository : IProductAuditRepository
+    public class AuditLogRepository : IAuditLogRepository
     {
         private readonly MyDBContext _context;
 
-        public ProductAuditRepository(MyDBContext context)
+        public AuditLogRepository(MyDBContext context)
         {
             _context = context;
         }
 
-        public async Task<AuditLog?> Add(AuditLog entity)
+        public async Task<AuditLog?> AddAsync(AuditLog entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -29,7 +30,7 @@ namespace Infrastructure.Repository
             return added;
         }
 
-        public async Task<bool> Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
             var auditLog = await _context.AuditLogs.FindAsync(id);
 
@@ -41,17 +42,17 @@ namespace Infrastructure.Repository
             return true;
         }
 
-        public async Task<IEnumerable<AuditLog>> GetAll()
+        public async Task<IEnumerable<AuditLog>> GetAllAsync()
         {
             return await _context.AuditLogs.ToListAsync();
         }
 
-        public async Task<AuditLog?> GetById(int id)
+        public async Task<AuditLog?> GetByIdAsync(int id)
         {
             return await _context.AuditLogs.FirstOrDefaultAsync(a => a.Id == id);
         }
 
-        public async Task<bool> Update(AuditLog entity)
+        public async Task<bool> UpdateAsync(AuditLog entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -68,6 +69,16 @@ namespace Infrastructure.Repository
             _context.AuditLogs.Update(existingAuditLog);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<IEnumerable<AuditLog>> WhereAsync(Expression<Func<AuditLog, bool>> predicate)
+        {
+            return await _context.AuditLogs.Where(predicate).ToListAsync();
+        }
+
+        public async Task<bool> AnyAsync(Expression<Func<AuditLog, bool>> predicate)
+        {
+            return await _context.AuditLogs.AnyAsync(predicate);
         }
     }
 }

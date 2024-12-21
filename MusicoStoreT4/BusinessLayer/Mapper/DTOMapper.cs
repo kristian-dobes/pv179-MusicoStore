@@ -8,6 +8,7 @@ using BusinessLayer.DTOs.Product;
 using BusinessLayer.DTOs.User;
 using DataAccessLayer.Models;
 using DataAccessLayer.Models.Enums;
+using Shared.DTOs;
 
 namespace BusinessLayer.Mapper
 {

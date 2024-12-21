@@ -7,37 +7,37 @@ using BusinessLayer.DTOs;
 using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
+using Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Services
 {
     public class ManufacturerService : BaseService, IManufacturerService
     {
-        private readonly MyDBContext _dBContext;
+        private readonly IUnitOfWork _uow;
 
-        public ManufacturerService(MyDBContext dBContext) : base(dBContext)
+        public ManufacturerService(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _dBContext = dBContext;
+            _uow = unitOfWork;
         }
 
         public async Task<bool> ValidateManufacturerAsync(int manufacturerId)
         {
-            return await _dBContext.Manufacturers
+            return await _uow.ManufacturersRep
                 .AnyAsync(m => m.Id == manufacturerId);
         }
 
         public async Task DeleteManufacturerAsync(int manufacturerId)
         {
-            var manufacturer = await _dBContext.Manufacturers
-                .FirstOrDefaultAsync(m => m.Id == manufacturerId);
+            var manufacturer = (await _uow.ManufacturersRep.WhereAsync(m => m.Id == manufacturerId)).FirstOrDefault();
 
             if (manufacturer == null)
             {
                 return;
             }
 
-            _dBContext.Manufacturers.Remove(manufacturer);
-            await _dBContext.SaveChangesAsync();
+            await _uow.ManufacturersRep.DeleteAsync(manufacturer.Id);
+            await _uow.SaveAsync();
         }
     }
 }

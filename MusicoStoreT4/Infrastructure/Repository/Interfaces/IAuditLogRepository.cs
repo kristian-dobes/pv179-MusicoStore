@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repository.Interfaces
 {
-    public interface IProductAuditRepository : IRepository<AuditLog>
+    public interface IAuditLogRepository : IRepository<AuditLog>
     {
 
     }

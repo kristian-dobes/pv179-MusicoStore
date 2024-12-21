@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using BusinessLayer.DTOs;
 using BusinessLayer.DTOs.Product;
 using BusinessLayer.DTOs.User;
+using Shared.DTOs;
 
 namespace BusinessLayer.Services.Interfaces
 {

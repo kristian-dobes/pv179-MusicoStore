@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BusinessLayer.DTOs;
 using DataAccessLayer.Models;
+using Shared.DTOs;
 
 namespace BusinessLayer.Services.Interfaces
 {

@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{73159B09-DDDD-4A13-8D85-4A213CC7407E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Sahred\Shared.csproj", "{0EACB99C-6D8B-4E89-AA37-08BCA13D1EAA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{73159B09-DDDD-4A13-8D85-4A213CC7407E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{73159B09-DDDD-4A13-8D85-4A213CC7407E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73159B09-DDDD-4A13-8D85-4A213CC7407E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EACB99C-6D8B-4E89-AA37-08BCA13D1EAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EACB99C-6D8B-4E89-AA37-08BCA13D1EAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EACB99C-6D8B-4E89-AA37-08BCA13D1EAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EACB99C-6D8B-4E89-AA37-08BCA13D1EAA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

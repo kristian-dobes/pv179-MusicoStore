@@ -9,80 +9,61 @@ using DataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
 using BusinessLayer.Mapper;
 using DataAccessLayer.Models;
+using Infrastructure.UnitOfWork;
+using Shared.DTOs;
 
 namespace BusinessLayer.Services
 {
     public class CategoryService : BaseService, ICategoryService
     {
-        private readonly MyDBContext _dbContext;
+        private readonly IUnitOfWork _uow;
 
-        public CategoryService(MyDBContext dBContext) : base(dBContext)
+        public CategoryService(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _dbContext = dBContext;
+            _uow = unitOfWork;
         }
 
         public async Task<List<CategorySummaryDto>> GetCategoriesAsync()
         {
-            var categories = await _dbContext.Categories
-                .Select(c => new CategorySummaryDto
-                {
-                    CategoryId = c.Id,
-                    Name = c.Name,
-                    ProductCount = c.Products.Count()
-                })
-                .ToListAsync();
-
-            return categories;
+            return await _uow.CategoriesRep.GetCategorySummariesAsync();
         }
 
         public async Task<CategorySummaryDto?> GetCategorySummaryAsync(int categoryId)
         {
-            var categorySummary = await _dbContext.Categories
-                .Where(c => c.Id == categoryId)
-                .Select(c => new CategorySummaryDto
-                {
-                    CategoryId = c.Id,
-                    Name = c.Name,
-                    ProductCount = c.Products.Count()
-                })
-                .FirstOrDefaultAsync();
-
-            return categorySummary;
+            return await _uow.CategoriesRep.GetCategorySummaryAsync(categoryId);
         }
 
-        public async Task<Category> MergeCategoriesAndCreateNewAsync(string newCategoryName, int sourceCategoryId1, int sourceCategoryId2, bool save = true)
+        public async Task<Category> MergeCategoriesAndCreateNewAsync(string newCategoryName, int sourceCategoryId1,
+                                                                     int sourceCategoryId2, bool save = true)
         {
-            var categories = await _dbContext.Categories
-                .Where(c => c.Id == sourceCategoryId1 || c.Id == sourceCategoryId2)
-                .ToListAsync();
+            var categories = await _uow.CategoriesRep
+                .WhereAsync(c => c.Id == sourceCategoryId1 || c.Id == sourceCategoryId2);
 
             var sourceCategory1 = categories.FirstOrDefault(c => c.Id == sourceCategoryId1);
             var sourceCategory2 = categories.FirstOrDefault(c => c.Id == sourceCategoryId2);
 
             if (sourceCategory1 == null || sourceCategory2 == null)
             {
-                throw new Exception("One or both source categories not found.");
+                throw new InvalidOperationException("One or both source categories not found.");
             }
 
-            var newCategory = new Category
-            {
-                Name = newCategoryName
-            };
+            var newCategory = new Category { Name = newCategoryName };
+            await _uow.CategoriesRep.AddAsync(newCategory);
 
-            _dbContext.Categories.Add(newCategory);
+            var productsToMove = sourceCategory1.Products?.Concat(sourceCategory2.Products ?? Enumerable.Empty<Product>())
+                                 ?? Enumerable.Empty<Product>();
 
-            var productsToMove = sourceCategory1.Products.Concat(sourceCategory2.Products).ToList();
             foreach (var product in productsToMove)
             {
                 product.CategoryId = newCategory.Id;
             }
 
-            _dbContext.Categories.Remove(sourceCategory1);
-            _dbContext.Categories.Remove(sourceCategory2);
+            await _uow.CategoriesRep.DeleteAsync(sourceCategory1.Id);
+            await _uow.CategoriesRep.DeleteAsync(sourceCategory2.Id);
 
             if (save)
             {
-                await SaveAsync(true);
+                await _uow.SaveAsync();
             }
 
             return newCategory;

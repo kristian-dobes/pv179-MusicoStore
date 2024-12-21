@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,7 +20,7 @@ namespace Infrastructure.Repository
             _context = context;
         }
 
-        public async Task<Manufacturer?> Add(Manufacturer entity)
+        public async Task<Manufacturer?> AddAsync(Manufacturer entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -30,7 +31,7 @@ namespace Infrastructure.Repository
             return added;
         }
 
-        public async Task<bool> Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
             var manufacturer = await _context.Manufacturers.FindAsync(id);
 
@@ -43,17 +44,17 @@ namespace Infrastructure.Repository
             return true;
         }
 
-        public async Task<IEnumerable<Manufacturer>> GetAll()
+        public async Task<IEnumerable<Manufacturer>> GetAllAsync()
         {
             return await _context.Manufacturers.ToListAsync();
         }
 
-        public async Task<Manufacturer?> GetById(int id)
+        public async Task<Manufacturer?> GetByIdAsync(int id)
         {
             return await _context.Manufacturers.FirstOrDefaultAsync(m => m.Id == id);
         }
 
-        public async Task<bool> Update(Manufacturer entity)
+        public async Task<bool> UpdateAsync(Manufacturer entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -69,6 +70,16 @@ namespace Infrastructure.Repository
             await _context.SaveChangesAsync();
 
             return true;
+        }
+
+        public async Task<IEnumerable<Manufacturer>> WhereAsync(Expression<Func<Manufacturer, bool>> predicate)
+        {
+            return await _context.Manufacturers.Where(predicate).ToListAsync();
+        }
+
+        public async Task<bool> AnyAsync(Expression<Func<Manufacturer, bool>> predicate)
+        {
+            return await _context.Manufacturers.AnyAsync(predicate);
         }
     }
 }

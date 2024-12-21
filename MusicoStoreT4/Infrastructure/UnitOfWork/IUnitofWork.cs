@@ -10,14 +10,15 @@ namespace Infrastructure.UnitOfWork
 {
     public interface IUnitOfWork
     {
-        IUserRepository Users { get; }
-        ICategoryRepository Categories { get; }
-        IManufacturerRepository Manufacturers { get; }
-        IOrderRepository Orders { get; }
-        IOrderItemRepository OrderItems { get; }
-        IProductRepository Products { get; }
-        IProductImageRepository ProductImages { get; }
-        IProductAuditRepository ProductAudits { get; }
+        IUserRepository UsersRep { get; }
+        ICategoryRepository CategoriesRep { get; }
+        IManufacturerRepository ManufacturersRep { get; }
+        IOrderRepository OrdersRep { get; }
+        IOrderItemRepository OrderItemsRep { get; }
+        IProductRepository ProductsRep { get; }
+        IProductImageRepository ProductImagesRep { get; }
+        IAuditLogRepository ProductAuditsRep { get; }
+        ILogRepository LogsRep { get; }
 
         Task<int> SaveAsync();
         void BeginTransaction();

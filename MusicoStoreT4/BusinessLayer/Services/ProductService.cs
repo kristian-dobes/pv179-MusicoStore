@@ -9,6 +9,7 @@ using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
+using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,19 +19,18 @@ namespace BusinessLayer.Services
 {
     public class ProductService : BaseService, IProductService
     {
-        private readonly MyDBContext _dbContext;
+        private readonly IUnitOfWork _uow;
         private readonly IAuditLogService _auditLogService;
 
-        public ProductService(MyDBContext dBContext, IAuditLogService auditLogService) : base(dBContext)
+        public ProductService(IUnitOfWork unitOfWork, IAuditLogService auditLogService) : base(unitOfWork)
         {
-            _dbContext = dBContext;
+            _uow = unitOfWork;
             _auditLogService = auditLogService;
         }
 
-        public async Task<ProductDto> GetProductByIdAsync(int productId)
+        public async Task<ProductDto?> GetProductByIdAsync(int productId)
         {
-            var product = await _dbContext.Products
-                .FirstOrDefaultAsync(p => p.Id == productId);
+            var product = await _uow.ProductsRep.GetByIdAsync(productId);
 
             if (product == null)
                 return null;
@@ -40,33 +40,41 @@ namespace BusinessLayer.Services
 
         public async Task UpdateProductAsync(UpdateProductDTO productDto, int modifiedById)
         {
-            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == productDto.Id);
+            var product = await _uow.ProductsRep.GetByIdAsync(productDto.Id);
 
             if (product == null)
                 throw new KeyNotFoundException($"Product with ID {productDto.Id} not found.");
 
-            var manufacturer = await _dbContext.Manufacturers.FirstOrDefaultAsync(m => m.Id == productDto.ManufacturerId);
-            if (manufacturer == null)
-                throw new KeyNotFoundException($"Manufacturer with ID {productDto.ManufacturerId} not found.");
+            if (productDto.ManufacturerId.HasValue)
+            {
+                var manufacturer = await _uow.ManufacturersRep.GetByIdAsync(productDto.ManufacturerId.Value);
+                if (manufacturer == null)
+                    throw new KeyNotFoundException($"Manufacturer with ID {productDto.ManufacturerId} not found.");
+                product.Manufacturer = manufacturer;
+            }
 
-            var category = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Id == productDto.CategoryId);
-            if (category == null)
-                throw new KeyNotFoundException($"Category with ID {productDto.CategoryId} not found.");
+            if (productDto.CategoryId.HasValue)
+            {
+                var category = await _uow.CategoriesRep.GetByIdAsync(productDto.CategoryId.Value);
+                if (category == null)
+                    throw new KeyNotFoundException($"Category with ID {productDto.CategoryId} not found.");
+                product.Category = category;
+            }
 
-            product.Name = productDto.Name;
-            product.Description = productDto.Description;
+            if (!string.IsNullOrEmpty(productDto.Name))
+                product.Name = productDto.Name;
+
+            if (!string.IsNullOrEmpty(productDto.Description))
+                product.Description = productDto.Description;
 
             if (productDto.Price.HasValue)
                 product.Price = productDto.Price.Value;
 
-            product.Manufacturer = manufacturer;
-            product.Category = category;
-
             product.LastModifiedById = modifiedById;
             product.EditCount++;
-            await _auditLogService.LogAsync(productDto.Id, AuditAction.Update, modifiedById);
 
-            await _dbContext.SaveChangesAsync();
+            await _auditLogService.LogAsync(productDto.Id, AuditAction.Update, modifiedById);
+            await _uow.SaveAsync();
         }
 
         public async Task<Product> CreateProductAsync(CreateProductDTO productDto, int createdById)
@@ -82,12 +90,12 @@ namespace BusinessLayer.Services
                 EditCount = 0
             };
 
-            var added = _dbContext.Products.Add(product).Entity;
+            var added = await _uow.ProductsRep.AddAsync(product);
 
             try
             {
-                await _dbContext.SaveChangesAsync();
                 await _auditLogService.LogAsync(added.Id, AuditAction.Create, createdById);
+                await _uow.SaveAsync();
 
                 return added;
             }
@@ -99,9 +107,7 @@ namespace BusinessLayer.Services
 
         public async Task ReassignProductsToManufacturerAsync(int sourceManufacturerId, int targetManufacturerId, int modifiedBy)
         {
-            var productsToUpdate = await _dbContext.Products
-                .Where(p => p.ManufacturerId == sourceManufacturerId)
-                .ToListAsync();
+            var productsToUpdate = await _uow.ProductsRep.WhereAsync(p => p.ManufacturerId == sourceManufacturerId);
 
             foreach (var product in productsToUpdate)
             {
@@ -111,19 +117,17 @@ namespace BusinessLayer.Services
                 await _auditLogService.LogAsync(product.Id, AuditAction.Update, modifiedBy);
             }
 
-            await _dbContext.SaveChangesAsync();
+            await _uow.SaveAsync();
         }
 
         public async Task<List<Product>> GetProductsByManufacturerAsync(int manufacturerId)
         {
-            return await _dbContext.Products
-                    .Where(p => p.ManufacturerId == manufacturerId)
-                    .ToListAsync();
+            return (await _uow.ProductsRep.WhereAsync(p => p.ManufacturerId == manufacturerId)).ToList();
         }
 
         public async Task UpdateProductManufacturerAsync(int productId, int newManufacturerId, int modifiedBy)
         {
-            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == productId);
+            var product = await _uow.ProductsRep.GetByIdAsync(productId);
 
             if (product == null)
                 throw new KeyNotFoundException($"Product with ID {productId} not found.");
@@ -131,41 +135,31 @@ namespace BusinessLayer.Services
             product.ManufacturerId = newManufacturerId;
             product.LastModifiedById = modifiedBy;
             product.EditCount++;
-            await _auditLogService.LogAsync(product.Id, AuditAction.Update, modifiedBy);
 
-            await _dbContext.SaveChangesAsync();
+            await _auditLogService.LogAsync(product.Id, AuditAction.Update, modifiedBy);
+            await _uow.SaveAsync();
         }
 
         public async Task<List<TopSellingProductDto>> GetTopSellingProductsByCategoryAsync(DateTime startDate, DateTime endDate, int topN = 5)
         {
-            var orderItems = await (from orderItem in _dbContext.OrderItems
-                                    join product in _dbContext.Products on orderItem.ProductId equals product.Id
-                                    join category in _dbContext.Categories on product.CategoryId equals category.Id
-                                    where orderItem.Order.Date >= startDate && orderItem.Order.Date <= endDate
-                                    select new
-                                    {
-                                        CategoryId = category.Id,
-                                        CategoryName = category.Name,
-                                        ProductId = product.Id,
-                                        ProductName = product.Name,
-                                        orderItem.Quantity,
-                                        orderItem.Price
-                                    }).ToListAsync();
+            // Fetch order items within the date range using the repository
+            var orderItems = await _uow.OrderItemsRep.GetByDateRangeAsync(startDate, endDate);
 
+            // Perform the grouping and aggregation in-memory
             var query = orderItems
-                .GroupBy(item => new { item.CategoryId, item.CategoryName })
+                .GroupBy(oi => new { oi.Product.Category.Id, oi.Product.Category.Name })
                 .Select(categoryGroup => new TopSellingProductDto
                 {
-                    CategoryId = categoryGroup.Key.CategoryId,
-                    CategoryName = categoryGroup.Key.CategoryName,
+                    CategoryId = categoryGroup.Key.Id,
+                    CategoryName = categoryGroup.Key.Name,
                     Products = categoryGroup
-                        .GroupBy(product => new { product.ProductId, product.ProductName })
+                        .GroupBy(oi => new { oi.Product.Id, oi.Product.Name })
                         .Select(productGroup => new ProductSalesDto
                         {
-                            ProductId = productGroup.Key.ProductId,
-                            ProductName = productGroup.Key.ProductName,
+                            ProductId = productGroup.Key.Id,
+                            ProductName = productGroup.Key.Name,
                             TotalUnitsSold = productGroup.Sum(x => x.Quantity),
-                            Revenue = (decimal)productGroup.Sum(x => (double)(x.Quantity * x.Price))
+                            Revenue = productGroup.Sum(x => x.Quantity * x.Price)
                         })
                         .OrderByDescending(p => p.TotalUnitsSold)
                         .Take(topN)
@@ -177,14 +171,14 @@ namespace BusinessLayer.Services
 
         public async Task DeleteProductAsync(int productId, int deletedBy)
         {
-            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == productId);
+            var product = await _uow.ProductsRep.GetByIdAsync(productId);
 
             if (product == null)
                 throw new KeyNotFoundException($"Product with ID {productId} not found.");
 
             await _auditLogService.LogAsync(product.Id, AuditAction.Delete, deletedBy);
-            _dbContext.Products.Remove(product);
-            await _dbContext.SaveChangesAsync();
+            await _uow.ProductsRep.DeleteAsync(productId);
+            await _uow.SaveAsync();
         }
     }
 }

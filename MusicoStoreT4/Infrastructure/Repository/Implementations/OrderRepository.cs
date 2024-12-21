@@ -2,6 +2,7 @@
 using DataAccessLayer.Models;
 using Infrastructure.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Infrastructure.Repository
 {
@@ -14,7 +15,7 @@ namespace Infrastructure.Repository
             _context = context;
         }
 
-        public async Task<Order?> Add(Order entity)
+        public async Task<Order?> AddAsync(Order entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -24,7 +25,7 @@ namespace Infrastructure.Repository
             return added;
         }
 
-        public async Task<bool> Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
             var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
 
@@ -36,17 +37,17 @@ namespace Infrastructure.Repository
             return true;
         }
 
-        public async Task<IEnumerable<Order>> GetAll()
+        public async Task<IEnumerable<Order>> GetAllAsync()
         {
             return await _context.Orders.ToListAsync();
         }
 
-        public async Task<Order?> GetById(int id)
+        public async Task<Order?> GetByIdAsync(int id)
         {
             return await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
         }
 
-        public async Task<bool> Update(Order entity)
+        public async Task<bool> UpdateAsync(Order entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -75,6 +76,16 @@ namespace Infrastructure.Repository
             _context.Orders.Update(existingOrder);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<IEnumerable<Order>> WhereAsync(Expression<Func<Order, bool>> predicate)
+        {
+            return await _context.Orders.Where(predicate).ToListAsync();
+        }
+
+        public async Task<bool> AnyAsync(Expression<Func<Order, bool>> predicate)
+        {
+            return await _context.Orders.AnyAsync(predicate);
         }
     }
 }

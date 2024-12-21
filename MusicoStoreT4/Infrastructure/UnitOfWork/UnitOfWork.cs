@@ -15,14 +15,14 @@ namespace Infrastructure.UnitOfWork
         private readonly MyDBContext _context;
         private IDbContextTransaction? _transaction;
 
-        public IProductRepository Products { get; }
-        public ICategoryRepository Categories { get; }
-        public IManufacturerRepository Manufacturers { get; }
-        public IUserRepository Users { get; }
-        public IOrderRepository Orders { get; }
-        public IOrderItemRepository OrderItems { get; }
-        public IProductAuditRepository ProductAudits { get; }
-        public IProductImageRepository ProductImages { get; }
+        public IProductRepository ProductsRep { get; }
+        public ICategoryRepository CategoriesRep { get; }
+        public IManufacturerRepository ManufacturersRep { get; }
+        public IUserRepository UsersRep { get; }
+        public IOrderRepository OrdersRep { get; }
+        public IOrderItemRepository OrderItemsRep { get; }
+        public IAuditLogRepository ProductAuditsRep { get; }
+        public IProductImageRepository ProductImagesRep { get; }
 
         public UnitOfWork(MyDBContext context,
                           IUserRepository userRepository,
@@ -32,18 +32,18 @@ namespace Infrastructure.UnitOfWork
                           IOrderItemRepository orderItemRepository,
                           IProductRepository productRepository,
                           IProductImageRepository productImageRepository,
-                          IProductAuditRepository productAuditRepository)
+                          IAuditLogRepository productAuditRepository)
         {
             _context = context;
 
-            Users = userRepository;
-            Categories = categoryRepository;
-            Manufacturers = manufacturerRepository;
-            Orders = orderRepository;
-            OrderItems = orderItemRepository;
-            Products = productRepository;
-            ProductImages = productImageRepository;
-            ProductAudits = productAuditRepository;
+            UsersRep = userRepository;
+            CategoriesRep = categoryRepository;
+            ManufacturersRep = manufacturerRepository;
+            OrdersRep = orderRepository;
+            OrderItemsRep = orderItemRepository;
+            ProductsRep = productRepository;
+            ProductImagesRep = productImageRepository;
+            ProductAuditsRep = productAuditRepository;
         }
 
         public async Task<int> SaveAsync()

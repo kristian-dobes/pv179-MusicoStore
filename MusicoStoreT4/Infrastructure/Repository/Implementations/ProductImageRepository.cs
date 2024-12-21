@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,7 +20,7 @@ namespace Infrastructure.Repository
             _context = context;
         }
 
-        public async Task<ProductImage?> Add(ProductImage entity)
+        public async Task<ProductImage?> AddAsync(ProductImage entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -29,7 +30,7 @@ namespace Infrastructure.Repository
             return addedEntity;
         }
 
-        public async Task<bool> Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
             var productImage = await _context.ProductImages.FindAsync(id);
 
@@ -41,17 +42,22 @@ namespace Infrastructure.Repository
             return true;
         }
 
-        public async Task<IEnumerable<ProductImage>> GetAll()
+        public async Task<IEnumerable<ProductImage>> GetAllAsync()
         {
             return await _context.ProductImages.ToListAsync();
         }
 
-        public async Task<ProductImage?> GetById(int id)
+        public async Task<ProductImage?> GetByIdAsync(int id)
         {
             return await _context.ProductImages.FirstOrDefaultAsync(pi => pi.Id == id);
         }
 
-        public async Task<bool> Update(ProductImage entity)
+        public async Task<ProductImage?> GetByProductIdAsync(int productId)
+        {
+            return await _context.ProductImages.FirstOrDefaultAsync(pi => pi.ProductId == productId);
+        }
+
+        public async Task<bool> UpdateAsync(ProductImage entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -69,6 +75,16 @@ namespace Infrastructure.Repository
             _context.ProductImages.Update(existingImage);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<IEnumerable<ProductImage>> WhereAsync(Expression<Func<ProductImage, bool>> predicate)
+        {
+            return await _context.ProductImages.Where(predicate).ToListAsync();
+        }
+
+        public async Task<bool> AnyAsync(Expression<Func<ProductImage, bool>> predicate)
+        {
+            return await _context.ProductImages.AnyAsync(predicate);
         }
     }
 }

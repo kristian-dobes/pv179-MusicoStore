@@ -25,7 +25,7 @@ namespace WebMVC.Controllers
         public async Task<IActionResult> Index()
         {
             int productId = 3;
-            ProductDto product = await _productService.GetProductByIdAsync(productId);
+            ProductDto? product = await _productService.GetProductByIdAsync(productId);
 
             if (product == null)
                 return NotFound();

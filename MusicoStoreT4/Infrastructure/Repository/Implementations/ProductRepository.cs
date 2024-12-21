@@ -2,6 +2,7 @@
 using DataAccessLayer.Models;
 using Infrastructure.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Infrastructure.Repository
 {
@@ -14,7 +15,7 @@ namespace Infrastructure.Repository
             _context = context;
         }
 
-        public async Task<Product?> Add(Product entity)
+        public async Task<Product?> AddAsync(Product entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -24,7 +25,7 @@ namespace Infrastructure.Repository
             return addedEntity;
         }
 
-        public async Task<bool> Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
             var product = await _context.Products.FindAsync(id);
 
@@ -36,17 +37,17 @@ namespace Infrastructure.Repository
             return true;
         }
 
-        public async Task<IEnumerable<Product>> GetAll()
+        public async Task<IEnumerable<Product>> GetAllAsync()
         {
             return await _context.Products.ToListAsync();
         }
 
-        public async Task<Product?> GetById(int id)
+        public async Task<Product?> GetByIdAsync(int id)
         {
             return await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public async Task<bool> Update(Product entity)
+        public async Task<bool> UpdateAsync(Product entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -68,6 +69,16 @@ namespace Infrastructure.Repository
             _context.Products.Update(existingProduct);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<IEnumerable<Product>> WhereAsync(Expression<Func<Product, bool>> predicate)
+        {
+            return await _context.Products.Where(predicate).ToListAsync();
+        }
+
+        public async Task<bool> AnyAsync(Expression<Func<Product, bool>> predicate)
+        {
+            return await _context.Products.AnyAsync(predicate);
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DataAccessLayer.Models.Enums;
 
-namespace BusinessLayer.DTOs.User
+namespace Shared.DTOs
 {
     public class UserSummaryDto
     {
