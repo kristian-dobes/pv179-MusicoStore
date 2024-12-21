@@ -33,7 +33,7 @@ namespace Infrastructure.UnitOfWork
                           IOrderItemRepository orderItemRepository,
                           IProductRepository productRepository,
                           IProductImageRepository productImageRepository,
-                          IAuditLogRepository productAuditRepository,
+                          IAuditLogRepository auditLogRepository,
                           ILogRepository logsRepository)
         {
             _context = context;
@@ -45,7 +45,7 @@ namespace Infrastructure.UnitOfWork
             OrderItemsRep = orderItemRepository;
             ProductsRep = productRepository;
             ProductImagesRep = productImageRepository;
-            ProductAuditsRep = productAuditRepository;
+            ProductAuditsRep = auditLogRepository;
             LogsRep = logsRepository;
         }
 

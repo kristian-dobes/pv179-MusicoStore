@@ -40,6 +40,8 @@ builder.Services.AddIdentity<LocalIdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<MyDBContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddSingleton(imagesFolder);
+
 // Register Repositories
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();

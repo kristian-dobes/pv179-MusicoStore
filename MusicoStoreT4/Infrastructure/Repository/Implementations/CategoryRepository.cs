@@ -112,5 +112,22 @@ namespace Infrastructure.Repository.Implementations
         {
             return await _context.Categories.AnyAsync(predicate);
         }
+
+        public async Task<bool> DeleteByIdsAsync(IEnumerable<int> ids)
+        {
+            var entities = await _context.Set<Category>()
+                .Where(e => ids.Contains(e.Id))
+                .ToListAsync();
+
+            if (!entities.Any())
+            {
+                return false;
+            }
+
+            _context.Set<Category>().RemoveRange(entities);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
     }
 }

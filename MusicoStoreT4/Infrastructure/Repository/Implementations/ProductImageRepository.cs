@@ -86,5 +86,22 @@ namespace Infrastructure.Repository.Implementations
         {
             return await _context.ProductImages.AnyAsync(predicate);
         }
+
+        public async Task<bool> DeleteByIdsAsync(IEnumerable<int> ids)
+        {
+            var entities = await _context.Set<ProductImage>()
+                .Where(e => ids.Contains(e.Id))
+                .ToListAsync();
+
+            if (!entities.Any())
+            {
+                return false;
+            }
+
+            _context.Set<ProductImage>().RemoveRange(entities);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
     }
 }
