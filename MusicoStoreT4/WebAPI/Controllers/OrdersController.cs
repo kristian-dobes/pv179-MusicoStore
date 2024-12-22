@@ -1,5 +1,6 @@
 using BusinessLayer.DTOs.Order;
 using BusinessLayer.DTOs.OrderItem;
+using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -11,48 +12,32 @@ namespace WebAPI.Controllers
     [Route("api/[controller]")]
     public class OrdersController : ControllerBase
     {
-        private readonly MyDBContext _dBContext;
+        private readonly IOrderService _orderService;
 
-        public OrdersController(MyDBContext dBContext)
+        public OrdersController(IOrderService orderService)
         {
-            _dBContext = dBContext;
+            _orderService = orderService;
         }
 
-        // GET: api/Order/fetch
         [HttpGet]
         public async Task<IActionResult> Fetch()
         {
-            var orders = await _dBContext.Orders.ToListAsync();
-
-            return Ok(orders.Select(a => new
+            try
             {
-                OrderId = a.Id,
-                OrderDateOfCreation = a.Created,
-                OrderDate = a.Date,
-                UserId = a.UserId
-            }));
+                var orders = await _orderService.GetAllOrdersAsync();
+
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOrderById(int id)
         {
-            var order = await _dBContext.Orders
-                .Where(o => o.Id == id)
-                .Select(o => new
-                {
-                    o.Id,
-                    o.Created,
-                    o.Date,
-                    o.UserId,
-                    OrderItems = o.OrderItems.Select(oi => new
-                    {
-                        oi.Id,
-                        oi.ProductId,
-                        oi.Quantity,
-                        oi.Price
-                    }).ToList()
-                })
-                .FirstOrDefaultAsync();
+            var order = await _orderService.GetOrderByIdAsync(id);
 
             if (order == null)
                 return NotFound();
@@ -63,59 +48,27 @@ namespace WebAPI.Controllers
         [HttpGet("detail")]
         public async Task<IActionResult> FetchWithOrderItems()
         {
-            var orders = await _dBContext.Orders.Include(a => a.OrderItems).ToListAsync();
+            var orders = await _orderService.GetOrdersWithItemsAsync();
 
-            return Ok(orders.Select(a => new
-            {
-                OrderId = a.Id,
-                OrderDateOfCreation = a.Created,
-                OrderDate = a.Date,
-                OrderItems = a.OrderItems?.Select(orderItem => new
-                {
-                    OrderItemId = orderItem.Id,
-                    OrderItemQuantity = orderItem.Quantity,
-                    OrderItemDateOfCreation = orderItem.Created,
-                }),
-            }));
+            return Ok(orders);
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateOrderDto createOrderDto)
         {
-            int createdOrdersAmount = 0;
-
-            if (createOrderDto == null || createOrderDto.Items == null || !createOrderDto.Items.Any())
-                return BadRequest("Order must contain at least one item.");
-
-            if (!(await _dBContext.Users.AnyAsync(u => u.Id == createOrderDto.CustomerId)))
-                return BadRequest($"No such customer with id {createOrderDto.CustomerId}");
-
-            foreach (OrderItemDto orderItemDto in createOrderDto.Items)
+            try
             {
-                if (!(await _dBContext.Products.AnyAsync(p => p.Id == orderItemDto.ProductId)))
-                    return BadRequest($"No such product with id {orderItemDto.ProductId}. Order was not created.");
-            }
+                var createdOrdersAmount = await _orderService.CreateOrderAsync(createOrderDto);
 
-            foreach (OrderItemDto orderItemDto in createOrderDto.Items)
+                if (createdOrdersAmount == 0)
+                    return BadRequest("None of the products were found or order creation failed.");
+
+                return Ok();
+            }
+            catch (ArgumentException ex)
             {
-                var order = new Order
-                {
-                    UserId = createOrderDto.CustomerId,
-                    Date = DateTime.UtcNow,
-                    OrderItems = createOrderDto.Items.Select(itemDto => new OrderItem
-                    {
-                        ProductId = itemDto.ProductId,
-                        Quantity = itemDto.Quantity,
-                        Price = _dBContext.Products.First(p => p.Id == itemDto.ProductId).Price,
-                    }).ToList()
-                };
-
-                _dBContext.Orders.Add(order);
-                await _dBContext.SaveChangesAsync();
-                createdOrdersAmount++;
+                return BadRequest(ex.Message); // Return the error message from service
             }
-
-            return createdOrdersAmount == 0 ? BadRequest("None of the products were found") : Ok();
         }
 
         [HttpPut("{id}")]
@@ -124,61 +77,37 @@ namespace WebAPI.Controllers
             if (id != updateOrderDto.OrderId)
                 return BadRequest("Order ID mismatch.");
 
-            var order = await _dBContext.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == id);
-
-            if (order == null)
-                return NotFound($"Order with ID {id} not found.");
-
-            if (updateOrderDto.OrderDate.HasValue)
-                order.Date = updateOrderDto.OrderDate.Value;
-            
-            order.OrderItems = new List<OrderItem>();
-
-            foreach (var itemDto in updateOrderDto.OrderItems)
-            {
-                var product = await _dBContext.Products.FirstOrDefaultAsync(p => p.Id == itemDto.ProductId);
-
-                if (product == null)
-                    continue;
-
-                order.OrderItems.Add(new OrderItem
-                {
-                    ProductId = itemDto.ProductId,
-                    Quantity = itemDto.Quantity,
-                    Price = product.Price
-                });
-            }
-
             try
             {
-                await _dBContext.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_dBContext.Orders.Any(o => o.Id == id))
-                    return NotFound();
-                else
-                    throw;
-            }
+                var updated = await _orderService.UpdateOrderAsync(id, updateOrderDto);
 
-            return NoContent();
+                if (!updated)
+                    return NotFound($"Order with ID {id} not found.");
+
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("{orderId}")]
         public async Task<IActionResult> Delete(int orderId)
         {
-            var order = await _dBContext.Orders.FirstOrDefaultAsync(a => a.Id == orderId);
-
-            if (order != null)
+            try
             {
-                _dBContext.Orders.Remove(order);
-                await _dBContext.SaveChangesAsync();
+                var deleted = await _orderService.DeleteOrderAsync(orderId);
+
+                if (!deleted)
+                    return NotFound($"Order with ID {orderId} not found.");
+
                 return Ok();
             }
-            else
-                return NotFound();
-
-            return NotFound();
+            catch (Exception ex)
+            {
+                return BadRequest($"An error occurred while deleting the order: {ex.Message}");
+            }
         }
     }
 }
