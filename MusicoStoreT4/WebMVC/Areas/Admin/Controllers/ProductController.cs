@@ -128,7 +128,7 @@ namespace WebMVC.Areas.Admin.Controllers
 
             var productResult = await _productService.UpdateProductAsync(id, product);
 
-            return View(productResult.Adapt<ProductUpdateViewModel>()); // TODO return to index?
+            return View(productResult.Adapt<ProductUpdateViewModel>());
         }
 
         // GET: Admin/Product/Delete/5

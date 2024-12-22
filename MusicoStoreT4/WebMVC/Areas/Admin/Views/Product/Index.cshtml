@@ -34,10 +34,10 @@
                 @Html.DisplayNameFor(model => model.EditCount)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CategoryId)
+                @Html.DisplayNameFor(model => model.Category)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ManufacturerId)
+                @Html.DisplayNameFor(model => model.Manufacturer)
             </th>
             <th></th>
         </tr>
@@ -67,10 +67,10 @@
                 @Html.DisplayFor(modelItem => item.EditCount)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.CategoryId)
+                @Html.DisplayFor(modelItem => item.Category.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ManufacturerId)
+                @Html.DisplayFor(modelItem => item.Manufacturer.Name)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

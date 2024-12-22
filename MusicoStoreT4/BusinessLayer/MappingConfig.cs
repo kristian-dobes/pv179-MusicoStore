@@ -41,7 +41,9 @@ namespace BusinessLayer
                 .Map(dest => dest.ProductId, src => src.Id)
                 .Map(dest => dest.OrderItems, src => src.OrderItems.Adapt<ICollection<OrderItemCompleteDTO>>())
                 .Map(dest => dest.CategoryId, src => src.CategoryId)
-                .Map(dest => dest.ManufacturerId, src => src.ManufacturerId);
+                .Map(dest => dest.CategoryName, src => src.Category.Name)
+                .Map(dest => dest.ManufacturerId, src => src.ManufacturerId)
+                .Map(dest => dest.ManufacturerName, src => src.Manufacturer.Name);
 
             TypeAdapterConfig<Manufacturer, ManufacturerSummaryDTO>.NewConfig()
                 .Map(dest => dest.ManufacturerId, src => src.Id)
