@@ -1,5 +1,6 @@
 ﻿using BusinessLayer.DTOs;
 using BusinessLayer.DTOs.Category;
+using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
@@ -160,11 +161,6 @@ namespace BusinessLayer.Services
             await _uow.SaveAsync();
 
             return true;
-        }
-
-        public async Task AddImage(CreateCategoryDto createCategoryDto)
-        {
-            await _uow.ProductImagesRep.AddAsync(createCategoryDto.MapToCategory());
         }
     }
 }

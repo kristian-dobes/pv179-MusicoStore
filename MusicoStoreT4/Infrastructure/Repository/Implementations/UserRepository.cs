@@ -53,9 +53,9 @@ namespace Infrastructure.Repository.Implementations
                     UserId = u.Id,
                     Username = u.Username,
                     Role = u.Role,
-                    TotalExpenditure = u.Orders
+                    TotalExpenditure = (decimal)u.Orders
                         .SelectMany(o => o.OrderItems)
-                        .Sum(oi => oi.Price * oi.Quantity)
+                        .Sum(oi => (double)(oi.Price * oi.Quantity))
                 })
                 .ToListAsync();
 
