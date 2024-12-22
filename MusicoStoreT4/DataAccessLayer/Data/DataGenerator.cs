@@ -108,31 +108,36 @@ public static class DataGenerator
             {
                 Id = 1,
                 Date = new DateTime(2024, 10, 1),
-                UserId = 2
+                UserId = 2,
+                OrderStatus = OrderStatus.Pending
             },
             new Order()
             {
                 Id = 2,
                 Date = new DateTime(2024, 11, 15),
                 UserId = 3,
+                OrderStatus = OrderStatus.Pending
             },
             new Order()
             {
                 Id = 3,
                 Date = new DateTime(2024, 12, 5),
                 UserId = 3,
+                OrderStatus = OrderStatus.Pending
             },
             new Order()
             {
                 Id = 4,
                 Date = new DateTime(2025, 1, 20),
                 UserId = 2,
+                OrderStatus = OrderStatus.Pending
             },
             new Order()
             {
                 Id = 5,
                 Date = new DateTime(2025, 2, 10),
                 UserId = 2,
+                OrderStatus = OrderStatus.Pending
             },
         };
     }

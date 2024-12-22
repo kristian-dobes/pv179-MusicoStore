@@ -16,8 +16,8 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using DataAccessLayer.Models.Enums;
 
 namespace BusinessLayer.Services
 {
@@ -70,7 +70,8 @@ namespace BusinessLayer.Services
                     ProductId = itemDto.ProductId,
                     Quantity = itemDto.Quantity,
                     Price = (await _uow.ProductsRep.GetByIdAsync(itemDto.ProductId)).Price,
-                }).ToList()
+                }).ToList(),
+                OrderStatus = OrderStatus.Pending
             };
 
             await _uow.OrdersRep.AddAsync(order);

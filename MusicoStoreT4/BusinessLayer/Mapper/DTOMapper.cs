@@ -72,7 +72,8 @@ namespace BusinessLayer.Mapper
             {
                 OrderId = order.Id,
                 OrderDate = order.Date,
-                Created = order.Created
+                Created = order.Created,
+                OrderStatus = order.OrderStatus
             };
         }
 
