@@ -12,5 +12,6 @@ namespace BusinessLayer.DTOs.Manufacturer
         public int ManufacturerId { get; set; }
         public string Name { get; set; }
         public ICollection<ProductDto>? Products { get; set; }
+        public DateTime DateCreated { get; set; }
     }
 }

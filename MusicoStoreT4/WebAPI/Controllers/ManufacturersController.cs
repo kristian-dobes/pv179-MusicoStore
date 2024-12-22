@@ -1,3 +1,4 @@
+using BusinessLayer.DTOs.Manufacturer;
 using BusinessLayer.Facades.Interfaces;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
@@ -11,110 +12,73 @@ namespace WebAPI.Controllers
     [Route("api/[controller]")]
     public class ManufacturersController : Controller
     {
-        private readonly MyDBContext _dBContext;
         private readonly IManufacturerService _manufacturerService;
         private readonly IProductService _productService;
         private readonly IManufacturerFacade _manufacturerFacade;
 
-        public ManufacturersController(MyDBContext dBContext, IManufacturerService manufacturerService, IProductService productService, IManufacturerFacade manufacturer)
+        public ManufacturersController(IManufacturerService manufacturerService, IProductService productService, IManufacturerFacade manufacturerFacade)
         {
-            _dBContext = dBContext;
             _manufacturerService = manufacturerService;
             _productService = productService;
-            _manufacturerFacade = manufacturer;
+            _manufacturerFacade = manufacturerFacade;
         }
 
         [HttpGet]
         public async Task<IActionResult> Fetch()
         {
-            var manufacturers = await _dBContext.Manufacturers.ToListAsync();
+            var manufacturers = await _manufacturerService.GetManufacturersAsync();
 
-            return Ok(manufacturers.Select(a => new
-            {
-                ManufacturerId = a.Id,
-                ManufacturerName = a.Name,
-                ManufacturerDateOfCreation = a.Created,
-            }));
+            return Ok(manufacturers);
         }
 
         [HttpGet("detail")]
         public async Task<IActionResult> FetchWithProducts()
         {
-            var manufacturers = await _dBContext.Manufacturers
-                .Include(a => a.Products)
-                .ToListAsync();
+            var manufacturers = await _manufacturerService.GetManufacturersWithProductsAsync();
 
-            return Ok(manufacturers.Select(a => new
-            {
-                ManufacturerId = a.Id,
-                ManufacturerName = a.Name,
-                ManufacturerDateOfCreation = a.Created,
-                Products = a.Products?.Select(product => new
-                {
-                    ProductId = product.Id,
-                    ProductName = product.Name,
-                    ProductPrice = product.Price,
-                    ProductDateOfCreation = product.Created,
-                }),
-            }));
+            return Ok(manufacturers);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(string manufacturerName)
+        public async Task<IActionResult> Create(CreateManufacturerDto createManufacturerDto)
         {
-            if (string.IsNullOrWhiteSpace(manufacturerName))
+            try
             {
-                return BadRequest("Manufacturer name is required");
+                await _manufacturerService.CreateManufacturerAsync(createManufacturerDto.Name);
+                return Ok("Manufacturer created successfully");
             }
-
-            if (await _dBContext.Manufacturers.AnyAsync(a => a.Name == manufacturerName))
+            catch (ArgumentException ex)
             {
-                return BadRequest("Manufacturer already exists");
+                return BadRequest(ex.Message);
             }
-
-            var manufacturer = new Manufacturer
+            catch (Exception ex)
             {
-                Name = manufacturerName,
-            };
-
-            await _dBContext.Manufacturers.AddAsync(manufacturer);
-            await _dBContext.SaveChangesAsync();
-
-            return Ok();
+                return StatusCode(500, "An unexpected error occurred");
+            }
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(int manufacturerId, string manufacturerName)
+        public async Task<IActionResult> Update(UpdateManufacturerDto updateManufacturerDto)
         {
-            if (string.IsNullOrWhiteSpace(manufacturerName))
+            try
             {
-                return BadRequest("Manufacturer name is required");
+                var updatedManufacturer = await _manufacturerService.UpdateManufacturerAsync(updateManufacturerDto);
+
+                return Ok(updatedManufacturer);
             }
-
-            if (await _dBContext.Manufacturers.AnyAsync(a => a.Name == manufacturerName))
+            catch (ArgumentException ex)
             {
-                return BadRequest("Manufacturer with that name already exists");
+                return BadRequest(ex.Message);
             }
-
-            var manufacturer = await _dBContext.Manufacturers
-                .Where(a => a.Id == manufacturerId)
-                .FirstOrDefaultAsync();
-
-            if (manufacturer == null)
+            catch (KeyNotFoundException ex)
             {
-                return NotFound("ManufacturerID not found");
+                return NotFound(ex.Message);
             }
-
-            manufacturer.Name = manufacturerName;
-            await _dBContext.SaveChangesAsync();
-
-            return Ok(new
+            catch (Exception ex)
             {
-                Message = "Manufacturer updated successfully",
-                ManufacturerId = manufacturer.Id,
-                ManufacturerName = manufacturer.Name,
-                DateOfCreation = manufacturer.Created,
-            });
+                // Log the exception if needed
+                return StatusCode(500, "An unexpected error occurred");
+            }
         }
 
         [HttpPut("MergeManufacturers")]
@@ -138,20 +102,21 @@ namespace WebAPI.Controllers
         [HttpDelete("{manufacturerId}")]
         public async Task<IActionResult> Delete(int manufacturerId)
         {
-            var manufacturer = await _dBContext.Manufacturers
-                .Include(a => a.Products)
-                .Where(a => a.Id == manufacturerId)
-                .FirstOrDefaultAsync();
-
-            if (manufacturer != null)
+            try
             {
-                _dBContext.Manufacturers.Remove(manufacturer);
-                await _dBContext.SaveChangesAsync();
-            }
-            else
-                return NotFound();
+                var isDeleted = await _manufacturerService.DeleteManufacturerAsync(manufacturerId);
 
-            return Ok();
+                if (!isDeleted)
+                {
+                    return NotFound($"Manufacturer with ID {manufacturerId} not found.");
+                }
+
+                return Ok($"Manufacturer with ID {manufacturerId} deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
         }
     }
 }

@@ -9,6 +9,6 @@ namespace Infrastructure.Repository.Interfaces
 {
     public interface IManufacturerRepository : IRepository<Manufacturer>
     {
-
+        Task<List<Manufacturer>> GetManufacturersWithProductsAsync();
     }
 }

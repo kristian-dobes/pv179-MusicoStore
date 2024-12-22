@@ -37,5 +37,12 @@ namespace Infrastructure.Repository.Implementations
 
             return true;
         }
+
+        public async Task<List<Manufacturer>> GetManufacturersWithProductsAsync()
+        {
+            return await _context.Manufacturers
+                .Include(m => m.Products)
+                .ToListAsync();
+        }
     }
 }
