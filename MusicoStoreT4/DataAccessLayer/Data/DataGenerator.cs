@@ -181,7 +181,7 @@ public static class DataGenerator
             new OrderItem()
             {
                 Id = 5,
-                OrderId = 4,
+                OrderId = 3,
                 ProductId = 5,
                 Quantity = 1,
                 Price = 720.05m,
@@ -189,7 +189,7 @@ public static class DataGenerator
             new OrderItem()
             {
                 Id = 6,
-                OrderId = 5,
+                OrderId = 4,
                 ProductId = 6,
                 Quantity = 3,
                 Price = 29.99m,
@@ -197,7 +197,7 @@ public static class DataGenerator
             new OrderItem()
             {
                 Id = 7,
-                OrderId = 4,
+                OrderId = 5,
                 ProductId = 6,
                 Quantity = 2,
                 Price = 25.54m,

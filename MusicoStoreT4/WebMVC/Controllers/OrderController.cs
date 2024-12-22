@@ -24,6 +24,7 @@ namespace WebMVC.Controllers
         public async Task<IActionResult> UserOrders()
         {
             var userId = await GetCurrentUserId();
+            // var userId = 3;
 
             var orders = await _context.Orders
                 .Include(o => o.OrderItems)

@@ -24,8 +24,7 @@
                         {
                             <li>
                                 <div>
-                                    <!-- Render Product Details as a Partial View -->
-                                    @Html.Partial("ProductDetails", item.Product)
+                                    @Html.Partial("~/Views/Product/ProductDetails.cshtml", item.Product)
                                 </div>
                                 <p>Quantity: @item.Quantity</p>
                                 <p>Price: @item.Price</p>
