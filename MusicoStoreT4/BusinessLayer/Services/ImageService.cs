@@ -1,4 +1,5 @@
 ﻿using BusinessLayer.DTOs;
+using BusinessLayer.DTOs.Category;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
@@ -23,6 +24,7 @@ namespace BusinessLayer.Services
         public ImageService(IUnitOfWork unitOfWork, string imagesFolder) : base(unitOfWork)
         {
             _uow = unitOfWork;
+            _imagesFolder = imagesFolder;
         }
 
         public async Task<string> GetImagePathByProductIdAsync(int productId)
@@ -158,6 +160,11 @@ namespace BusinessLayer.Services
             await _uow.SaveAsync();
 
             return true;
+        }
+
+        public async Task AddImage(CreateCategoryDto createCategoryDto)
+        {
+            await _uow.ProductImagesRep.AddAsync(createCategoryDto.MapToCategory());
         }
     }
 }
