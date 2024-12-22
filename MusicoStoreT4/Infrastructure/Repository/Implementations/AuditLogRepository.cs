@@ -11,48 +11,16 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repository.Implementations
 {
-    public class AuditLogRepository : IAuditLogRepository
+    public class AuditLogRepository : Repository<AuditLog>, IAuditLogRepository
     {
         private readonly MyDBContext _context;
 
-        public AuditLogRepository(MyDBContext context)
+        public AuditLogRepository(MyDBContext context) : base(context)
         {
             _context = context;
         }
 
-        public async Task<AuditLog?> AddAsync(AuditLog entity)
-        {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
-
-            AuditLog added = (await _context.AuditLogs.AddAsync(entity)).Entity;
-            await _context.SaveChangesAsync();
-            return added;
-        }
-
-        public async Task<bool> DeleteAsync(int id)
-        {
-            var auditLog = await _context.AuditLogs.FindAsync(id);
-
-            if (auditLog == null)
-                return false;
-
-            _context.AuditLogs.Remove(auditLog);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<IEnumerable<AuditLog>> GetAllAsync()
-        {
-            return await _context.AuditLogs.ToListAsync();
-        }
-
-        public async Task<AuditLog?> GetByIdAsync(int id)
-        {
-            return await _context.AuditLogs.FirstOrDefaultAsync(a => a.Id == id);
-        }
-
-        public async Task<bool> UpdateAsync(AuditLog entity)
+        public override async Task<bool> UpdateAsync(AuditLog entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -68,33 +36,6 @@ namespace Infrastructure.Repository.Implementations
 
             _context.AuditLogs.Update(existingAuditLog);
             await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<IEnumerable<AuditLog>> WhereAsync(Expression<Func<AuditLog, bool>> predicate)
-        {
-            return await _context.AuditLogs.Where(predicate).ToListAsync();
-        }
-
-        public async Task<bool> AnyAsync(Expression<Func<AuditLog, bool>> predicate)
-        {
-            return await _context.AuditLogs.AnyAsync(predicate);
-        }
-
-        public async Task<bool> DeleteByIdsAsync(IEnumerable<int> ids)
-        {
-            var entities = await _context.Set<AuditLog>()
-                .Where(e => ids.Contains(e.Id))
-                .ToListAsync();
-
-            if (!entities.Any())
-            {
-                return false;
-            }
-
-            _context.Set<AuditLog>().RemoveRange(entities);
-            await _context.SaveChangesAsync();
-
             return true;
         }
     }

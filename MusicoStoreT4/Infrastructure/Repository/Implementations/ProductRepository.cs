@@ -6,48 +6,16 @@ using System.Linq.Expressions;
 
 namespace Infrastructure.Repository.Implementations
 {
-    public class ProductRepository : IProductRepository
+    public class ProductRepository : Repository<Product>, IProductRepository
     {
         private readonly MyDBContext _context;
 
-        public ProductRepository(MyDBContext context)
+        public ProductRepository(MyDBContext context) : base(context)
         {
             _context = context;
         }
 
-        public async Task<Product?> AddAsync(Product entity)
-        {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
-
-            var addedEntity = (await _context.Products.AddAsync(entity)).Entity;
-            await _context.SaveChangesAsync();
-            return addedEntity;
-        }
-
-        public async Task<bool> DeleteAsync(int id)
-        {
-            var product = await _context.Products.FindAsync(id);
-
-            if (product == null)
-                return false;
-
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<IEnumerable<Product>> GetAllAsync()
-        {
-            return await _context.Products.ToListAsync();
-        }
-
-        public async Task<Product?> GetByIdAsync(int id)
-        {
-            return await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<bool> UpdateAsync(Product entity)
+        public override async Task<bool> UpdateAsync(Product entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -68,33 +36,6 @@ namespace Infrastructure.Repository.Implementations
 
             _context.Products.Update(existingProduct);
             await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<IEnumerable<Product>> WhereAsync(Expression<Func<Product, bool>> predicate)
-        {
-            return await _context.Products.Where(predicate).ToListAsync();
-        }
-
-        public async Task<bool> AnyAsync(Expression<Func<Product, bool>> predicate)
-        {
-            return await _context.Products.AnyAsync(predicate);
-        }
-
-        public async Task<bool> DeleteByIdsAsync(IEnumerable<int> ids)
-        {
-            var entities = await _context.Set<Product>()
-                .Where(e => ids.Contains(e.Id))
-                .ToListAsync();
-
-            if (!entities.Any())
-            {
-                return false;
-            }
-
-            _context.Set<Product>().RemoveRange(entities);
-            await _context.SaveChangesAsync();
-
             return true;
         }
     }

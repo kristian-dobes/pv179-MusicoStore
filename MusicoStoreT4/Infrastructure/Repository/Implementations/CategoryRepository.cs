@@ -12,47 +12,16 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repository.Implementations
 {
-    public class CategoryRepository(MyDBContext _context) : ICategoryRepository
+    public class CategoryRepository : Repository<Category>, ICategoryRepository
     {
-        public async Task<Category?> AddAsync(Category entity)
+        private readonly MyDBContext _context;
+
+        public CategoryRepository(MyDBContext context) : base(context)
         {
-            if (entity == null)
-            {
-                throw new ArgumentNullException(nameof(entity));
-            }
-
-            var added = (await _context.Categories.AddAsync(entity)).Entity;
-            await _context.SaveChangesAsync();
-
-            return added;
+            _context = context;
         }
 
-        public async Task<bool> DeleteAsync(int id)
-        {
-            var category = await _context.Categories.FindAsync(id);
-
-            if (category == null)
-            {
-                return false;
-            }
-
-            _context.Categories.Remove(category);
-            await _context.SaveChangesAsync();
-
-            return true;
-        }
-
-        public async Task<IEnumerable<Category>> GetAllAsync()
-        {
-            return await _context.Categories.ToListAsync();
-        }
-
-        public async Task<Category?> GetByIdAsync(int id)
-        {
-            return await _context.Categories.FindAsync(id);
-        }
-
-        public async Task<bool> UpdateAsync(Category entity)
+        public override async Task<bool> UpdateAsync(Category entity)
         {
             if (entity == null)
             {
@@ -101,33 +70,6 @@ namespace Infrastructure.Repository.Implementations
                 .FirstOrDefaultAsync();
 
             return categorySummary;
-        }
-
-        public async Task<IEnumerable<Category>> WhereAsync(Expression<Func<Category, bool>> predicate)
-        {
-            return await _context.Categories.Where(predicate).ToListAsync();
-        }
-
-        public async Task<bool> AnyAsync(Expression<Func<Category, bool>> predicate)
-        {
-            return await _context.Categories.AnyAsync(predicate);
-        }
-
-        public async Task<bool> DeleteByIdsAsync(IEnumerable<int> ids)
-        {
-            var entities = await _context.Set<Category>()
-                .Where(e => ids.Contains(e.Id))
-                .ToListAsync();
-
-            if (!entities.Any())
-            {
-                return false;
-            }
-
-            _context.Set<Category>().RemoveRange(entities);
-            await _context.SaveChangesAsync();
-
-            return true;
         }
     }
 }

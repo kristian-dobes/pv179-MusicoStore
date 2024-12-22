@@ -6,48 +6,16 @@ using System.Linq.Expressions;
 
 namespace Infrastructure.Repository.Implementations
 {
-    public class OrderRepository : IOrderRepository
+    public class OrderRepository : Repository<Order>, IOrderRepository
     {
         private readonly MyDBContext _context;
 
-        public OrderRepository(MyDBContext context)
+        public OrderRepository(MyDBContext context) : base(context)
         {
             _context = context;
         }
 
-        public async Task<Order?> AddAsync(Order entity)
-        {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
-
-            Order added = (await _context.Orders.AddAsync(entity)).Entity;
-            await _context.SaveChangesAsync();
-            return added;
-        }
-
-        public async Task<bool> DeleteAsync(int id)
-        {
-            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
-
-            if (order == null)
-                return false;
-
-            _context.Orders.Remove(order);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<IEnumerable<Order>> GetAllAsync()
-        {
-            return await _context.Orders.ToListAsync();
-        }
-
-        public async Task<Order?> GetByIdAsync(int id)
-        {
-            return await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
-        }
-
-        public async Task<bool> UpdateAsync(Order entity)
+        public override async Task<bool> UpdateAsync(Order entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -75,33 +43,6 @@ namespace Infrastructure.Repository.Implementations
 
             _context.Orders.Update(existingOrder);
             await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<IEnumerable<Order>> WhereAsync(Expression<Func<Order, bool>> predicate)
-        {
-            return await _context.Orders.Where(predicate).ToListAsync();
-        }
-
-        public async Task<bool> AnyAsync(Expression<Func<Order, bool>> predicate)
-        {
-            return await _context.Orders.AnyAsync(predicate);
-        }
-
-        public async Task<bool> DeleteByIdsAsync(IEnumerable<int> ids)
-        {
-            var entities = await _context.Set<Order>()
-                .Where(e => ids.Contains(e.Id))
-                .ToListAsync();
-
-            if (!entities.Any())
-            {
-                return false;
-            }
-
-            _context.Set<Order>().RemoveRange(entities);
-            await _context.SaveChangesAsync();
-
             return true;
         }
     }

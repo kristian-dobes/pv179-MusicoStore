@@ -11,50 +11,16 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repository.Implementations
 {
-    public class ManufacturerRepository : IManufacturerRepository
+    public class ManufacturerRepository : Repository<Manufacturer>, IManufacturerRepository
     {
         private readonly MyDBContext _context;
 
-        public ManufacturerRepository(MyDBContext context)
+        public ManufacturerRepository(MyDBContext context) : base(context)
         {
             _context = context;
         }
 
-        public async Task<Manufacturer?> AddAsync(Manufacturer entity)
-        {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
-
-            Manufacturer added = (await _context.Manufacturers.AddAsync(entity)).Entity;
-            await _context.SaveChangesAsync();
-
-            return added;
-        }
-
-        public async Task<bool> DeleteAsync(int id)
-        {
-            var manufacturer = await _context.Manufacturers.FindAsync(id);
-
-            if (manufacturer == null)
-                return false;
-
-            _context.Manufacturers.Remove(manufacturer);
-            await _context.SaveChangesAsync();
-
-            return true;
-        }
-
-        public async Task<IEnumerable<Manufacturer>> GetAllAsync()
-        {
-            return await _context.Manufacturers.ToListAsync();
-        }
-
-        public async Task<Manufacturer?> GetByIdAsync(int id)
-        {
-            return await _context.Manufacturers.FirstOrDefaultAsync(m => m.Id == id);
-        }
-
-        public async Task<bool> UpdateAsync(Manufacturer entity)
+        public override async Task<bool> UpdateAsync(Manufacturer entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -67,33 +33,6 @@ namespace Infrastructure.Repository.Implementations
             existingManufacturer.Name = entity.Name;
 
             _context.Manufacturers.Update(existingManufacturer);
-            await _context.SaveChangesAsync();
-
-            return true;
-        }
-
-        public async Task<IEnumerable<Manufacturer>> WhereAsync(Expression<Func<Manufacturer, bool>> predicate)
-        {
-            return await _context.Manufacturers.Where(predicate).ToListAsync();
-        }
-
-        public async Task<bool> AnyAsync(Expression<Func<Manufacturer, bool>> predicate)
-        {
-            return await _context.Manufacturers.AnyAsync(predicate);
-        }
-
-        public async Task<bool> DeleteByIdsAsync(IEnumerable<int> ids)
-        {
-            var entities = await _context.Set<Manufacturer>()
-                .Where(e => ids.Contains(e.Id))
-                .ToListAsync();
-
-            if (!entities.Any())
-            {
-                return false;
-            }
-
-            _context.Set<Manufacturer>().RemoveRange(entities);
             await _context.SaveChangesAsync();
 
             return true;

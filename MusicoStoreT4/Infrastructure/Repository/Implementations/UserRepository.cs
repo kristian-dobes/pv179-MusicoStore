@@ -8,48 +8,16 @@ using System.Linq.Expressions;
 
 namespace Infrastructure.Repository.Implementations
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository : Repository<User>, IUserRepository
     {
         private readonly MyDBContext _context;
 
-        public UserRepository(MyDBContext context)
+        public UserRepository(MyDBContext context) : base(context)
         {
             _context = context;
         }
 
-        public async Task<User?> AddAsync(User entity)
-        {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
-
-            var addedEntity = (await _context.Users.AddAsync(entity)).Entity;
-            await _context.SaveChangesAsync();
-            return addedEntity;
-        }
-
-        public async Task<bool> DeleteAsync(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-
-            if (user == null)
-                return false;
-
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<IEnumerable<User>> GetAllAsync()
-        {
-            return await _context.Users.ToListAsync();
-        }
-
-        public async Task<User?> GetByIdAsync(int id)
-        {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
-        }
-
-        public async Task<bool> UpdateAsync(User entity)
+        public override async Task<bool> UpdateAsync(User entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -92,33 +60,6 @@ namespace Infrastructure.Repository.Implementations
                 .ToListAsync();
 
             return userSummaries;
-        }
-
-        public async Task<IEnumerable<User>> WhereAsync(Expression<Func<User, bool>> predicate)
-        {
-            return await _context.Users.Where(predicate).ToListAsync();
-        }
-
-        public async Task<bool> AnyAsync(Expression<Func<User, bool>> predicate)
-        {
-            return await _context.Users.AnyAsync(predicate);
-        }
-
-        public async Task<bool> DeleteByIdsAsync(IEnumerable<int> ids)
-        {
-            var entities = await _context.Set<User>()
-                .Where(e => ids.Contains(e.Id))
-                .ToListAsync();
-
-            if (!entities.Any())
-            {
-                return false;
-            }
-
-            _context.Set<User>().RemoveRange(entities);
-            await _context.SaveChangesAsync();
-
-            return true;
         }
     }
 }

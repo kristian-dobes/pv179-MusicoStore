@@ -11,45 +11,13 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repository.Implementations
 {
-    public class ProductImageRepository : IProductImageRepository
+    public class ProductImageRepository : Repository<ProductImage>, IProductImageRepository
     {
         private readonly MyDBContext _context;
 
-        public ProductImageRepository(MyDBContext context)
+        public ProductImageRepository(MyDBContext context) : base(context)
         {
             _context = context;
-        }
-
-        public async Task<ProductImage?> AddAsync(ProductImage entity)
-        {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
-
-            var addedEntity = (await _context.ProductImages.AddAsync(entity)).Entity;
-            await _context.SaveChangesAsync();
-            return addedEntity;
-        }
-
-        public async Task<bool> DeleteAsync(int id)
-        {
-            var productImage = await _context.ProductImages.FindAsync(id);
-
-            if (productImage == null)
-                return false;
-
-            _context.ProductImages.Remove(productImage);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<IEnumerable<ProductImage>> GetAllAsync()
-        {
-            return await _context.ProductImages.ToListAsync();
-        }
-
-        public async Task<ProductImage?> GetByIdAsync(int id)
-        {
-            return await _context.ProductImages.FirstOrDefaultAsync(pi => pi.Id == id);
         }
 
         public async Task<ProductImage?> GetByProductIdAsync(int productId)
@@ -57,7 +25,7 @@ namespace Infrastructure.Repository.Implementations
             return await _context.ProductImages.FirstOrDefaultAsync(pi => pi.ProductId == productId);
         }
 
-        public async Task<bool> UpdateAsync(ProductImage entity)
+        public override async Task<bool> UpdateAsync(ProductImage entity)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -74,33 +42,6 @@ namespace Infrastructure.Repository.Implementations
 
             _context.ProductImages.Update(existingImage);
             await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<IEnumerable<ProductImage>> WhereAsync(Expression<Func<ProductImage, bool>> predicate)
-        {
-            return await _context.ProductImages.Where(predicate).ToListAsync();
-        }
-
-        public async Task<bool> AnyAsync(Expression<Func<ProductImage, bool>> predicate)
-        {
-            return await _context.ProductImages.AnyAsync(predicate);
-        }
-
-        public async Task<bool> DeleteByIdsAsync(IEnumerable<int> ids)
-        {
-            var entities = await _context.Set<ProductImage>()
-                .Where(e => ids.Contains(e.Id))
-                .ToListAsync();
-
-            if (!entities.Any())
-            {
-                return false;
-            }
-
-            _context.Set<ProductImage>().RemoveRange(entities);
-            await _context.SaveChangesAsync();
-
             return true;
         }
     }
