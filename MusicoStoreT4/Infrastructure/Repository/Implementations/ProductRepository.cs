@@ -38,5 +38,19 @@ namespace Infrastructure.Repository.Implementations
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<List<Product>> GetAllWithDetailsAsync()
+        {
+            return await _context.Products
+                .Include(p => p.OrderItems)
+                .Include(p => p.Category)
+                .Include(p => p.Manufacturer)
+                .ToListAsync();
+        }
+
+        public IQueryable<Product> GetAllQuery()
+        {
+            return _context.Products.AsQueryable();
+        }
     }
 }

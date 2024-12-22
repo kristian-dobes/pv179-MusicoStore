@@ -9,6 +9,7 @@ namespace Infrastructure.Repository.Interfaces
 {
     public interface IProductRepository : IRepository<Product>
     {
-
+        Task<List<Product>> GetAllWithDetailsAsync();
+        IQueryable<Product> GetAllQuery();
     }
 }
