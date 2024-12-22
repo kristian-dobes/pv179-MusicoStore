@@ -19,7 +19,8 @@ namespace WebMVC.Controllers
         private readonly IUserService _userService;
         private readonly IImageService _imageService;
 
-        public ProductController(UserManager<LocalIdentityUser> userManager, IUserService userService, IProductService productService, IImageService imageService)
+        public ProductController(UserManager<LocalIdentityUser> userManager, IUserService userService,
+                                 IProductService productService, IImageService imageService)
         {
             _productService = productService;
             _userService = userService;
