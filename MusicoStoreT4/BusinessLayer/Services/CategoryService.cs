@@ -28,6 +28,13 @@ namespace BusinessLayer.Services
             return (await _uow.CategoriesRep.GetAllAsync()).Select(c => c.MapToCategoryDTO()).ToList();
         }
 
+        public async Task<CategoryDto?> GetById(int id)
+        {
+            var category = await _uow.CategoriesRep.GetByIdAsync(id);
+
+            return category?.MapToCategoryDTO();
+        }
+
         public async Task<List<CategorySummaryDto>> GetCategoriesSummariesAsync()
         {
             return await _uow.CategoriesRep.GetCategoriesSummariesAsync();
@@ -69,6 +76,55 @@ namespace BusinessLayer.Services
             }
 
             return newCategory;
+        }
+
+        public async Task<List<CategoryDto>> GetCategoriesWithProductsAsync()
+        {
+            return (await _uow.CategoriesRep.GetCategoriesWithProductsAsync()).Select(c => c.MapToCategoryDTO()).ToList();
+        }
+
+        public async Task AddCategory(CreateCategoryDto createCategoryDto)
+        {
+            await _uow.CategoriesRep.AddAsync(createCategoryDto.MapToCategory());
+        }
+
+        public async Task<Category?> UpdateCategoryAsync(UpdateCategoryDto updateCategoryDto)
+        {
+            if (await _uow.CategoriesRep.AnyAsync(c => c.Name == updateCategoryDto.Name))
+            {
+                throw new ArgumentException("Category with this name already exists");
+            }
+
+            var category = await _uow.CategoriesRep.GetByIdAsync(updateCategoryDto.Id);
+
+            if (category == null)
+            {
+                return null;
+            }
+
+            category.Name = updateCategoryDto.Name;
+
+            await _uow.SaveAsync();
+
+            return category;
+        }
+
+        public async Task<bool> DeleteCategoryAsync(int categoryId)
+        {
+            var category = (await _uow.CategoriesRep.GetCategoriesWithProductsAsync()).FirstOrDefault(c => c.Id == categoryId);
+
+            if (category == null)
+            {
+                return false; // Not found
+            }
+
+            if (category.Products.Any())
+            {
+                throw new InvalidOperationException("Cannot delete category as it contains products");
+            }
+
+            await _uow.CategoriesRep.DeleteAsync(category.Id);
+            return true;
         }
     }
 }
