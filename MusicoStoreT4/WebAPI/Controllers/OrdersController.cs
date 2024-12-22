@@ -129,7 +129,9 @@ namespace WebAPI.Controllers
             if (order == null)
                 return NotFound($"Order with ID {id} not found.");
 
-            order.Date = updateOrderDto.OrderDate;
+            if (updateOrderDto.OrderDate.HasValue)
+                order.Date = updateOrderDto.OrderDate.Value;
+            
             order.OrderItems = new List<OrderItem>();
 
             foreach (var itemDto in updateOrderDto.OrderItems)

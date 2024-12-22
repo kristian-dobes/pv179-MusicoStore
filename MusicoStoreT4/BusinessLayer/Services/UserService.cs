@@ -47,7 +47,7 @@ namespace BusinessLayer.Services
 
                 customersWithStats.Add(new CustomerSegmentStatsDto
                 {
-                    CustomerDTO = (customer as Customer).MapToCustomerDto(),
+                    CustomerDTO = (customer as Customer)?.MapToCustomerDto(),
                     TotalExpenditure = totalExpenditure,
                     IsInfrequent = isInfrequent
                 });

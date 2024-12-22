@@ -9,7 +9,7 @@ using Shared.DTOs;
 
 namespace BusinessLayer.Services.Interfaces
 {
-    public interface ICategoryService : IBaseService<CategoryDto, CreateCategoryDto, UpdateCategoryDto>
+    public interface ICategoryService : IBaseService
     {
         Task<List<CategorySummaryDto?>> GetCategoriesSummariesAsync();
         Task<CategorySummaryDto?> GetCategorySummaryAsync(int categoryId);
