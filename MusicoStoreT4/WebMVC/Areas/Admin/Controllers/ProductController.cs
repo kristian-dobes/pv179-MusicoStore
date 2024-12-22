@@ -14,11 +14,13 @@ namespace WebMVC.Areas.Admin.Controllers
     public class ProductController : Controller
     {
         private readonly IProductService _productService;
+        private readonly IManufacturerService _manufacturerService;
         private readonly UserManager<LocalIdentityUser> _userManager;
 
-        public ProductController(IProductService productService, UserManager<LocalIdentityUser> userManager)
+        public ProductController(IProductService productService, IManufacturerService manufacturerService, UserManager<LocalIdentityUser> userManager)
         {
             _productService = productService;
+            _manufacturerService = manufacturerService;
             _userManager = userManager;
         }
 
@@ -93,7 +95,17 @@ namespace WebMVC.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            return View(product.Adapt<ProductUpdateViewModel>());
+            var manufacturers = await _manufacturerService.GetManufacturers();
+            if (manufacturers == null)
+            {
+                return NotFound();
+            }
+
+            var productUpdateViewModel = product.Adapt<ProductUpdateViewModel>();
+
+            productUpdateViewModel.Manufacturers = manufacturers;
+
+            return View(productUpdateViewModel);
         }
 
         // POST: Admin/Product/Edit/5

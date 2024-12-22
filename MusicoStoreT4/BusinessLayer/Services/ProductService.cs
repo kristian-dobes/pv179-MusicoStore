@@ -66,6 +66,8 @@ namespace BusinessLayer.Services
             product.QuantityInStock = productDto.QuantityInStock;
             product.LastModifiedById = productDto.LastModifiedById;
             product.EditCount++;
+            product.ManufacturerId = productDto.ManufacturerId;
+            product.CategoryId = productDto.CategoryId;
 
             await _auditLogService.LogAsync(product.Id, AuditAction.Update, productDto.LastModifiedById);
             _dbContext.Products.Update(product);

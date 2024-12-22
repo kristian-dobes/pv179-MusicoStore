@@ -38,12 +38,25 @@
                 <input asp-for="CategoryId" class="form-control" />
                 <span asp-validation-for="CategoryId" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            @* <div class="form-group">
                 <label asp-for="ManufacturerId" class="control-label"></label>
-                @* <select asp-for="ManufacturerId" class="form-control" asp-items="ViewBag.ManufacturerId"></select> *@
                 <input asp-for="ManufacturerId" class="form-control" />
                 <span asp-validation-for="ManufacturerId" class="text-danger"></span>
+            </div> *@
+
+            <div class="form-group mt-3">
+                <label asp-for="ManufacturerId" class="control-label"></label>
+                <select asp-for="ManufacturerId" class="form-control">
+                    <option value="" disabled selected>Select a manufacturer</option>
+                    @foreach (var manufacturer in Model.Manufacturers)
+                    {
+                        <option value="@manufacturer.ManufacturerId">@manufacturer.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="ManufacturerId" class="text-danger"></span>
             </div>
+
+
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>

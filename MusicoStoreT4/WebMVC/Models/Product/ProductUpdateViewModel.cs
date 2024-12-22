@@ -1,4 +1,6 @@
-﻿namespace WebMVC.Models.Product
+﻿using BusinessLayer.DTOs.Manufacturer;
+
+namespace WebMVC.Models.Product
 {
     public class ProductUpdateViewModel
     {
@@ -8,5 +10,7 @@
         public required int QuantityInStock { get; set; }
         public required int CategoryId { get; set; }
         public required int ManufacturerId { get; set; }
+
+        public IEnumerable<ManufacturerSummaryDTO> Manufacturers { get; set; } = [];
     }   
 }
