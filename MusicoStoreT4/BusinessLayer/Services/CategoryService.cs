@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BusinessLayer.Services.Interfaces;
-using BusinessLayer.DTOs;
 using DataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
 using BusinessLayer.Mapper;
 using DataAccessLayer.Models;
 using Infrastructure.UnitOfWork;
 using Shared.DTOs;
+using BusinessLayer.DTOs.Category;
 
 namespace BusinessLayer.Services
 {

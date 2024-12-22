@@ -85,7 +85,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("filter")]
-        public async Task<IActionResult> GetProducts([FromBody] FilterProductDTO filterProductDTO)
+        public async Task<IActionResult> GetProducts([FromBody] FilterProductDto filterProductDTO)
         {
             var productsQuery = _dBContext.Products.AsQueryable();
 
@@ -124,7 +124,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateProductDTO createProductDTO)
+        public async Task<IActionResult> Create([FromBody] CreateProductDto createProductDTO, int createdById)
         {
             if (string.IsNullOrEmpty(createProductDTO.Name))
                 return BadRequest("Product name is required");
@@ -159,7 +159,7 @@ namespace WebAPI.Controllers
                 Price = createProductDTO.Price,
                 CategoryId = createProductDTO.CategoryId,
                 ManufacturerId = createProductDTO.ManufacturerId,
-                LastModifiedById = createProductDTO.CreatedById,
+                LastModifiedById = createdById,
                 EditCount = 0
             };
 
@@ -170,7 +170,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update([FromBody] UpdateProductDTO updateProductDTO)
+        public async Task<IActionResult> Update([FromBody] UpdateProductDto updateProductDTO, int updatedById)
         {
             var product = await _dBContext
                 .Products.Where(a => a.Id == updateProductDTO.Id)
@@ -222,6 +222,9 @@ namespace WebAPI.Controllers
             if (updateProductDTO.ManufacturerId.HasValue)
                 product.ManufacturerId = updateProductDTO.ManufacturerId.Value;
 
+            product.LastModifiedById = updatedById;
+            product.EditCount++;
+
             await _dBContext.SaveChangesAsync();
 
             return Ok(
@@ -239,7 +242,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete("{productId}")]
-        public async Task<IActionResult> Delete(int productId)
+        public async Task<IActionResult> Delete(int productId, int deletedById /* <- use this */)
         {
             var product = await _dBContext
                 .Products.Where(a => a.Id == productId)

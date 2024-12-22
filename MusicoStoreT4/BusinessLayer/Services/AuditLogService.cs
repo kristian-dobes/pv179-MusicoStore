@@ -1,4 +1,5 @@
-﻿using BusinessLayer.Enums;
+﻿using BusinessLayer.DTOs.Category;
+using BusinessLayer.Enums;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;

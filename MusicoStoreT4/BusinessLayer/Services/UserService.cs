@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BusinessLayer.DTOs;
+using BusinessLayer.DTOs.OrderItem;
 using BusinessLayer.DTOs.Product;
 using BusinessLayer.DTOs.User;
+using BusinessLayer.DTOs.User.Admin;
+using BusinessLayer.DTOs.User.Customer;
 using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
@@ -45,7 +47,7 @@ namespace BusinessLayer.Services
 
                 customersWithStats.Add(new CustomerSegmentStatsDto
                 {
-                    Customer = customer as Customer,
+                    CustomerDTO = (customer as Customer).MapToCustomerDto(),
                     TotalExpenditure = totalExpenditure,
                     IsInfrequent = isInfrequent
                 });
@@ -53,12 +55,12 @@ namespace BusinessLayer.Services
 
             var highValueCustomers = customersWithStats
                 .Where(c => c.TotalExpenditure > 1000)
-                .Select(c => c.Customer.MapToCustomerDto())
+                .Select(c => c.CustomerDTO)
                 .ToList();
 
             var infrequentCustomers = customersWithStats
                 .Where(c => c.IsInfrequent)
-                .Select(c => c.Customer.MapToCustomerDto())
+                .Select(c => c.CustomerDTO)
                 .ToList();
 
             return new CustomerSegmentsDto

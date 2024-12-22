@@ -2,6 +2,7 @@
 ﻿using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
+using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.DTOs;
@@ -12,19 +13,17 @@ namespace WebAPI.Controllers
     [Route("api/[controller]")]
     public class CategoriesController : Controller
     {
-        private readonly MyDBContext _dBContext;
         private readonly ICategoryService _categoryService;
 
-        public CategoriesController(MyDBContext dBContext, ICategoryService categoryService)
+        public CategoriesController(ICategoryService categoryService)
         {
-            _dBContext = dBContext;
             _categoryService = categoryService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Fetch()
         {
-            var categories = await _dBContext.Categories.ToListAsync();
+            var categories = await _categoryService.GetAllAsync();
 
             return Ok(categories.Select(a => new
             {
@@ -37,9 +36,7 @@ namespace WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCategoryById(int id)
         {
-            var category = await _dBContext.Categories
-                .Where(a => a.Id == id)
-                .FirstOrDefaultAsync();
+            var category = (await _uow.CategoriesRep.WhereAsync(a => a.Id == id)).FirstOrDefault();
 
             if (category == null)
                 return NotFound();
@@ -61,9 +58,7 @@ namespace WebAPI.Controllers
         [HttpGet("detail")]
         public async Task<IActionResult> FetchWithProducts()
         {
-            var categories = await _dBContext.Categories
-                .Include(a => a.Products)
-                .ToListAsync();
+            var categories = await _uow.CategoriesRep.GetCategoriesWithProductsAsync();
 
             return Ok(categories.Select(a => new
             {
@@ -100,8 +95,8 @@ namespace WebAPI.Controllers
                 Name = categoryName,
             };
 
-            await _dBContext.Categories.AddAsync(category);
-            await _dBContext.SaveChangesAsync();
+            await _uow.Categories.AddAsync(category);
+            await _uow.SaveChangesAsync();
 
             return Ok();
         }
@@ -114,12 +109,12 @@ namespace WebAPI.Controllers
                 return BadRequest("Category name is required");
             }
 
-            if (await _dBContext.Categories.AnyAsync(a => a.Name == categoryName))
+            if (await _uow.Categories.AnyAsync(a => a.Name == categoryName))
             {
                 return BadRequest("Category already exists");
             }
 
-            var category = await _dBContext.Categories
+            var category = await _uow.Categories
                                            .Where(a => a.Id == categoryId)
                                            .FirstOrDefaultAsync();
 
@@ -129,7 +124,7 @@ namespace WebAPI.Controllers
             }
 
             category.Name = categoryName;
-            await _dBContext.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return Ok();
         }
@@ -137,15 +132,15 @@ namespace WebAPI.Controllers
         [HttpDelete("{categoryId}")]
         public async Task<IActionResult> Delete(int categoryId)
         {
-            var category = await _dBContext.Categories
+            var category = await _uow.Categories
                 .Include(a => a.Products)
                 .Where(a => a.Id == categoryId)
                 .FirstOrDefaultAsync();
 
             if (category != null)
             {
-                _dBContext.Categories.Remove(category);
-                await _dBContext.SaveChangesAsync();
+                _uow.Categories.Remove(category);
+                await _uow.SaveChangesAsync();
             }
             else
                 return NotFound();

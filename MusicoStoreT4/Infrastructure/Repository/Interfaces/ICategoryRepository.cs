@@ -13,5 +13,6 @@ namespace Infrastructure.Repository.Interfaces
     {
         Task<List<CategorySummaryDto>> GetCategoriesSummariesAsync();
         Task<CategorySummaryDto?> GetCategorySummaryAsync(int categoryId);
+        Task<List<Category>> GetCategoriesWithProductsAsync();
     }
 }

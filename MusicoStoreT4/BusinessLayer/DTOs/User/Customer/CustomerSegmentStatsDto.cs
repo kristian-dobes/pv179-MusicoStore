@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLayer.DTOs.User
+namespace BusinessLayer.DTOs.User.Customer
 {
     public class CustomerSegmentStatsDto
     {
-        public Customer Customer { get; set; }
+        public CustomerDto CustomerDTO { get; set; }
         public decimal TotalExpenditure { get; set; }
         public bool IsInfrequent { get; set; }
     }

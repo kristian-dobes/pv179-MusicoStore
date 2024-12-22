@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BusinessLayer.DTOs.User.Admin;
 
-namespace BusinessLayer.DTOs.User
+namespace BusinessLayer.DTOs.User.Customer
 {
     public class CustomerDto : AdminDto
     {

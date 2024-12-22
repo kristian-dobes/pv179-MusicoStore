@@ -11,6 +11,7 @@ using Infrastructure.Repository.Implementations;
 using Infrastructure.UnitOfWork;
 using Moq;
 using Tests.Other;
+using BusinessLayer.DTOs.User.Customer;
 
 namespace Tests
 {

@@ -71,5 +71,12 @@ namespace Infrastructure.Repository.Implementations
 
             return categorySummary;
         }
+
+        public async Task<List<Category>> GetCategoriesWithProductsAsync()
+        {
+            return await _context.Categories
+                .Include(c => c.Products)
+                .ToListAsync();
+        }
     }
 }

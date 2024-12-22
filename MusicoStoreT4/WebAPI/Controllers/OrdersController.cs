@@ -1,4 +1,5 @@
-using BusinessLayer.DTOs;
+using BusinessLayer.DTOs.Order;
+using BusinessLayer.DTOs.OrderItem;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;

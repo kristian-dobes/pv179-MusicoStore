@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLayer.DTOs.User
+namespace BusinessLayer.DTOs.User.Customer
 {
     public class CustomerSegmentsDto
     {

@@ -1,4 +1,4 @@
-﻿namespace BusinessLayer.DTOs
+﻿namespace BusinessLayer.DTOs.OrderItem
 {
     public class OrderItemDto
     {

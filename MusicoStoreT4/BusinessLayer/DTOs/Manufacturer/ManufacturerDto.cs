@@ -1,15 +1,15 @@
-﻿using System;
+﻿using BusinessLayer.DTOs.Product;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BusinessLayer.DTOs.Product;
 
-namespace BusinessLayer.DTOs
+namespace BusinessLayer.DTOs.Manufacturer
 {
-    public class CategoryDto
+    public class ManufacturerDto
     {
-        public int CategoryId { get; set; }
+        public int ManufacturerId { get; set; }
         public string Name { get; set; }
         public ICollection<ProductDto>? Products { get; set; }
     }

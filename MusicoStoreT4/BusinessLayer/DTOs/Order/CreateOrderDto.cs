@@ -1,4 +1,6 @@
-﻿namespace BusinessLayer.DTOs
+﻿using BusinessLayer.DTOs.OrderItem;
+
+namespace BusinessLayer.DTOs.Order
 {
     public class CreateOrderDto
     {

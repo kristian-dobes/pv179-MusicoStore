@@ -39,7 +39,7 @@ namespace WebMVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, UpdateProductDTO productDto)
+        public async Task<IActionResult> Edit(int id, UpdateProductDto productDto)
         {
             if (id != productDto.Id)
                 return BadRequest();
@@ -61,7 +61,7 @@ namespace WebMVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateProductDTO productDto)
+        public async Task<IActionResult> Create(CreateProductDto productDto)
         {
             var user = await _userManager.GetUserAsync(User);
 

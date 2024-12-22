@@ -38,7 +38,7 @@ namespace BusinessLayer.Services
             return product.MapToProductDTO();
         }
 
-        public async Task UpdateProductAsync(UpdateProductDTO productDto, int modifiedById)
+        public async Task UpdateProductAsync(UpdateProductDto productDto, int modifiedById)
         {
             var product = await _uow.ProductsRep.GetByIdAsync(productDto.Id);
 
@@ -77,7 +77,7 @@ namespace BusinessLayer.Services
             await _uow.SaveAsync();
         }
 
-        public async Task<Product> CreateProductAsync(CreateProductDTO productDto, int createdById)
+        public async Task<Product> CreateProductAsync(CreateProductDto productDto, int createdById)
         {
             var product = new Product
             {
