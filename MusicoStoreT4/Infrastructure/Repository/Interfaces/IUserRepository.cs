@@ -1,5 +1,4 @@
 ﻿using DataAccessLayer.Models;
-using Shared.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +10,6 @@ namespace Infrastructure.Repository.Interfaces
     public interface IUserRepository : IRepository<User>
     {
         public Task<User?> GetUserWithOrdersAsync(int userId);
-        Task<List<UserSummaryDto>> GetUserSummariesAsync();
+        //Task<List<UserSummaryDto>> GetUserSummariesAsync();
     }
 }

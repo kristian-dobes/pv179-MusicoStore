@@ -19,8 +19,8 @@ namespace BusinessLayer.DTOs.Product
         public int ProductQuantityInStock { get; set; }
         public int ProductManufacturer { get; set; }
         public int ProductCategory { get; set; }
-        public List<OrderItemDto> OrderItems { get; set; }
-        public CategoryDto Category { get; set; }
-        public ManufacturerDto Manufacturer { get; set; }
+        public IEnumerable<OrderItemDto> OrderItems { get; set; }
+        public CategorySummaryDTO Category { get; set; }
+        public ManufacturerSummaryDTO Manufacturer { get; set; }
     }
 }

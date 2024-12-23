@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace BusinessLayer.DTOs.Product
 {
-    // Used to update a product from MVC/Admin/Product
     public class ProductUpdateDTO 
     {
         [MinLength(1)]

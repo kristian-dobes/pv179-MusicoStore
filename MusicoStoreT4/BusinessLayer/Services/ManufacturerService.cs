@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BusinessLayer.DTOs;
+using BusinessLayer.DTOs.Category;
 using BusinessLayer.DTOs.Manufacturer;
 using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
+using Infrastructure.UnitOfWork;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,27 +25,22 @@ namespace BusinessLayer.Services
             _uow = unitOfWork;
         }
 
-        public async Task<ICollection<ManufacturerSummaryDTO>> GetManufacturers()
+        public async Task<IEnumerable<ManufacturerSummaryDTO>> GetManufacturersAsync()
         {
-            IQueryable<Manufacturer> manufacturerQuery = _dBContext.Manufacturers;
-            
-            // Fetch data into a list
-            var manufacturers = await manufacturerQuery.ToListAsync();
-            
-            // Map to DTOs
-            var manufacturerDTOs = manufacturers.Adapt<ICollection<ManufacturerSummaryDTO>>();
-            
-            return manufacturerDTOs;
+            var manufacturers = await _uow.ManufacturersRep.GetAllAsync();
+            return manufacturers.Select(m => m.Adapt<ManufacturerSummaryDTO>()).ToList();
+        }
+        public async Task<ManufacturerSummaryDTO?> GetById(int id)
+        {
+            var manufacturer = await _uow.ManufacturersRep.GetByIdAsync(id);
+
+            return manufacturer.Adapt<ManufacturerSummaryDTO>();
         }
 
-        public async Task<List<ManufacturerDto>> GetManufacturersAsync()
+        public async Task<IEnumerable<ManufacturerDTO>> GetManufacturersWithProductsAsync()
         {
-            return (await _uow.ManufacturersRep.GetAllAsync()).Select(m => m.MapToManufacturerDTO()).ToList();
-        }
-
-        public async Task<List<ManufacturerDto>> GetManufacturersWithProductsAsync()
-        {
-            return (await _uow.ManufacturersRep.GetManufacturersWithProductsAsync()).Select(m => m.MapToManufacturerDTO()).ToList();
+            var manufacturers = await _uow.ManufacturersRep.GetManufacturersWithProductsAsync();
+            return manufacturers.Select(m => m.Adapt<ManufacturerDTO>()).ToList();
         }
 
         public async Task<bool> ValidateManufacturerAsync(int manufacturerId)
@@ -54,9 +51,14 @@ namespace BusinessLayer.Services
 
         public async Task<bool> DeleteManufacturerAsync(int manufacturerId)
         {
-            var manufacturer = (await _uow.ManufacturersRep.WhereAsync(m => m.Id == manufacturerId)).FirstOrDefault();
+            var manufacturer = (await _uow.ManufacturersRep.GetManufacturersWithProductsAsync()).FirstOrDefault(m => m.Id == manufacturerId);
 
             if (manufacturer == null)
+            {
+                return false;
+            }
+
+            if (manufacturer.Products != null && manufacturer.Products.Any())
             {
                 return false;
             }
@@ -67,29 +69,26 @@ namespace BusinessLayer.Services
             return true;
         }
 
-        public async Task CreateManufacturerAsync(string manufacturerName)
+        public async Task CreateManufacturerAsync(ManufacturerUpdateDTO manufacturerDto)
         {
-            if (string.IsNullOrWhiteSpace(manufacturerName))
+            if (string.IsNullOrWhiteSpace(manufacturerDto.Name))
             {
                 throw new ArgumentException("Manufacturer name is required");
             }
 
-            var exists = (await _uow.ManufacturersRep.WhereAsync(m => m.Name == manufacturerName)).Any();
+            var exists = (await _uow.ManufacturersRep.WhereAsync(m => m.Name == manufacturerDto.Name)).Any();
 
             if (exists)
             {
                 throw new ArgumentException("Manufacturer already exists");
             }
 
-            var manufacturer = new Manufacturer
-            {
-                Name = manufacturerName,
-            };
+            var manufacturer = manufacturerDto.Adapt<Manufacturer>();
 
             await _uow.ManufacturersRep.AddAsync(manufacturer);
         }
 
-        public async Task<ManufacturerDto> UpdateManufacturerAsync(UpdateManufacturerDto updateManufacturerDto)
+        public async Task<ManufacturerDTO?> UpdateManufacturerAsync(int id, ManufacturerUpdateDTO updateManufacturerDto)
         {
             if (string.IsNullOrWhiteSpace(updateManufacturerDto.Name))
             {
@@ -97,7 +96,7 @@ namespace BusinessLayer.Services
             }
 
             var existingManufacturer = (await _uow.ManufacturersRep
-                .WhereAsync(m => m.Id == updateManufacturerDto.ManufacturerId)).FirstOrDefault();
+                .WhereAsync(m => m.Id == id)).FirstOrDefault();
 
             if (existingManufacturer == null)
             {
@@ -105,7 +104,7 @@ namespace BusinessLayer.Services
             }
 
             var nameExists = (await _uow.ManufacturersRep
-                .WhereAsync(m => m.Name == updateManufacturerDto.Name && m.Id != updateManufacturerDto.ManufacturerId)).Any();
+                .WhereAsync(m => m.Name == updateManufacturerDto.Name && m.Id != id)).Any();
 
             if (nameExists)
             {
@@ -116,7 +115,7 @@ namespace BusinessLayer.Services
 
             await _uow.SaveAsync();
 
-            return existingManufacturer.MapToManufacturerDTO();
+            return existingManufacturer.Adapt<ManufacturerDTO>();
         }
     }
 }

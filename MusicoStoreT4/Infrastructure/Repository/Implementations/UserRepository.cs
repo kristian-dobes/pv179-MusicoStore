@@ -3,7 +3,6 @@ using DataAccessLayer.Models;
 using DataAccessLayer.Models.Enums;
 using Infrastructure.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Shared.DTOs;
 using System.Linq.Expressions;
 
 namespace Infrastructure.Repository.Implementations
@@ -44,22 +43,22 @@ namespace Infrastructure.Repository.Implementations
                 .FirstOrDefaultAsync(u => u.Id == userId);
         }
 
-        public async Task<List<UserSummaryDto>> GetUserSummariesAsync()
-        {
-            var userSummaries = await _context.Users
-                .Where(u => u.Role == Role.Customer)
-                .Select(u => new UserSummaryDto
-                {
-                    UserId = u.Id,
-                    Username = u.Username,
-                    Role = u.Role,
-                    TotalExpenditure = (decimal)u.Orders
-                        .SelectMany(o => o.OrderItems)
-                        .Sum(oi => (double)(oi.Price * oi.Quantity))
-                })
-                .ToListAsync();
+        //public async Task<List<UserSummaryDto>> GetUserSummariesAsync()
+        //{
+        //    var userSummaries = await _context.Users
+        //        .Where(u => u.Role == Role.Customer)
+        //        .Select(u => new UserSummaryDto
+        //        {
+        //            UserId = u.Id,
+        //            Username = u.Username,
+        //            Role = u.Role,
+        //            TotalExpenditure = (decimal)u.Orders
+        //                .SelectMany(o => o.OrderItems)
+        //                .Sum(oi => (double)(oi.Price * oi.Quantity))
+        //        })
+        //        .ToListAsync();
 
-            return userSummaries;
-        }
+        //    return userSummaries;
+        //}
     }
 }

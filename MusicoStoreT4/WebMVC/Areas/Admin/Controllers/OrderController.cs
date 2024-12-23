@@ -25,7 +25,7 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/Order
         public async Task<IActionResult> Index()
         {
-            var orders = await _orderService.GetOrders();
+            var orders = await _orderService.GetAllOrdersAsync();
 
             if (!orders.Any())
             {

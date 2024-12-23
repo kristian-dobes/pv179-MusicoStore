@@ -27,7 +27,7 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/Product
         public async Task<IActionResult> Index()
         {
-            var products = await _productService.GetProducts();
+            var products = await _productService.GetAllProductsAsync();
 
             if (!products.Any())
             {
@@ -95,7 +95,7 @@ namespace WebMVC.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var manufacturers = await _manufacturerService.GetManufacturers();
+            var manufacturers = await _manufacturerService.GetManufacturersAsync();
             if (manufacturers == null)
             {
                 return NotFound();

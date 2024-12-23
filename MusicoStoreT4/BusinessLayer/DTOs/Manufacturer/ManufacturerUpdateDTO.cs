@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLayer.DTOs.Category
+namespace BusinessLayer.DTOs.Manufacturer
 {
-    public class CategoryNameDTO
+    public class ManufacturerUpdateDTO
     {
         [MinLength(1)]
         [MaxLength(100)]

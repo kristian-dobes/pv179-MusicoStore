@@ -39,25 +39,25 @@ namespace WebMVC.Controllers
         }
 
 
-        public async Task<IActionResult> ProductDetails(int productId)
-        {
-            ProductDto product = await _productService.GetProductByIdAsync(productId);
+        //public async Task<IActionResult> ProductDetails(int productId)
+        //{
+        //    var product = await _productService.GetProductByIdAsync(productId);
 
-            if (product == null)
-                return NotFound();
+        //    if (product == null)
+        //        return NotFound();
 
-            string imageFilePath = await _imageService.GetImagePathByProductIdAsync(productId);
+        //    string imageFilePath = await _imageService.GetImagePathByProductIdAsync(productId);
 
-            var productViewModel = new ProductViewModel
-            {
-                ProductId = product.Id,
-                ProductName = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                ImageFilePath = imageFilePath
-            };
+        //    var productViewModel = new ProductDetailViewModel
+        //    {
+        //        Id = product.ProductId,
+        //        Name = product.Name,
+        //        Description = product.Description,
+        //        Price = product.Price,
+        //        //ImageFilePath = imageFilePath
+        //    };
 
-            return View(productViewModel);
-        }
+        //    return View(productViewModel);
+        //}
     }
 }

@@ -1,5 +1,6 @@
 using BusinessLayer.DTOs.Manufacturer;
 using BusinessLayer.Facades.Interfaces;
+using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
@@ -31,7 +32,18 @@ namespace WebAPI.Controllers
             return Ok(manufacturers);
         }
 
-        [HttpGet("detail")]
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetManufacturerById(int id)
+        {
+            var manufacturer = await _manufacturerService.GetById(id);
+
+            if (manufacturer == null)
+                return NotFound();
+
+            return Ok(manufacturer);
+        }
+
+        [HttpGet("with-products")]
         public async Task<IActionResult> FetchWithProducts()
         {
             var manufacturers = await _manufacturerService.GetManufacturersWithProductsAsync();
@@ -40,11 +52,11 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateManufacturerDto createManufacturerDto)
+        public async Task<IActionResult> Create(ManufacturerUpdateDTO createManufacturerDto)
         {
             try
             {
-                await _manufacturerService.CreateManufacturerAsync(createManufacturerDto.Name);
+                await _manufacturerService.CreateManufacturerAsync(createManufacturerDto);
                 return Ok("Manufacturer created successfully");
             }
             catch (ArgumentException ex)
@@ -57,12 +69,12 @@ namespace WebAPI.Controllers
             }
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Update(UpdateManufacturerDto updateManufacturerDto)
+        [HttpPut("{manufacturerId}")]
+        public async Task<IActionResult> Update(int manufacturerId, ManufacturerUpdateDTO updateManufacturerDto)
         {
             try
             {
-                var updatedManufacturer = await _manufacturerService.UpdateManufacturerAsync(updateManufacturerDto);
+                var updatedManufacturer = await _manufacturerService.UpdateManufacturerAsync(manufacturerId, updateManufacturerDto);
 
                 return Ok(updatedManufacturer);
             }
@@ -80,7 +92,7 @@ namespace WebAPI.Controllers
             }
         }
 
-        [HttpPut("MergeManufacturers")]
+        [HttpPut("merge")]
         public async Task<IActionResult> MergeManufacturers(int sourceManufacturerId, int targetManufacturerId)
         {
             try

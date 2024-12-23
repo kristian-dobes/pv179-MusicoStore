@@ -37,13 +37,5 @@ namespace BusinessLayer.Mapper
                 PostalCode = customerDto.PostalCode
             };
         }
-
-        public static Category MapToCategory(this CreateCategoryDto categoryDto)
-        {
-            return new Category
-            {
-                Name = categoryDto.Name
-            };
-        }
     }
 }

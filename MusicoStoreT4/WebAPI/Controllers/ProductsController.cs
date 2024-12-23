@@ -28,7 +28,7 @@ namespace WebAPI.Controllers
             return Ok(products);
         }
 
-        [HttpGet("detail")]
+        [HttpGet("with-order-items")]
         public async Task<IActionResult> FetchWithOrderItems()
         {
             var products = await _productService.GetAllProductsWithDetailsAsync();
@@ -45,11 +45,11 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateProductDto createProductDto, int createdById)
+        public async Task<IActionResult> Create([FromBody] ProductCreateDTO createProductDto)
         {
             try
             {
-                var createdProduct = await _productService.CreateProductAsync(createProductDto, createdById);
+                var createdProduct = await _productService.CreateProductAsync(createProductDto);
                 
                 return Ok($"Product {createdProduct.Name} created successfully.");
             }
@@ -63,17 +63,17 @@ namespace WebAPI.Controllers
             }
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Update([FromBody] UpdateProductDto updateProductDTO, int updatedById)
+        [HttpPut("{productId}")]
+        public async Task<IActionResult> Update(int productId, [FromBody] ProductUpdateDTO updateProductDTO)
         {
             try
             {
-                await _productService.UpdateProductAsync(updateProductDTO, updatedById);
+                await _productService.UpdateProductAsync(productId, updateProductDTO);
 
                 return Ok(new
                 {
                     Message = "Product updated successfully.",
-                    ProductId = updateProductDTO.Id,
+                    ProductId = productId,
                 });
             }
             catch (KeyNotFoundException ex)
@@ -105,7 +105,7 @@ namespace WebAPI.Controllers
             }
         }
 
-        [HttpGet("top-selling-products")]
+        [HttpGet("top-selling")]
         public async Task<IActionResult> TopSellingProducts(DateTime startDate, DateTime endDate)
         {
             var result = await _productService.GetTopSellingProductsByCategoryAsync(

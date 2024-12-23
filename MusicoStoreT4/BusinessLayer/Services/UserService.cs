@@ -15,7 +15,8 @@ using DataAccessLayer.Models;
 using DataAccessLayer.Models.Enums;
 using Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
-using Shared.DTOs;
+using Mapster;
+
 
 namespace BusinessLayer.Services
 {
@@ -98,11 +99,6 @@ namespace BusinessLayer.Services
             };
         }
 
-        public async Task<List<UserSummaryDto>> GetUserSummariesAsync()
-        {
-            return await _uow.UsersRep.GetUserSummariesAsync();
-        }
-
         public async Task<bool> ValidateUserAsync(int userId)
         {
             return await _uow.UsersRep.AnyAsync(u => u.Id == userId);
@@ -114,14 +110,14 @@ namespace BusinessLayer.Services
             return users.Select(u => u.MapToUserDto());
         }
 
-        public async Task<UserDetailDto?> GetUserByIdAsync(int userId)
+        public async Task<UserSummaryDTO?> GetUserByIdAsync(int userId)
         {
             var user = await _uow.UsersRep.GetByIdAsync(userId);
 
             if (user == null)
                 return null;
 
-            return user.MapToUserDetailDto();
+            return user.Adapt<UserSummaryDTO>();
         }
 
         public async Task CreateAdminAsync(AdminDto adminDto)
@@ -183,6 +179,12 @@ namespace BusinessLayer.Services
         {
             var users = await _uow.UsersRep.GetAllAsync();
             return users.Select(u => u.MapToUserDetailDto());
+        }
+
+        public async Task<IEnumerable<UserSummaryDTO>> GetAllUserSummariesAsync()
+        {
+            var users = await _uow.UsersRep.GetAllAsync();
+            return users.Select(u => u.Adapt<UserSummaryDTO>());
         }
     }
 }

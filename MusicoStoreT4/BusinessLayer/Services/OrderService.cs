@@ -30,28 +30,21 @@ namespace BusinessLayer.Services
             _uow = unitOfWork;
         }
 
-        public async Task<List<OrderDto>> GetAllOrdersAsync()
+        public async Task<IEnumerable<OrderDetailDTO>> GetAllOrdersAsync()
         {
-            return (await _uow.OrdersRep.GetAllAsync())
-                .Select(o => o.MapToOrderDto())
-                .ToList();
+            var orders = await _uow.OrdersRep.GetAllAsync();
+
+            return orders.Select(o => o.Adapt<OrderDetailDTO>()).ToList();
         }
 
-        public async Task<OrderDto?> GetOrderByIdAsync(int id)
+        public async Task<OrderDetailDTO?> GetOrderByIdAsync(int id)
         {
             var order = await _uow.OrdersRep.GetByIdAsync(id);
 
             if (order == null)
                 return null;
 
-            return order.MapToOrderDto();
-        }
-
-        public async Task<List<OrderDetailDto>> GetOrdersWithItemsAsync()
-        {
-            var orders = await _uow.OrdersRep.GetAllAsync();
-
-            return orders.Select(o => o.MapToOrderWithOrderItemsDto()).ToList();
+            return order?.Adapt<OrderDetailDTO>();
         }
 
         public async Task<int> CreateOrderAsync(CreateOrderDto createOrderDto)
@@ -122,7 +115,6 @@ namespace BusinessLayer.Services
                 throw new ArgumentException($"Failed to update order with ID {orderId} due to concurrency issues.");
             }
         }
-
         public async Task<bool> DeleteOrderAsync(int orderId)
         {
             var order = await _uow.OrdersRep.GetByIdAsync(orderId);

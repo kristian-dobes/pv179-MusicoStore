@@ -20,7 +20,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Fetch()
+        public async Task<IActionResult> GetAllOrderes()
         {
             try
             {
@@ -45,10 +45,10 @@ namespace WebAPI.Controllers
             return Ok(order);
         }
 
-        [HttpGet("detail")]
+        [HttpGet("with-items")]
         public async Task<IActionResult> FetchWithOrderItems()
         {
-            var orders = await _orderService.GetOrdersWithItemsAsync();
+            var orders = await _orderService.GetAllOrdersAsync();
 
             return Ok(orders);
         }
@@ -72,7 +72,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateOrder(int id, [FromBody] UpdateOrderDto updateOrderDto)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateOrderDto updateOrderDto)
         {
             if (id != updateOrderDto.OrderId)
                 return BadRequest("Order ID mismatch.");
@@ -92,15 +92,15 @@ namespace WebAPI.Controllers
             }
         }
 
-        [HttpDelete("{orderId}")]
-        public async Task<IActionResult> Delete(int orderId)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                var deleted = await _orderService.DeleteOrderAsync(orderId);
+                var deleted = await _orderService.DeleteOrderAsync(id);
 
                 if (!deleted)
-                    return NotFound($"Order with ID {orderId} not found.");
+                    return NotFound($"Order with ID {id} not found.");
 
                 return Ok();
             }

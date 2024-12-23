@@ -5,10 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLayer.DTOs.Manufacturer
+namespace BusinessLayer.DTOs.Category
 {
-    // This class is used to create a new manufacturer from Admin panel
-    public class ManufacturerNameDTO
+    public class CategoryUpdateDTO
     {
         [MinLength(1)]
         [MaxLength(100)]

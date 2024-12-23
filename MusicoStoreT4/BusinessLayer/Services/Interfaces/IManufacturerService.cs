@@ -11,12 +11,12 @@ namespace BusinessLayer.Services.Interfaces
 {
     public interface IManufacturerService : IBaseService
     {
-        //public Task<ManufacturerDto> ValidateManufacturerAsync(int manufacturerId);
+        Task<IEnumerable<ManufacturerSummaryDTO>> GetManufacturersAsync();
+        Task<ManufacturerSummaryDTO?> GetById(int id);
+        Task<IEnumerable<ManufacturerDTO>> GetManufacturersWithProductsAsync();
         public Task<bool> ValidateManufacturerAsync(int manufacturerId);
-        Task<List<ManufacturerDto>> GetManufacturersAsync();
         public Task<bool> DeleteManufacturerAsync(int manufacturerId);
-        Task<List<ManufacturerDto>> GetManufacturersWithProductsAsync();
-        Task CreateManufacturerAsync(string manufacturerName);
-        Task<ManufacturerDto> UpdateManufacturerAsync(UpdateManufacturerDto updateManufacturerDto);
+        Task CreateManufacturerAsync(ManufacturerUpdateDTO manufacturerDto);
+        Task<ManufacturerDTO?> UpdateManufacturerAsync(int id, ManufacturerUpdateDTO updateManufacturerDto);
     }
 }

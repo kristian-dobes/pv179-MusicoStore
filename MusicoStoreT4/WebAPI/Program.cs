@@ -12,6 +12,8 @@ using Infrastructure.Repository;
 using Infrastructure.UnitOfWork;
 using Infrastructure.Repository.Implementations;
 using Infrastructure.Repository.Implementations.Implementations;
+using Mapster;
+using BusinessLayer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -106,6 +108,9 @@ builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IManufacturerFacade, ManufacturerFacade>();
 builder.Services.AddScoped<ILogService, LogService>();
+
+// Mapster Mapping configuration for using DTOs
+new MappingConfig().RegisterMappings();
 
 var app = builder.Build();
 

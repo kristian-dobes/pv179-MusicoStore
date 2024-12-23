@@ -4,23 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BusinessLayer.DTOs.Category;
-using BusinessLayer.DTOs.Manufacturer;
 using DataAccessLayer.Models;
-using Shared.DTOs;
 
 namespace BusinessLayer.Services.Interfaces
 {
     public interface ICategoryService : IBaseService
     {
-        Task<List<CategorySummaryDTO?>> GetCategoriesAsync();
-        Task<CategorySummaryDTO?> GetCategoryByIdAsync(int id);
-        Task<CategorySummaryDTO?> GetCategorySummaryAsync(int categoryId);
-        Task<CategoryDTO> CreateCategoryAsync(CategoryNameDTO category);
-        Task<CategoryDTO?> UpdateCategoryAsync(int categoryId, CategoryNameDTO categoryDto);
-        Task DeleteCategoryAsync(int categoryId);
+        Task<IEnumerable<CategorySummaryDTO>> GetCategoriesAsync();
+        Task<CategorySummaryDTO?> GetByIdAsync(int id);
         Task<Category> MergeCategoriesAndCreateNewAsync(string newCategoryName, int sourceCategoryId1, int sourceCategoryId2, bool save = true);
-        Task<List<CategoryDto>> GetCategoriesWithProductsAsync();
-        Task<Category?> UpdateCategoryAsync(UpdateCategoryDto updateCategoryDto);
+        Task<IEnumerable<CategoryDTO>> GetCategoriesWithProductsAsync();
+        Task CreateCategory(CategoryUpdateDTO categoryDto);
+        Task<CategoryDTO?> UpdateCategoryAsync(int categoryId, CategoryUpdateDTO categoryDto);
         Task<bool> DeleteCategoryAsync(int categoryId);
     }
 }

@@ -13,7 +13,6 @@ using BusinessLayer.DTOs.User;
 using BusinessLayer.DTOs.User.Customer;
 using DataAccessLayer.Models;
 using DataAccessLayer.Models.Enums;
-using Shared.DTOs;
 
 namespace BusinessLayer.Mapper
 {
@@ -27,16 +26,16 @@ namespace BusinessLayer.Mapper
             return user.Role == Role.Admin;
         }
 
-        public static UserSummaryDto MapToUserSummaryDto(this User user, decimal totalExpenditure)
-        {
-            return new UserSummaryDto
-            {
-                UserId = user.Id,
-                Username = user.Username,
-                Role = user.Role,
-                TotalExpenditure = totalExpenditure
-            };
-        }
+        //public static UserSummaryDto MapToUserSummaryDto(this User user, decimal totalExpenditure)
+        //{
+        //    return new UserSummaryDto
+        //    {
+        //        UserId = user.Id,
+        //        Username = user.Username,
+        //        Role = user.Role,
+        //        TotalExpenditure = totalExpenditure
+        //    };
+        //}
 
         public static UserDto MapToUserDto(this User user)
         {
@@ -51,18 +50,18 @@ namespace BusinessLayer.Mapper
             };
         }
 
-        public static UserDto MapToUserDto(this Customer customer)
-        {
-            return new UserDto
-            {
-                UserId = customer.Id,
-                Email = customer.Email,
-                Username = customer.Username,
-                Role = customer.Role,
-                Created = customer.Created,
-                CustomerDetails = customer.MapToCustomerDetailsDto()
-            };
-        }
+        //public static UserDto MapToUserDto(this Customer customer)
+        //{
+        //    return new UserDto
+        //    {
+        //        UserId = customer.Id,
+        //        Email = customer.Email,
+        //        Username = customer.Username,
+        //        Role = customer.Role,
+        //        Created = customer.Created,
+        //        CustomerDetails = customer.MapToCustomerDetailsDto()
+        //    };
+        //}
 
         public static CustomerDetailsDto MapToCustomerDetailsDto(this Customer customer)
         {
@@ -105,27 +104,25 @@ namespace BusinessLayer.Mapper
             };
         }
 
-        public static OrderDetailDto MapToOrderWithOrderItemsDto(this Order order)
-        {
-            return new OrderDetailDto
-            {
-                OrderId = order.Id,
-                OrderDate = order.Created,
-                Created = order.Date,
-                OrderItems = order.OrderItems.Select(oi => oi.MapToOrderItemDto()).ToList()
-            };
-        }
+        //public static OrderDetailDto MapToOrderWithOrderItemsDto(this Order order)
+        //{
+        //    return new OrderDetailDto
+        //    {
+        //        OrderId = order.Id,
+        //        OrderDate = order.Created,
+        //        Created = order.Date,
+        //        OrderItems = order.OrderItems.Select(oi => oi.MapToOrderItemDto()).ToList()
+        //    };
+        //}
 
-        
-
-        public static OrderItemDto MapToOrderItemDto(this OrderItem orderItem)
-        {
-            return new OrderItemDto
-            {
-                ProductId = orderItem.ProductId ?? -1,
-                Quantity = orderItem.Quantity
-            };
-        }
+        //public static OrderItemDto MapToOrderItemDto(this OrderItem orderItem)
+        //{
+        //    return new OrderItemDto
+        //    {
+        //        ProductId = orderItem.ProductId ?? -1,
+        //        Quantity = orderItem.Quantity
+        //    };
+        //}
 
         public static CustomerDto MapToCustomerDto(this Customer customer)
         {
@@ -141,37 +138,37 @@ namespace BusinessLayer.Mapper
             };
         }
 
-        public static CategoryDTO MapToCategoryDTO(this Category category)
-        {
-            return new CategoryDTO
-            {
-                CategoryId = category.Id,
-                Name = category.Name,
-                DateCreated = category.Created,
-                Products = category.Products?.Select(p => MapToProductDTO(p)).ToList()
-            };
-        }
+        //public static CategoryDTO MapToCategoryDTO(this Category category)
+        //{
+        //    return new CategoryDTO
+        //    {
+        //        CategoryId = category.Id,
+        //        Name = category.Name,
+        //        DateCreated = category.Created,
+        //        Products = category.Products?.Select(p => MapToProductDTO(p)).ToList()
+        //    };
+        //}
 
-        public static CategorySummaryDTO MapToCategorySummaryDTO(this Category category)
-        {
-            return new CategorySummaryDTO
-            {
-                CategoryId = category.Id,
-                Name = category.Name,
-                ProductCount = category.Products?.Count() ?? 0
-            };
-        }
+        //public static CategorySummaryDTO MapToCategorySummaryDTO(this Category category)
+        //{
+        //    return new CategorySummaryDTO
+        //    {
+        //        CategoryId = category.Id,
+        //        Name = category.Name,
+        //        ProductCount = category.Products?.Count() ?? 0
+        //    };
+        //}
 
-        public static ManufacturerDTO MapToManufacturerDTO(this Manufacturer manufacturer)
-        {
-            return new ManufacturerDTO
-            {
-                ManufacturerId = manufacturer.Id,
-                Name = manufacturer.Name,
-                Products = manufacturer.Products?.Select(p => MapToProductDTO(p)).ToList(),
-                DateCreated = manufacturer.Created
-            };
-        }
+        //public static ManufacturerDTO MapToManufacturerDTO(this Manufacturer manufacturer)
+        //{
+        //    return new ManufacturerDTO
+        //    {
+        //        ManufacturerId = manufacturer.Id,
+        //        Name = manufacturer.Name,
+        //        Products = manufacturer.Products?.Select(p => MapToProductDTO(p)).ToList(),
+        //        DateCreated = manufacturer.Created
+        //    };
+        //}
 
         public static ProductDto MapToProductDTO(this Product product)
         {

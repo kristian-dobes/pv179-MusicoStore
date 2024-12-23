@@ -1,7 +1,7 @@
-﻿using BusinessLayer.DTOs;
-using BusinessLayer.DTOs.Category;
+﻿using BusinessLayer.DTOs.Category;
 using BusinessLayer.DTOs.Manufacturer;
 using BusinessLayer.DTOs.Order;
+using BusinessLayer.DTOs.OrderItem;
 using BusinessLayer.DTOs.Product;
 using BusinessLayer.DTOs.User;
 using DataAccessLayer.Models;
@@ -32,7 +32,6 @@ namespace BusinessLayer
                 .Map(dest => dest.QuantityInStock, src => src.QuantityInStock)
                 .Map(dest => dest.LastModifiedById, src => src.LastModifiedById)
                 .Map(dest => dest.EditCount, src => src.EditCount)
-                .Map(dest => dest.OrderItems, src => src.OrderItems.Adapt<ICollection<OrderItem>>())
                 .Map(dest => dest.CategoryId, src => src.CategoryId)
                 .Map(dest => dest.ManufacturerId, src => src.ManufacturerId);
         }
@@ -41,7 +40,6 @@ namespace BusinessLayer
         {
             TypeAdapterConfig<Product, ProductCompleteDTO>.NewConfig()
                 .Map(dest => dest.ProductId, src => src.Id)
-                .Map(dest => dest.OrderItems, src => src.OrderItems.Adapt<ICollection<OrderItemCompleteDTO>>())
                 .Map(dest => dest.CategoryId, src => src.CategoryId)
                 .Map(dest => dest.CategoryName, src => src.Category.Name)
                 .Map(dest => dest.ManufacturerId, src => src.ManufacturerId)
@@ -52,10 +50,20 @@ namespace BusinessLayer
                 .Map(dest => dest.Name, src => src.Name)
                 .Map(dest => dest.ProductCount, src => src.Products != null ? src.Products.Count() : 0);
 
+            TypeAdapterConfig<Category, CategoryDTO>.NewConfig()
+                .Map(dest => dest.CategoryId, src => src.Id)
+                .Map(dest => dest.Name, src => src.Name)
+                .Map(dest => dest.Products, src => src.Products.Adapt<IEnumerable<ProductCompleteDTO>>());
             TypeAdapterConfig<Category, CategorySummaryDTO>.NewConfig()
                 .Map(dest => dest.CategoryId, src => src.Id)
                 .Map(dest => dest.Name, src => src.Name)
                 .Map(dest => dest.ProductCount, src => src.Products != null ? src.Products.Count() : 0);
+
+            TypeAdapterConfig<User, UserSummaryDTO>.NewConfig()
+                .Map(dest => dest.UserId, src => src.Id)
+                .Map(dest => dest.Username, src => src.Username)
+                .Map(dest => dest.Email, src => src.Email)
+                .Map(dest => dest.NumberOfOrders, src => src.Orders != null ? src.Orders.Count() : 0);
 
             TypeAdapterConfig<Customer, CustomerOrderDTO>.NewConfig()
                 .Map(dest => dest.CustomerId, src => src.Id)

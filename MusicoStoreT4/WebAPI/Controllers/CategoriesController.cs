@@ -25,14 +25,13 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> Fetch()
         {
             var categories = await _categoryService.GetCategoriesAsync();
-
             return Ok(categories);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCategoryById(int id)
         {
-            var category = await _categoryService.GetById(id);
+            var category = await _categoryService.GetByIdAsync(id);
 
             if (category == null)
                 return NotFound();
@@ -40,13 +39,7 @@ namespace WebAPI.Controllers
             return Ok(category);
         }
 
-        [HttpGet("fetch/summary")]
-        public async Task<IActionResult> FetchCategoriesSummary()
-        {
-            return Ok(await _categoryService.GetCategoriesSummariesAsync());
-        }
-
-        [HttpGet("detail")]
+        [HttpGet("with-products")]
         public async Task<IActionResult> FetchWithProducts()
         {
             var categories = await _categoryService.GetCategoriesWithProductsAsync();
@@ -54,38 +47,25 @@ namespace WebAPI.Controllers
             return Ok(categories);
         }
 
-        [HttpGet("fetch/{categoryId}/summary")]
-        public async Task<IActionResult> FetchCategorySummary(int categoryId)
-        {
-            var category = await _categoryService.GetCategorySummaryAsync(categoryId);
-
-            if (category == null)
-            {
-                return BadRequest();
-            }
-
-            return Ok(category);
-        }
-
         [HttpPost]
-        public async Task<IActionResult> Create(CreateCategoryDto createCategoryDto)
+        public async Task<IActionResult> Create(CategoryUpdateDTO categoryNameDto)
         {
-            await _categoryService.AddCategory(createCategoryDto);
+            await _categoryService.CreateCategory(categoryNameDto);
 
             return Ok();
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Update(UpdateCategoryDto updateCategoryDto)
+        [HttpPut("{categoryId}")]
+        public async Task<IActionResult> Update(int categoryId, CategoryUpdateDTO categoryNameDto)
         {
-            if (string.IsNullOrWhiteSpace(updateCategoryDto.Name))
+            if (string.IsNullOrWhiteSpace(categoryNameDto.Name))
             {
                 return BadRequest("Category name is required");
             }
 
             try
             {
-                var updatedCategory = await _categoryService.UpdateCategoryAsync(updateCategoryDto);
+                var updatedCategory = await _categoryService.UpdateCategoryAsync(categoryId, categoryNameDto);
 
                 if (updatedCategory == null)
                 {

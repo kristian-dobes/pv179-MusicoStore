@@ -1,5 +1,5 @@
-﻿using BusinessLayer.DTOs;
-using BusinessLayer.DTOs.Order;
+﻿using BusinessLayer.DTOs.Order;
+using BusinessLayer.DTOs.OrderItem;
 using BusinessLayer.DTOs.User;
 
 namespace WebMVC.Models.Order

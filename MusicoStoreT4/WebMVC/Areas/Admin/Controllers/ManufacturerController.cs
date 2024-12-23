@@ -22,7 +22,7 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/Manufacturer
         public async Task<IActionResult> Index()
         {
-            var manufacturers = await _manufacturerService.GetManufacturers();
+            var manufacturers = await _manufacturerService.GetManufacturersAsync();
 
             if (!manufacturers.Any())
             {
@@ -35,7 +35,7 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/Manufacturer/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            var manufacturer = await _manufacturerService.GetManufacturerByIdAsync(id);
+            var manufacturer = await _manufacturerService.GetById(id);
 
             if (manufacturer == null)
             {
@@ -65,9 +65,9 @@ namespace WebMVC.Areas.Admin.Controllers
                 return BadRequest(ModelState);
             }
 
-            var manufacturer = model.Adapt<ManufacturerNameDTO>();
+            var manufacturer = model.Adapt<ManufacturerUpdateDTO>();
 
-            var manufacturerResult = await _manufacturerService.CreateManufacturerAsync(manufacturer);
+            await _manufacturerService.CreateManufacturerAsync(manufacturer);
 
             return RedirectToAction("Index");
         }
@@ -75,7 +75,7 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/Manufacturer/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var manufacturer = await _manufacturerService.GetManufacturerByIdAsync(id);
+            var manufacturer = await _manufacturerService.GetById(id);
 
             if (manufacturer == null)
             {
@@ -96,7 +96,7 @@ namespace WebMVC.Areas.Admin.Controllers
                 // return BadRequest(ModelState);
             }
 
-            var manufacturer = model.Adapt<ManufacturerNameDTO>();
+            var manufacturer = model.Adapt<ManufacturerUpdateDTO>();
 
             var manufacturerResult = await _manufacturerService.UpdateManufacturerAsync(id, manufacturer);
 
@@ -106,7 +106,7 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/Manufacturer/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
-            var manufacturer = await _manufacturerService.GetManufacturerByIdAsync(id);
+            var manufacturer = await _manufacturerService.GetById(id);
 
             if (manufacturer == null)
                 return NotFound();

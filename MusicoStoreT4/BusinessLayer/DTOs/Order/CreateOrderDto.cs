@@ -5,6 +5,6 @@ namespace BusinessLayer.DTOs.Order
     public class CreateOrderDto
     {
         public int CustomerId { get; set; }
-        public List<OrderItemDto> Items { get; set; }
+        public IEnumerable<OrderItemDto> Items { get; set; }
     }
 }

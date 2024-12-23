@@ -2,7 +2,6 @@
 using DataAccessLayer.Models;
 using Infrastructure.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Shared.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,35 +40,6 @@ namespace Infrastructure.Repository.Implementations
             await _context.SaveChangesAsync();
 
             return true;
-        }
-
-        public async Task<List<CategorySummaryDto>> GetCategoriesSummariesAsync()
-        {
-            var categories = await _context.Categories
-                .Select(c => new CategorySummaryDto
-                {
-                    CategoryId = c.Id,
-                    Name = c.Name,
-                    ProductCount = c.Products.Count()
-                })
-                .ToListAsync();
-
-            return categories;
-        }
-
-        public async Task<CategorySummaryDto?> GetCategorySummaryAsync(int categoryId)
-        {
-            var categorySummary = await _context.Categories
-                .Where(c => c.Id == categoryId)
-                .Select(c => new CategorySummaryDto
-                {
-                    CategoryId = c.Id,
-                    Name = c.Name,
-                    ProductCount = c.Products.Count()
-                })
-                .FirstOrDefaultAsync();
-
-            return categorySummary;
         }
 
         public async Task<List<Category>> GetCategoriesWithProductsAsync()

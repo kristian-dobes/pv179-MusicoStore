@@ -2,7 +2,6 @@
 using DataAccessLayer.Models;
 using Infrastructure.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Shared.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -11,17 +11,16 @@ namespace BusinessLayer.Services.Interfaces
 {
     public interface IProductService : IBaseService
     {
-        Task<ICollection<ProductCompleteDTO>> GetProducts();
+        Task<ProductCompleteDTO?> GetProductByIdAsync(int productId);
+        Task<IEnumerable<ProductCompleteDTO>> GetAllProductsAsync();
+        Task<IEnumerable<ProductWithDetailsDto>> GetAllProductsWithDetailsAsync();
+        Task <ProductCompleteDTO> UpdateProductAsync(int id, ProductUpdateDTO productDto);
+        Task<ProductDto> CreateProductAsync(ProductCreateDTO productDto);
         Task ReassignProductsToManufacturerAsync(int sourceManufacturerId, int targetManufacturerId, int modifiedBy);
-        Task<List<ProductDto>> GetProductsByManufacturerAsync(int manufacturerId);
+        Task<IEnumerable<ProductDto>> GetProductsByManufacturerAsync(int manufacturerId);
         Task UpdateProductManufacturerAsync(int productId, int newManufacturerId, int modifiedBy);
-        Task<List<TopSellingProductDto>> GetTopSellingProductsByCategoryAsync(DateTime startDate, DateTime endDate, int topN = 5);
-        Task<ProductDto?> GetProductByIdAsync(int productId);
-        Task UpdateProductAsync(UpdateProductDto productDto, int modifiedById);
-        Task<ProductDto> CreateProductAsync(CreateProductDto productDto, int createdById);
+        Task<IEnumerable<TopSellingProductDto>> GetTopSellingProductsByCategoryAsync(DateTime startDate, DateTime endDate, int topN = 5);
         Task DeleteProductAsync(int productId, int deletedBy);
-        Task<List<ProductDto>> GetAllProductsAsync();
-        Task<List<ProductWithDetailsDto>> GetAllProductsWithDetailsAsync();
-        Task<List<ProductDto>> GetFilteredProductsAsync(FilterProductDto filterProductDto);
+        Task<IEnumerable<ProductDto>> GetFilteredProductsAsync(FilterProductDto filterProductDto);
     }
 }

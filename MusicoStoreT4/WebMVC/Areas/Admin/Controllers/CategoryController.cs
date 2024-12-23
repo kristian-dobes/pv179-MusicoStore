@@ -28,13 +28,21 @@ namespace WebMVC.Areas.Admin.Controllers
                 return NotFound();
             }
 
+            //debug print to console category attributes
+            foreach (var category in categories)
+            {
+                System.Console.WriteLine($"Category ID: {category.CategoryId}");
+                System.Console.WriteLine($"Category Name: {category.Name}");
+                System.Console.WriteLine($"Category ProductCount: {category.ProductCount}");
+            }
+
             return View(categories.Adapt<IEnumerable<CategorySummaryViewModel>>());
         }
 
         // GET: Admin/Category/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            var category = await _categoryService.GetCategoryByIdAsync(id);
+            var category = await _categoryService.GetByIdAsync(id);
 
             if (category == null)
             {
@@ -64,9 +72,9 @@ namespace WebMVC.Areas.Admin.Controllers
                 return BadRequest(ModelState);
             }
 
-            var category = model.Adapt<CategoryNameDTO>();
+            var category = model.Adapt<CategoryUpdateDTO>();
 
-            var categoryResult = await _categoryService.CreateCategoryAsync(category);
+            await _categoryService.CreateCategory(category);
 
             return RedirectToAction("Index");
         }
@@ -74,7 +82,7 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/Category/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var category = await _categoryService.GetCategoryByIdAsync(id);
+            var category = await _categoryService.GetByIdAsync(id);
 
             if (category == null)
             {
@@ -95,7 +103,7 @@ namespace WebMVC.Areas.Admin.Controllers
                 // return BadRequest(ModelState);
             }
 
-            var category = model.Adapt<CategoryNameDTO>();
+            var category = model.Adapt<CategoryUpdateDTO>();
 
             var categoryResult = await _categoryService.UpdateCategoryAsync(id, category);
 
@@ -105,7 +113,7 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/Category/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
-            var category = await _categoryService.GetCategoryByIdAsync(id);
+            var category = await _categoryService.GetByIdAsync(id);
 
             if (category == null)
                 return NotFound();
