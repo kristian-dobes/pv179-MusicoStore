@@ -218,7 +218,7 @@ namespace Tests
             await _uow.SaveAsync();
 
             // Act
-            var result = await _userService.GetUserSummariesAsync();
+            var result = await _userService.GetAllUserSummariesAsync();
 
             // Assert
             Assert.IsEmpty(result);

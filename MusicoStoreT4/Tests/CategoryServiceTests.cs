@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Tests.Other;
+using BusinessLayer;
 
 namespace Tests
 {
@@ -39,17 +40,20 @@ namespace Tests
                                   new AuditLogRepository(context),
                                   new LogRepository(context));
             _service = new CategoryService(_uow);
+            
+            // Mapster Mapping configuration for using DTOs
+            new MappingConfig().RegisterMappings();
         }
 
         [Test]
         public async Task GetCategoriesAsync_ShouldReturnCategories()
         {
             // Act
-            var result = await _service.GetCategoriesSummariesAsync();
+            var result = await _service.GetCategoriesAsync();
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(4, result.Count);
+            Assert.AreEqual(4, result.Count());
         }
 
         [Test]
@@ -71,7 +75,7 @@ namespace Tests
         public async Task GetCategorySummaryAsync_ShouldReturnCategorySummary_WhenCategoryExists()
         {
             // Act
-            var result = await _service.GetCategorySummaryAsync(1);
+            var result = await _service.GetByIdAsync(1);
 
             // Assert
             Assert.IsNotNull(result);
@@ -88,7 +92,7 @@ namespace Tests
             await _uow.CategoriesRep.DeleteByIdsAsync((await _uow.CategoriesRep.GetAllAsync()).Select(c => c.Id));
 
             // Act
-            var result = await _service.GetCategorySummaryAsync(1);
+            var result = await _service.GetByIdAsync(1);
 
             // Assert
             Assert.IsNull(result);
