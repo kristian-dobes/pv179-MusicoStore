@@ -1,7 +1,10 @@
 ﻿using BusinessLayer.DTOs;
+using BusinessLayer.DTOs.Category;
+using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
+using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,24 +19,18 @@ namespace BusinessLayer.Services
 {
     public class ImageService : BaseService, IImageService
     {
-        private readonly MyDBContext _dbContext;
+        private readonly IUnitOfWork _uow;
         private string _imagesFolder;
 
-        public ImageService(MyDBContext dBContext, string imagesFolder) : base(dBContext)
+        public ImageService(IUnitOfWork unitOfWork, string imagesFolder) : base(unitOfWork)
         {
-            _dbContext = dBContext;
+            _uow = unitOfWork;
             _imagesFolder = imagesFolder;
-        }
-
-        public Task<Product> CreateImageAsync(Product model, string createdBy)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<string> GetImagePathByProductIdAsync(int productId)
         {
-            var productImage = await _dbContext.ProductImages
-                .FirstOrDefaultAsync(pi => pi.ProductId == productId);
+            var productImage = await _uow.ProductImagesRep.GetByProductIdAsync(productId);
 
             if (productImage == null)
                 return null;
@@ -43,30 +40,28 @@ namespace BusinessLayer.Services
 
         public async Task<ImageDto?> GetProductImageAsync(int productId)
         {
-            var product = await _dbContext.Products
-                .Include(p => p.Image)
-                .FirstOrDefaultAsync(p => p.Id == productId);
+            var productImage = await _uow.ProductImagesRep.GetByProductIdAsync(productId);
 
-            if (product == null || product.Image == null || !File.Exists(product.Image.FilePath))
+            if (productImage == null || !File.Exists(productImage.FilePath))
             {
                 return null;
             }
 
-            var fileBytes = await File.ReadAllBytesAsync(product.Image.FilePath);
+            var fileBytes = await File.ReadAllBytesAsync(productImage.FilePath);
 
             return new ImageDto
             {
-                FileName = product.Image.FileName,
-                MimeType = product.Image.MimeType,
+                FileName = productImage.FileName,
+                MimeType = productImage.MimeType,
                 FileContents = fileBytes
             };
         }
 
         public async Task<List<ImageDto>> GetAllProductsImagesAsync()
         {
-            var images = await _dbContext.ProductImages.ToListAsync();
+            var images = await _uow.ProductImagesRep.GetAllAsync();
 
-            if (images == null || images.Count == 0)
+            if (images == null || images.Count() == 0)
             {
                 return new List<ImageDto>();
             }
@@ -112,9 +107,7 @@ namespace BusinessLayer.Services
             if (newFile == null)
                 throw new ArgumentNullException(nameof(newFile));
 
-            var product = await _dbContext.Products
-                .Include(p => p.Image)
-                .FirstOrDefaultAsync(p => p.Id == productId);
+            var product = await _uow.ProductsRep.GetByIdAsync(productId);
 
             if (product == null)
                 return false;
@@ -143,17 +136,15 @@ namespace BusinessLayer.Services
             product.Image.FileName = Path.GetFileName(newFile.FileName);
             product.Image.MimeType = newFile.ContentType;
 
-            _dbContext.Products.Update(product);
-            await _dbContext.SaveChangesAsync();
+            await _uow.ProductsRep.UpdateAsync(product);
+            await _uow.SaveAsync();
 
             return true;
         }
 
         public async Task<bool> DeleteProductImageAsync(int productId)
         {
-            var product = await _dbContext.Products
-                .Include(p => p.Image)
-                .FirstOrDefaultAsync(p => p.Id == productId);
+            var product = (await _uow.ProductsRep.WhereAsync(p => p.Id == productId)).FirstOrDefault();
 
             if (product == null || product.Image == null)
             {
@@ -165,10 +156,9 @@ namespace BusinessLayer.Services
                 File.Delete(product.Image.FilePath);
             }
 
-            _dbContext.ProductImages.Remove(product.Image);
+            await _uow.ProductImagesRep.DeleteAsync(product.Image.Id);
             product.Image = null;
-
-            await _dbContext.SaveChangesAsync();
+            await _uow.SaveAsync();
 
             return true;
         }

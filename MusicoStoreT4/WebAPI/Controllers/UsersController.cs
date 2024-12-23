@@ -1,5 +1,6 @@
 ﻿using BusinessLayer.DTOs;
-using BusinessLayer.DTOs.User;
+using BusinessLayer.DTOs.User.Admin;
+using BusinessLayer.DTOs.User.Customer;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;

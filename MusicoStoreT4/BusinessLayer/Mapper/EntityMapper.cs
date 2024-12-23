@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BusinessLayer.DTOs.User;
+using BusinessLayer.DTOs.Category;
+using BusinessLayer.DTOs.User.Admin;
+using BusinessLayer.DTOs.User.Customer;
 using DataAccessLayer.Models;
 using DataAccessLayer.Models.Enums;
 
@@ -33,6 +35,14 @@ namespace BusinessLayer.Mapper
                 City = customerDto.City,
                 State = customerDto.State,
                 PostalCode = customerDto.PostalCode
+            };
+        }
+
+        public static Category MapToCategory(this CreateCategoryDto categoryDto)
+        {
+            return new Category
+            {
+                Name = categoryDto.Name
             };
         }
     }

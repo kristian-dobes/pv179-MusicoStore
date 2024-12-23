@@ -13,7 +13,6 @@ namespace BusinessLayer.Services.Interfaces
     public interface IImageService : IBaseService
     {
         Task<string> GetImagePathByProductIdAsync(int productId);
-        Task<Product> CreateImageAsync(Product model, string createdBy);
         Task<List<ImageDto>> GetAllProductsImagesAsync();
         Task<bool> ChangeOrAssignProductImageAsync(int productId, IFormFile newFile);
         Task<bool> DeleteProductImageAsync(int productId);

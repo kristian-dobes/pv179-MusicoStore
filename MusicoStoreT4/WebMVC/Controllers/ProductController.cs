@@ -14,16 +14,11 @@ namespace WebMVC.Controllers
     {
         private readonly UserManager<LocalIdentityUser> _userManager;
         private readonly IProductService _productService;
-        private readonly IAuditLogService _auditLogService;
-        private readonly IUserService _userService;
         private readonly IImageService _imageService;
 
-        public ProductController(UserManager<LocalIdentityUser> userManager, IProductService productService,
-                                 IAuditLogService auditLogService, IUserService userService)
+        public ProductController(UserManager<LocalIdentityUser> userManager, IProductService productService)
         {
             _productService = productService;
-            _auditLogService = auditLogService;
-            _userService = userService;
             _userManager = userManager;
         }
 
@@ -39,7 +34,7 @@ namespace WebMVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, UpdateProductDTO productDto)
+        public async Task<IActionResult> Edit(int id, UpdateProductDto productDto)
         {
             if (id != productDto.Id)
                 return BadRequest();
@@ -61,7 +56,7 @@ namespace WebMVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateProductDTO productDto)
+        public async Task<IActionResult> Create(CreateProductDto productDto)
         {
             var user = await _userManager.GetUserAsync(User);
 

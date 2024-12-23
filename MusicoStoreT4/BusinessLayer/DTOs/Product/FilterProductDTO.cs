@@ -1,6 +1,6 @@
 ﻿namespace BusinessLayer.DTOs.Product
 {
-    public class FilterProductDTO
+    public class FilterProductDto
     {
         public string? Name { get; set; }
         public string? Description { get; set; }

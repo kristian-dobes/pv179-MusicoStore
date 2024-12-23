@@ -6,12 +6,10 @@ namespace WebMVC.Controllers
 {
     public class ImageController : Controller
     {
-        private readonly string _imagesFolder;
         private readonly IImageService _imageService;
 
-        public ImageController(string imagesFolder, IImageService imageService)
+        public ImageController(IImageService imageService)
         {
-            _imagesFolder = imagesFolder;
             _imageService = imageService;
         }
 

@@ -3,11 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BusinessLayer.DTOs;
+using BusinessLayer.DTOs.Category;
+using BusinessLayer.DTOs.Manufacturer;
+using BusinessLayer.DTOs.Order;
+using BusinessLayer.DTOs.OrderItem;
 using BusinessLayer.DTOs.Product;
 using BusinessLayer.DTOs.User;
+using BusinessLayer.DTOs.User.Customer;
 using DataAccessLayer.Models;
 using DataAccessLayer.Models.Enums;
+using Shared.DTOs;
 
 namespace BusinessLayer.Mapper
 {
@@ -99,6 +104,19 @@ namespace BusinessLayer.Mapper
             };
         }
 
+        public static OrderDetailDto MapToOrderWithOrderItemsDto(this Order order)
+        {
+            return new OrderDetailDto
+            {
+                OrderId = order.Id,
+                OrderDate = order.Created,
+                Created = order.Date,
+                OrderItems = order.OrderItems.Select(oi => oi.MapToOrderItemDto()).ToList()
+            };
+        }
+
+        
+
         public static OrderItemDto MapToOrderItemDto(this OrderItem orderItem)
         {
             return new OrderItemDto
@@ -128,6 +146,7 @@ namespace BusinessLayer.Mapper
             {
                 CategoryId = category.Id,
                 Name = category.Name,
+                DateCreated = category.Created,
                 Products = category.Products?.Select(p => MapToProductDTO(p)).ToList()
             };
         }
@@ -148,7 +167,8 @@ namespace BusinessLayer.Mapper
             {
                 ManufacturerId = manufacturer.Id,
                 Name = manufacturer.Name,
-                Products = manufacturer.Products?.Select(p => MapToProductDTO(p)).ToList()
+                Products = manufacturer.Products?.Select(p => MapToProductDTO(p)).ToList(),
+                DateCreated = manufacturer.Created
             };
         }
 
@@ -160,8 +180,10 @@ namespace BusinessLayer.Mapper
                 Name = product.Name,
                 Description = product.Description,
                 Price = product.Price,
-                CategoryName = product.Category?.Name,
-                ManufacturerName = product.Manufacturer?.Name
+                CategoryName = product.Category?.Name ?? "",
+                ManufacturerName = product.Manufacturer?.Name ?? "",
+                QuantityInStock = product.QuantityInStock,
+                DateCreated = product.Created
             };
         }
     }

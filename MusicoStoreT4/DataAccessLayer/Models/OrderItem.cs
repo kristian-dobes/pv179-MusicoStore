@@ -14,7 +14,7 @@ namespace DataAccessLayer.Models
         [ForeignKey(nameof(OrderId))]
         public virtual Order? Order { get; set; }
 
-        public int? ProductId { get; set; }  // nullable because 0..N relationship between OrderItem and Product
+        public int? ProductId { get; set; }
         [ForeignKey(nameof(ProductId))]
         public virtual Product? Product { get; set; }
 

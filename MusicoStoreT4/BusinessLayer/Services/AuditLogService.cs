@@ -1,7 +1,9 @@
-﻿using BusinessLayer.Enums;
+﻿using BusinessLayer.DTOs.Category;
+using BusinessLayer.Enums;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
+using Infrastructure.UnitOfWork;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,17 +12,20 @@ using System.Threading.Tasks;
 
 namespace BusinessLayer.Services
 {
-    public class AuditLogService : IAuditLogService
+    public class AuditLogService : BaseService, IAuditLogService
     {
-        private readonly MyDBContext _context;
+        private readonly IUnitOfWork _uow;
 
-        public AuditLogService(MyDBContext context)
+        public AuditLogService(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _context = context;
+            _uow = unitOfWork;
         }
 
         public async Task LogAsync(int productId, AuditAction action, int modifiedBy)
         {
+            if (productId <= 0)
+                throw new ArgumentException("Invalid product ID.", nameof(productId));
+
             var auditLog = new AuditLog
             {
                 ProductId = productId,
@@ -29,8 +34,15 @@ namespace BusinessLayer.Services
                 Created = DateTime.UtcNow
             };
 
-            await _context.AuditLogs.AddAsync(auditLog);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _uow.ProductAuditsRep.AddAsync(auditLog);
+                await _uow.SaveAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Failed to log audit entry.", ex);
+            }
         }
     }
 }
