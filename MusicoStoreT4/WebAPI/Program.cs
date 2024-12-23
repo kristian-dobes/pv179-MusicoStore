@@ -21,7 +21,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
     {
-        policy.WithOrigins("https://localhost:7256", "https://localhost:5270")  // Web MVC origin (https and http)
+        policy.WithOrigins("https://localhost:7256", "https://localhost:5270")  // Web MVC origin (https and http) 
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
