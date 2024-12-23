@@ -56,12 +56,14 @@ builder.Services.AddScoped<ILogRepository, LogRepository>();
 // Register Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+// Register Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IImageService>(provider =>
 {
     var uow = provider.GetRequiredService<IUnitOfWork>();

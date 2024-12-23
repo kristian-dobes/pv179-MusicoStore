@@ -67,7 +67,7 @@ namespace WebAPI.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message); // Return the error message from service
+                return BadRequest(ex.Message);
             }
         }
 

@@ -124,7 +124,6 @@ namespace WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                // Log exception here if needed
                 return StatusCode(500, "An unexpected error occurred");
             }
         }
