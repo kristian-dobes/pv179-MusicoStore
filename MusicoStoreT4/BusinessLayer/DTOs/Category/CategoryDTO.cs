@@ -7,7 +7,7 @@ using BusinessLayer.DTOs.Product;
 
 namespace BusinessLayer.DTOs.Category
 {
-    public class CategoryDTO
+    public class CategoryDto
     {
         public int CategoryId { get; set; }
         public required string Name { get; set; }

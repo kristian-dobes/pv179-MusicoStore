@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BusinessLayer.DTOs.Manufacturer
 {
-    public class ManufacturerDTO
+    public class ManufacturerDto
     {
         public int ManufacturerId { get; set; }
         public required string Name { get; set; }

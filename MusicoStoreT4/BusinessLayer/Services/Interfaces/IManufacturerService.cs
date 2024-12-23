@@ -13,10 +13,10 @@ namespace BusinessLayer.Services.Interfaces
     {
         Task<IEnumerable<ManufacturerSummaryDTO>> GetManufacturersAsync();
         Task<ManufacturerSummaryDTO?> GetById(int id);
-        Task<IEnumerable<ManufacturerDTO>> GetManufacturersWithProductsAsync();
+        Task<IEnumerable<ManufacturerDto>> GetManufacturersWithProductsAsync();
         public Task<bool> ValidateManufacturerAsync(int manufacturerId);
         public Task<bool> DeleteManufacturerAsync(int manufacturerId);
         Task CreateManufacturerAsync(ManufacturerUpdateDTO manufacturerDto);
-        Task<ManufacturerDTO?> UpdateManufacturerAsync(int id, ManufacturerUpdateDTO updateManufacturerDto);
+        Task<ManufacturerDto?> UpdateManufacturerAsync(int id, ManufacturerUpdateDTO updateManufacturerDto);
     }
 }

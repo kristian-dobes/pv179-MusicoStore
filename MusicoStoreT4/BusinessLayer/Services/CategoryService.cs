@@ -66,11 +66,11 @@ namespace BusinessLayer.Services
             return newCategory;
         }
 
-        public async Task<IEnumerable<CategoryDTO>> GetCategoriesWithProductsAsync()
+        public async Task<IEnumerable<CategoryDto>> GetCategoriesWithProductsAsync()
         {
             var categories = await _uow.CategoriesRep.GetCategoriesWithProductsAsync();
 
-            return categories.Adapt<IEnumerable<CategoryDTO>>();
+            return categories.Adapt<IEnumerable<CategoryDto>>();
         }
 
         public async Task CreateCategory(CategoryUpdateDTO categoryDto)
@@ -78,7 +78,7 @@ namespace BusinessLayer.Services
             var category = await _uow.CategoriesRep.AddAsync(categoryDto.Adapt<Category>());
         }
 
-        public async Task<CategoryDTO?> UpdateCategoryAsync(int categoryId, CategoryUpdateDTO updateCategoryDto)
+        public async Task<CategoryDto?> UpdateCategoryAsync(int categoryId, CategoryUpdateDTO updateCategoryDto)
         {
             if (await _uow.CategoriesRep.AnyAsync(c => c.Name == updateCategoryDto.Name))
             {
@@ -96,7 +96,7 @@ namespace BusinessLayer.Services
 
             await _uow.SaveAsync();
 
-            return category.Adapt<CategoryDTO>();
+            return category.Adapt<CategoryDto>();
         }
 
         public async Task<bool> DeleteCategoryAsync(int categoryId)

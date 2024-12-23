@@ -9,8 +9,8 @@ namespace BusinessLayer.Services.Interfaces
 {
     public interface IOrderService : IBaseService
     {
-        Task<IEnumerable<OrderDetailDTO>> GetAllOrdersAsync();
-        Task<OrderDetailDTO?> GetOrderByIdAsync(int id);
+        Task<IEnumerable<OrderDetailDto>> GetAllOrdersAsync();
+        Task<OrderDetailDto?> GetOrderByIdAsync(int id);
         Task<int> CreateOrderAsync(CreateOrderDto createOrderDto);
         Task<bool> UpdateOrderAsync(int orderId, UpdateOrderDto updateOrderDto);
         Task<bool> DeleteOrderAsync(int orderId);

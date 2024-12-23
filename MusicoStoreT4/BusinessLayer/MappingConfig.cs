@@ -50,7 +50,7 @@ namespace BusinessLayer
                 .Map(dest => dest.Name, src => src.Name)
                 .Map(dest => dest.ProductCount, src => src.Products != null ? src.Products.Count() : 0);
 
-            TypeAdapterConfig<Category, CategoryDTO>.NewConfig()
+            TypeAdapterConfig<Category, CategoryDto>.NewConfig()
                 .Map(dest => dest.CategoryId, src => src.Id)
                 .Map(dest => dest.Name, src => src.Name)
                 .Map(dest => dest.Products, src => src.Products.Adapt<IEnumerable<ProductCompleteDTO>>());
@@ -88,7 +88,7 @@ namespace BusinessLayer
                 .Map(dest => dest.ManufacturerName, src => src.Product.Manufacturer.Name)
                 .Map(dest => dest.Quantity, src => src.Quantity)
                 .Map(dest => dest.Price, src => src.Price);
-            TypeAdapterConfig<Order, OrderDetailDTO>.NewConfig()
+            TypeAdapterConfig<Order, OrderDetailDto>.NewConfig()
                 .Map(dest => dest.OrderId, src => src.Id)
                 .Map(dest => dest.Created, src => src.Date)
                 .Map(dest => dest.OrderItemsCount, src => src.OrderItems != null ? src.OrderItems.Count() : 0)

@@ -32,9 +32,8 @@ namespace WebMVC
             TypeAdapterConfig<CategorySummaryDTO, CategorySummaryViewModel>.NewConfig()
                .Map(dest => dest.CategoryId, src => src.CategoryId);
 
-            TypeAdapterConfig<OrderDetailDTO, OrderDetailViewModel>.NewConfig()
+            TypeAdapterConfig<OrderDetailDto, OrderDetailViewModel>.NewConfig()
                 .Map(dest => dest.OrderId, src => src.OrderId);
-                //.PreserveReference(true);
         }
     }
 }
