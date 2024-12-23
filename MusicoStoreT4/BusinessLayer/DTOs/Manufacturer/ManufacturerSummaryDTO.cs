@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shared.DTOs
+namespace BusinessLayer.DTOs.Manufacturer
 {
-    public class CategorySummaryDto
+    public class ManufacturerSummaryDTO
     {
-        public int CategoryId { get; set; }
-        public string Name { get; set; }
+        public int ManufacturerId { get; set; }
+        public required string Name { get; set; }
         public int ProductCount { get; set; }
     }
 }

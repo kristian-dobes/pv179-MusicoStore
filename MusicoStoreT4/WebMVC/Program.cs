@@ -1,15 +1,16 @@
+using BusinessLayer.Facades;
+using BusinessLayer.Facades.Interfaces;
+using BusinessLayer.Services;
+using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using BusinessLayer.Services.Interfaces;
-using BusinessLayer.Services;
-using BusinessLayer.Facades.Interfaces;
-using BusinessLayer.Facades;
 using Infrastructure.Repository.Implementations.Implementations;
 using Infrastructure.Repository.Implementations;
 using Infrastructure.Repository.Interfaces;
 using Infrastructure.UnitOfWork;
+using WebMVC;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,8 @@ builder.Services.AddDbContext<MyDBContext>(options =>
         .LogTo(s => System.Diagnostics.Debug.WriteLine(s))
         .UseLazyLoadingProxies();
 });
+
+new MapsterConfig().RegisterMappings();
 
 // Register Identity
 builder.Services.AddIdentity<LocalIdentityUser, IdentityRole>()
@@ -105,7 +108,30 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+using (var scope = app.Services.CreateScope())
+{
+    await SeedRoles(scope.ServiceProvider);
+}
+
 app.Run();
+
+async Task SeedRoles(IServiceProvider serviceProvider)
+{
+    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    if (!await roleManager.RoleExistsAsync("Admin"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("Admin"));
+    }
+
+    if (!await roleManager.RoleExistsAsync("User"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("User"));
+    }
+}

@@ -4,13 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BusinessLayer.DTOs;
-using BusinessLayer.DTOs.Category;
 using BusinessLayer.DTOs.Manufacturer;
 using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
-using Infrastructure.UnitOfWork;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Services
@@ -22,6 +21,19 @@ namespace BusinessLayer.Services
         public ManufacturerService(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
             _uow = unitOfWork;
+        }
+
+        public async Task<ICollection<ManufacturerSummaryDTO>> GetManufacturers()
+        {
+            IQueryable<Manufacturer> manufacturerQuery = _dBContext.Manufacturers;
+            
+            // Fetch data into a list
+            var manufacturers = await manufacturerQuery.ToListAsync();
+            
+            // Map to DTOs
+            var manufacturerDTOs = manufacturers.Adapt<ICollection<ManufacturerSummaryDTO>>();
+            
+            return manufacturerDTOs;
         }
 
         public async Task<List<ManufacturerDto>> GetManufacturersAsync()

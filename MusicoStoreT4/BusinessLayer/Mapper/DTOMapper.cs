@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BusinessLayer.DTOs.Category;
-using BusinessLayer.DTOs.Manufacturer;
+using BusinessLayer.DTOs;
 using BusinessLayer.DTOs.Order;
 using BusinessLayer.DTOs.OrderItem;
+using BusinessLayer.DTOs.Category;
+using BusinessLayer.DTOs.Manufacturer;
 using BusinessLayer.DTOs.Product;
 using BusinessLayer.DTOs.User;
 using BusinessLayer.DTOs.User.Customer;
@@ -140,9 +141,9 @@ namespace BusinessLayer.Mapper
             };
         }
 
-        public static CategoryDto MapToCategoryDTO(this Category category)
+        public static CategoryDTO MapToCategoryDTO(this Category category)
         {
-            return new CategoryDto
+            return new CategoryDTO
             {
                 CategoryId = category.Id,
                 Name = category.Name,
@@ -151,9 +152,9 @@ namespace BusinessLayer.Mapper
             };
         }
 
-        public static CategorySummaryDto MapToCategorySummaryDTO(this Category category)
+        public static CategorySummaryDTO MapToCategorySummaryDTO(this Category category)
         {
-            return new CategorySummaryDto
+            return new CategorySummaryDTO
             {
                 CategoryId = category.Id,
                 Name = category.Name,
@@ -161,9 +162,9 @@ namespace BusinessLayer.Mapper
             };
         }
 
-        public static ManufacturerDto MapToManufacturerDTO(this Manufacturer manufacturer)
+        public static ManufacturerDTO MapToManufacturerDTO(this Manufacturer manufacturer)
         {
-            return new ManufacturerDto
+            return new ManufacturerDTO
             {
                 ManufacturerId = manufacturer.Id,
                 Name = manufacturer.Name,

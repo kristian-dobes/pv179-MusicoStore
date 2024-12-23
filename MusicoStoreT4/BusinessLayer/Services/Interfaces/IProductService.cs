@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 using BusinessLayer.DTOs;
 using DataAccessLayer.Models;
 using BusinessLayer.DTOs.Product;
-using Microsoft.AspNetCore.Http;
 
 namespace BusinessLayer.Services.Interfaces
 {
     public interface IProductService : IBaseService
     {
+        Task<ICollection<ProductCompleteDTO>> GetProducts();
         Task ReassignProductsToManufacturerAsync(int sourceManufacturerId, int targetManufacturerId, int modifiedBy);
         Task<List<ProductDto>> GetProductsByManufacturerAsync(int manufacturerId);
         Task UpdateProductManufacturerAsync(int productId, int newManufacturerId, int modifiedBy);

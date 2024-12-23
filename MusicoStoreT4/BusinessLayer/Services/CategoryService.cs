@@ -8,9 +8,8 @@ using DataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
 using BusinessLayer.Mapper;
 using DataAccessLayer.Models;
-using Infrastructure.UnitOfWork;
-using Shared.DTOs;
 using BusinessLayer.DTOs.Category;
+using Mapster;
 
 namespace BusinessLayer.Services
 {
@@ -23,7 +22,7 @@ namespace BusinessLayer.Services
             _uow = unitOfWork;
         }
 
-        public async Task<List<CategoryDto>> GetCategoriesAsync()
+        public async Task<List<CategorySummaryDTO>> GetCategoriesAsync()
         {
             return (await _uow.CategoriesRep.GetAllAsync()).Select(c => c.MapToCategoryDTO()).ToList();
         }

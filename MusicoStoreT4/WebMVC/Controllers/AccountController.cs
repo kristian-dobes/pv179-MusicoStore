@@ -39,6 +39,11 @@ namespace WebMVC.Controllers
 
                 var result = await _userManager.CreateAsync(user, model.Password);
 
+                if (model.IsAdmin)
+                {
+                    await _userManager.AddToRoleAsync(user, "Admin");
+                }
+
                 if (result.Succeeded)
                 {
                     await _signInManager.SignInAsync(user, isPersistent: false);

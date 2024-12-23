@@ -32,7 +32,7 @@ namespace WebMVC.Controllers
 
             var productViewModel = new ProductViewModel
             {
-                ProductId = product.Id,
+                ProductId = product.ProductId,
                 ProductName = product.Name,
                 Description = product.Description,
                 Price = product.Price,

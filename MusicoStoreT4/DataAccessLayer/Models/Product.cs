@@ -18,7 +18,7 @@ namespace DataAccessLayer.Models
         /// <summary>
         /// -1 means it was last modified by Web API
         /// </summary>
-        public int LastModifiedById { get; set; }
+        public int LastModifiedById { get; set; } // TODO add User entity
         public int EditCount { get; set; }
 
         public virtual ICollection<OrderItem>? OrderItems { get; set; }

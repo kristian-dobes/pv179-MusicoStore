@@ -15,8 +15,8 @@ using Infrastructure.Repository.Interfaces;
 using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
-using static System.Collections.Specialized.BitVector32;
 
 namespace BusinessLayer.Services
 {
@@ -34,21 +34,28 @@ namespace BusinessLayer.Services
         public async Task<ProductDto?> GetProductByIdAsync(int productId)
         {
             var product = await _uow.ProductsRep.GetByIdAsync(productId);
-
+                .FirstOrDefaultAsync(p => p.Id == productId);
             if (product == null)
                 return null;
-
+            var products = await productQuery.ToListAsync();
             return product.MapToProductDTO();
+            return productDTOs;
         }
-
         public async Task UpdateProductAsync(UpdateProductDto productDto, int modifiedById)
-        {
+        public async Task UpdateProductAsync(UpdateProductDTO productDto, int modifiedById)
             // Fetch product by ID
             var product = await _uow.ProductsRep.GetByIdAsync(productDto.Id);
+            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == productDto.Id);
+
+            return product?.Adapt<ProductCompleteDTO>();
+        }
+
+        public async Task<ProductCompleteDTO?> UpdateProductAsync(int id, ProductUpdateDTO productDto)
+        {
+            var product = await _dbContext.Products.FindAsync(id);
 
             if (product == null)
-                throw new KeyNotFoundException($"Product with ID {productDto.Id} not found.");
-
+                throw new KeyNotFoundException($"Product with ID {id} not found.");
             // Validate Manufacturer
             if (productDto.ManufacturerId.HasValue)
             {
@@ -57,7 +64,7 @@ namespace BusinessLayer.Services
                     throw new KeyNotFoundException($"Manufacturer with ID {productDto.ManufacturerId} not found.");
                 product.Manufacturer = manufacturer;
             }
-
+                throw new KeyNotFoundException($"Manufacturer with ID {productDto.ManufacturerId} not found.");
             // Validate Category
             if (productDto.CategoryId.HasValue)
             {
@@ -66,7 +73,7 @@ namespace BusinessLayer.Services
                     throw new KeyNotFoundException($"Category with ID {productDto.CategoryId} not found.");
                 product.Category = category;
             }
-
+                throw new KeyNotFoundException($"Category with ID {productDto.CategoryId} not found.");
             // Update product fields
             if (!string.IsNullOrEmpty(productDto.Name))
                 product.Name = productDto.Name;
@@ -78,12 +85,12 @@ namespace BusinessLayer.Services
                 product.Price = productDto.Price.Value;
 
             product.LastModifiedById = modifiedById;
-            product.EditCount++;
-
+            product.LastModifiedById = modifiedById;
+            await _auditLogService.LogAsync(productDto.Id, AuditAction.Update, modifiedById);
             // Log the update action and save changes
             await _auditLogService.LogAsync(productDto.Id, AuditAction.Update, modifiedById);
             await _uow.SaveAsync();
-        }
+            await _dbContext.SaveChangesAsync();
 
         public async Task<ProductDto> CreateProductAsync(CreateProductDto productDto, int createdById)
         {
@@ -115,9 +122,9 @@ namespace BusinessLayer.Services
                 LastModifiedById = createdById,
                 EditCount = 0
             };
-
+            };
             var added = await _uow.ProductsRep.AddAsync(product);
-
+            var added = _dbContext.Products.Add(product).Entity;
             try
             {
                 await _auditLogService.LogAsync(added.Id, AuditAction.Create, createdById);
@@ -128,6 +135,7 @@ namespace BusinessLayer.Services
             catch (Exception ex)
             {
                 throw new InvalidOperationException("Error occurred while creating the product.", ex);
+            }
             }
         }
 
@@ -142,8 +150,8 @@ namespace BusinessLayer.Services
                 product.EditCount++;
                 await _auditLogService.LogAsync(product.Id, AuditAction.Update, modifiedBy);
             }
-
             await _uow.SaveAsync();
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<List<ProductDto>> GetProductsByManufacturerAsync(int manufacturerId)
@@ -154,8 +162,8 @@ namespace BusinessLayer.Services
         }
 
         public async Task UpdateProductManufacturerAsync(int productId, int newManufacturerId, int modifiedBy)
-        {
             var product = await _uow.ProductsRep.GetByIdAsync(productId);
+            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == productId);
 
             if (product == null)
                 throw new KeyNotFoundException($"Product with ID {productId} not found.");
@@ -163,9 +171,9 @@ namespace BusinessLayer.Services
             product.ManufacturerId = newManufacturerId;
             product.LastModifiedById = modifiedBy;
             product.EditCount++;
-
             await _auditLogService.LogAsync(product.Id, AuditAction.Update, modifiedBy);
             await _uow.SaveAsync();
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<List<TopSellingProductDto>> GetTopSellingProductsByCategoryAsync(DateTime startDate, DateTime endDate, int topN = 5)
@@ -198,12 +206,12 @@ namespace BusinessLayer.Services
         }
 
         public async Task DeleteProductAsync(int productId, int deletedBy)
-        {
             var product = await _uow.ProductsRep.GetByIdAsync(productId);
+            var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == productId);
 
             if (product == null)
                 throw new KeyNotFoundException($"Product with ID {productId} not found.");
-
+        }
             await _auditLogService.LogAsync(productId, AuditAction.Delete, deletedBy);
             await _uow.ProductsRep.DeleteAsync(productId);
             await _uow.SaveAsync();
@@ -276,6 +284,7 @@ namespace BusinessLayer.Services
                 .ToListAsync();
 
             return products;
+            await _dbContext.SaveChangesAsync();
         }
     }
 }
