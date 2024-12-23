@@ -120,9 +120,7 @@ namespace BusinessLayer.Services
 
             try
             {
-                await _auditLogService.LogAsync(added.Id, AuditAction.Create, createdById);
                 await _uow.SaveAsync();
-
                 return added.MapToProductDTO();
             }
             catch (Exception ex)
@@ -140,7 +138,6 @@ namespace BusinessLayer.Services
                 product.ManufacturerId = targetManufacturerId;
                 product.LastModifiedById = modifiedBy;
                 product.EditCount++;
-                await _auditLogService.LogAsync(product.Id, AuditAction.Update, modifiedBy);
             }
 
             await _uow.SaveAsync();

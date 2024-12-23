@@ -26,13 +26,17 @@ if (!Directory.Exists(imagesFolder))
     Directory.CreateDirectory(imagesFolder);
 }
 
+builder.Services.AddScoped<AuditSaveChangesInterceptor>();
+
 // Register DbContext
-builder.Services.AddDbContext<MyDBContext>(options =>
+builder.Services.AddDbContext<MyDBContext>((serviceProvider, options) =>
 {
+    var auditInterceptor = serviceProvider.GetRequiredService<AuditSaveChangesInterceptor>();
     options
         .UseSqlite($"Data Source={dbPath}", x => x.MigrationsAssembly("DAL.SQLite.Migrations"))
         .LogTo(s => System.Diagnostics.Debug.WriteLine(s))
-        .UseLazyLoadingProxies();
+        .UseLazyLoadingProxies()
+        .AddInterceptors(auditInterceptor);
 });
 
 // Register Identity
