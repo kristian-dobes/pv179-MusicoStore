@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BusinessLayer.DTOs.Order
 {
-    public class OrderDetailDto
+    public class OrderDetailDTO
     {
         public int OrderId { get; set; }
         public DateTime Created { get; set; }

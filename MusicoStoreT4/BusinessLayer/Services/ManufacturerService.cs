@@ -37,10 +37,10 @@ namespace BusinessLayer.Services
             return manufacturer.Adapt<ManufacturerSummaryDTO>();
         }
 
-        public async Task<IEnumerable<ManufacturerDto>> GetManufacturersWithProductsAsync()
+        public async Task<IEnumerable<ManufacturerDTO>> GetManufacturersWithProductsAsync()
         {
             var manufacturers = await _uow.ManufacturersRep.GetManufacturersWithProductsAsync();
-            return manufacturers.Select(m => m.Adapt<ManufacturerDto>()).ToList();
+            return manufacturers.Select(m => m.Adapt<ManufacturerDTO>()).ToList();
         }
 
         public async Task<bool> ValidateManufacturerAsync(int manufacturerId)
@@ -88,7 +88,7 @@ namespace BusinessLayer.Services
             await _uow.ManufacturersRep.AddAsync(manufacturer);
         }
 
-        public async Task<ManufacturerDto?> UpdateManufacturerAsync(int id, ManufacturerUpdateDTO updateManufacturerDto)
+        public async Task<ManufacturerDTO?> UpdateManufacturerAsync(int id, ManufacturerUpdateDTO updateManufacturerDto)
         {
             if (string.IsNullOrWhiteSpace(updateManufacturerDto.Name))
             {
@@ -115,7 +115,7 @@ namespace BusinessLayer.Services
 
             await _uow.SaveAsync();
 
-            return existingManufacturer.Adapt<ManufacturerDto>();
+            return existingManufacturer.Adapt<ManufacturerDTO>();
         }
     }
 }

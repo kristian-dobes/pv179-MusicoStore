@@ -30,21 +30,21 @@ namespace BusinessLayer.Services
             _uow = unitOfWork;
         }
 
-        public async Task<IEnumerable<OrderDetailDto>> GetAllOrdersAsync()
+        public async Task<IEnumerable<OrderDetailDTO>> GetAllOrdersAsync()
         {
             var orders = await _uow.OrdersRep.GetAllAsync();
 
-            return orders.Select(o => o.Adapt<OrderDetailDto>()).ToList();
+            return orders.Select(o => o.Adapt<OrderDetailDTO>()).ToList();
         }
 
-        public async Task<OrderDetailDto?> GetOrderByIdAsync(int id)
+        public async Task<OrderDetailDTO?> GetOrderByIdAsync(int id)
         {
             var order = await _uow.OrdersRep.GetByIdAsync(id);
 
             if (order == null)
                 return null;
 
-            return order?.Adapt<OrderDetailDto>();
+            return order?.Adapt<OrderDetailDTO>();
         }
 
         public async Task<int> CreateOrderAsync(CreateOrderDto createOrderDto)
