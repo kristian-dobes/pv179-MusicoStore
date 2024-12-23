@@ -1,10 +1,12 @@
 ﻿using BusinessLayer;
 using BusinessLayer.DTOs.Category;
 using BusinessLayer.DTOs.Manufacturer;
+using BusinessLayer.DTOs.Order;
 using BusinessLayer.DTOs.Product;
 using Mapster;
 using WebMVC.Models.Category;
 using WebMVC.Models.Manufacturer;
+using WebMVC.Models.Order;
 using WebMVC.Models.Product;
 
 namespace WebMVC
@@ -29,6 +31,10 @@ namespace WebMVC
 
             TypeAdapterConfig<CategorySummaryDTO, CategorySummaryViewModel>.NewConfig()
                .Map(dest => dest.CategoryId, src => src.CategoryId);
+
+            TypeAdapterConfig<OrderDetailDTO, OrderDetailViewModel>.NewConfig()
+                .Map(dest => dest.OrderId, src => src.OrderId);
+                //.PreserveReference(true);
         }
     }
 }

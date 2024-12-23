@@ -1,14 +1,12 @@
-using BusinessLayer.Services.Interfaces;
+using BusinessLayer.Facades;
+using BusinessLayer.Facades.Interfaces;
 using BusinessLayer.Services;
+using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebMVC;
-using BusinessLayer.Services.Interfaces;
-using BusinessLayer.Services;
-using BusinessLayer.Facades.Interfaces;
-using BusinessLayer.Facades;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,6 +47,7 @@ builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IImageService>(provider =>
 {
     var dbContext = provider.GetRequiredService<MyDBContext>();
