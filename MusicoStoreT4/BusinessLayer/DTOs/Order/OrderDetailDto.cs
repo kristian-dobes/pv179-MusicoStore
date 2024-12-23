@@ -1,4 +1,5 @@
 ﻿using BusinessLayer.DTOs.OrderItem;
+using BusinessLayer.DTOs.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,12 +8,13 @@ using System.Threading.Tasks;
 
 namespace BusinessLayer.DTOs.Order
 {
-    public class OrderDetailDto
+    public class OrderDetailDTO
     {
         public int OrderId { get; set; }
-        public DateTime OrderDate { get; set; }
         public DateTime Created { get; set; }
-
-        public List<OrderItemDto> OrderItems { get; set; } = new();
+        public required int OrderItemsCount { get; set; }
+        public required IEnumerable<OrderItemCompleteDTO> OrderItems { get; set; }
+        public required CustomerOrderDTO User { get; set; }
+        public required decimal TotalPrice { get; set; }
     }
 }
