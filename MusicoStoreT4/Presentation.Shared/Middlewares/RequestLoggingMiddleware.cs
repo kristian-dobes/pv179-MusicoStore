@@ -21,6 +21,13 @@ namespace Presentations.Shared.Middlewares
             var method = context.Request.Method;
             var path = context.Request.Path;
 
+            // Skip logging static files
+            if (path.Value.Contains(".css") || path.Value.Contains(".js") || path.Value.Contains(".jpg"))
+            {
+                await _next(context);
+                return;
+            }
+
             RequestSource logSource = path.StartsWithSegments("/api") ? RequestSource.Api : RequestSource.Mvc;
 
             _logger.LogInformation($"[{logSource}] Received request: {method} {path} at source {logSource}");
