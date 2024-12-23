@@ -82,7 +82,7 @@ namespace BusinessLayer
                 .Map(dest => dest.Price, src => src.Price);
             TypeAdapterConfig<Order, OrderDetailDTO>.NewConfig()
                 .Map(dest => dest.OrderId, src => src.Id)
-                .Map(dest => dest.Created, src => src.Created)
+                .Map(dest => dest.Created, src => src.Date)
                 .Map(dest => dest.OrderItemsCount, src => src.OrderItems != null ? src.OrderItems.Count() : 0)
                 .Map(dest => dest.User, src => src.User.Adapt<CustomerOrderDTO>())
                 .Map(dest => dest.OrderItems, src => src.OrderItems.Adapt<IEnumerable<OrderItemCompleteDTO>>())

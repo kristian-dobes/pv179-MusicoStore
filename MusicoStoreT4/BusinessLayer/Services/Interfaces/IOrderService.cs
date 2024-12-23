@@ -10,7 +10,7 @@ namespace BusinessLayer.Services.Interfaces
     public interface IOrderService
     {
         Task<ICollection<OrderDetailDTO>> GetOrders();
-        //Task<ManufacturerSummaryDTO?> GetManufacturerByIdAsync(int id);
+        Task<OrderDetailDTO?> GetOrderByIdAsync(int id);
         //Task<ManufacturerDTO> CreateManufacturerAsync(ManufacturerNameDTO manufacturer);
         //Task<ManufacturerDTO?> UpdateManufacturerAsync(int id, ManufacturerNameDTO manufacturerDto);
         ////public Task<ManufacturerDto> ValidateManufacturerAsync(int manufacturerId);

@@ -35,18 +35,18 @@ namespace WebMVC.Areas.Admin.Controllers
             return View(orders.Adapt<IEnumerable<OrderDetailViewModel>>());
         }
 
-        //// GET: Admin/Order/Details/5
-        //public async Task<IActionResult> Details(int id)
-        //{
-        //    var order = await _orderService.GetOrderByIdAsync(id);
+        // GET: Admin/Order/Details/5
+        public async Task<IActionResult> Details(int id)
+        {
+            var order = await _orderService.GetOrderByIdAsync(id);
 
-        //    if (order == null)
-        //    {
-        //        return NotFound();
-        //    }
+            if (order == null)
+            {
+                return NotFound();
+            }
 
-        //    return View(order.Adapt<OrderDetailViewModel>());
-        //}
+            return View(order.Adapt<OrderDetailViewModel>());
+        }
 
         //// GET: Admin/Order/Create
         //public IActionResult Create()

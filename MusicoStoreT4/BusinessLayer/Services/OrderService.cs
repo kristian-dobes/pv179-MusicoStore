@@ -36,13 +36,13 @@ namespace BusinessLayer.Services
             return orderDTOs;
         }
 
-        //public async Task<OrderSummaryDTO?> GetOrderByIdAsync(int orderId)
-        //{
-        //    var order = await _dBContext.Orders
-        //        .SingleOrDefaultAsync(m => m.Id == orderId);
+        public async Task<OrderDetailDTO?> GetOrderByIdAsync(int orderId)
+        {
+            var order = await _dBContext.Orders
+                .FindAsync(orderId);
 
-        //    return order?.Adapt<OrderSummaryDTO>();
-        //}
+            return order?.Adapt<OrderDetailDTO>();
+        }
 
         //public async Task<OrderDTO> CreateOrderAsync(OrderNameDTO order)
         //{
