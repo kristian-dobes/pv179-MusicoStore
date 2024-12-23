@@ -54,6 +54,8 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddScoped<AuditSaveChangesInterceptor>();
+
 var databaseName = builder.Configuration["DatabaseName"];
 var folder = Environment.SpecialFolder.LocalApplicationData;
 var dbPath = Path.Join(Environment.GetFolderPath(folder), databaseName);
@@ -61,14 +63,13 @@ string imagesFolder = Path.Combine(Path.GetDirectoryName(dbPath) ?? string.Empty
 
 builder.Services.AddDbContextFactory<MyDBContext>(options =>
 {
+    var provider = builder.Services.BuildServiceProvider();
+    var auditInterceptor = provider.GetRequiredService<AuditSaveChangesInterceptor>();
     options
-        .UseSqlite(
-            $"Data Source={dbPath}",
-            x => x.MigrationsAssembly("DAL.SQLite.Migrations")
-        )
+        .UseSqlite($"Data Source={dbPath}", x => x.MigrationsAssembly("DAL.SQLite.Migrations"))
         .LogTo(s => System.Diagnostics.Debug.WriteLine(s))
         .UseLazyLoadingProxies()
-        ;
+        .AddInterceptors(auditInterceptor);
 });
 
 builder.Services.AddScoped<IUserService, UserService>();
@@ -94,28 +95,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.Use((context, next) =>
-{
-    var allowedOrigins = new[] { "http://localhost:5270", "https://localhost:7256" };
-
-    var origin = context.Request.Headers["Origin"].ToString();
-
-    if (allowedOrigins.Contains(origin))
-    {
-        context.Response.Headers["Access-Control-Allow-Origin"] = origin;
-        context.Response.Headers["Access-Control-Allow-Methods"] = "OPTIONS, GET, POST, PUT, PATCH, DELETE";
-        context.Response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization";
-    }
-
-    if (context.Request.Method == "OPTIONS")
-    {
-        context.Response.StatusCode = 200; // Respond to OPTIONS preflight request
-        return Task.CompletedTask;
-    }
-
-    return next();
-});
 
 app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseMiddleware<TokenAuthenticationMiddleware>();

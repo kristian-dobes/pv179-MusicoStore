@@ -64,7 +64,6 @@ namespace BusinessLayer.Services
 
             product.LastModifiedById = modifiedById;
             product.EditCount++;
-            await _auditLogService.LogAsync(productDto.Id, AuditAction.Update, modifiedById);
 
             await _dbContext.SaveChangesAsync();
         }
@@ -87,7 +86,6 @@ namespace BusinessLayer.Services
             try
             {
                 await _dbContext.SaveChangesAsync();
-                await _auditLogService.LogAsync(added.Id, AuditAction.Create, createdById);
 
                 return added;
             }
@@ -108,7 +106,6 @@ namespace BusinessLayer.Services
                 product.ManufacturerId = targetManufacturerId;
                 product.LastModifiedById = modifiedBy;
                 product.EditCount++;
-                await _auditLogService.LogAsync(product.Id, AuditAction.Update, modifiedBy);
             }
 
             await _dbContext.SaveChangesAsync();
@@ -131,7 +128,6 @@ namespace BusinessLayer.Services
             product.ManufacturerId = newManufacturerId;
             product.LastModifiedById = modifiedBy;
             product.EditCount++;
-            await _auditLogService.LogAsync(product.Id, AuditAction.Update, modifiedBy);
 
             await _dbContext.SaveChangesAsync();
         }
@@ -182,7 +178,6 @@ namespace BusinessLayer.Services
             if (product == null)
                 throw new KeyNotFoundException($"Product with ID {productId} not found.");
 
-            await _auditLogService.LogAsync(product.Id, AuditAction.Delete, deletedBy);
             _dbContext.Products.Remove(product);
             await _dbContext.SaveChangesAsync();
         }
