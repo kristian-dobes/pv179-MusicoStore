@@ -1,6 +1,8 @@
-﻿using BusinessLayer.Services.Interfaces;
+﻿using BusinessLayer.Enums;
+using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
+using DataAccessLayer.Models.Enums;
 using Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -20,13 +22,14 @@ namespace BusinessLayer.Services
             _uow = unitOfWork;
         }
 
-        public async Task LogRequestAsync(string method, string path)
+        public async Task LogRequestAsync(string method, string path, RequestSource source)
         {
             var log = new Log
             {
                 Method = method,
                 Path = path,
-                Created = DateTime.UtcNow
+                Created = DateTime.UtcNow,
+                Source = source
             };
 
             await _uow.LogsRep.AddAsync(log);
