@@ -36,7 +36,7 @@ namespace WebMVC
                 .NewConfig()
                 .Map(dest => dest.CategoryId, src => src.CategoryId);
 
-            TypeAdapterConfig<OrderDetailDTO, OrderDetailViewModel>
+            TypeAdapterConfig<OrderDetailDto, OrderDetailViewModel>
                 .NewConfig()
                 .Map(dest => dest.OrderId, src => src.OrderId);
 
