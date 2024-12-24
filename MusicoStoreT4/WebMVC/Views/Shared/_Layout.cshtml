@@ -28,6 +28,10 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
 
+                        @{
+                            await Html.RenderPartialAsync("_SearchBox", new WebMVC.Models.Shared.SearchViewModel());
+                        }
+
                         @if (SignInManager.IsSignedIn(User) && UserManager.IsInRoleAsync(UserManager.GetUserAsync(User).Result, "Admin").Result)
                         {
                             <li class="nav-item">

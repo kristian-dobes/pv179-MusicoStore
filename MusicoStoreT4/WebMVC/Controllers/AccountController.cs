@@ -10,7 +10,10 @@ namespace WebMVC.Controllers
         private readonly UserManager<LocalIdentityUser> _userManager;
         private readonly SignInManager<LocalIdentityUser> _signInManager;
 
-        public AccountController(UserManager<LocalIdentityUser> userManager, SignInManager<LocalIdentityUser> signInManager)
+        public AccountController(
+            UserManager<LocalIdentityUser> userManager,
+            SignInManager<LocalIdentityUser> signInManager
+        )
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -30,11 +33,7 @@ namespace WebMVC.Controllers
                 {
                     UserName = model.Email,
                     Email = model.Email,
-                    User = new()
-                    {
-                        Username = model.Email,
-                        Email = model.Email
-                    }
+                    User = new() { Username = model.Email, Email = model.Email }
                 };
 
                 var result = await _userManager.CreateAsync(user, model.Password);
@@ -48,7 +47,10 @@ namespace WebMVC.Controllers
                 {
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     // return RedirectToAction("Login", "Account");
-                    return RedirectToAction(nameof(Login), nameof(AccountController).Replace("Controller", ""));
+                    return RedirectToAction(
+                        nameof(Login),
+                        nameof(AccountController).Replace("Controller", "")
+                    );
                 }
 
                 foreach (var error in result.Errors)
@@ -70,12 +72,20 @@ namespace WebMVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(
+                    model.Email,
+                    model.Password,
+                    model.RememberMe,
+                    lockoutOnFailure: false
+                );
 
                 if (result.Succeeded)
                 {
                     // return RedirectToAction("LoginSuccess", "Account");
-                    return RedirectToAction(nameof(LoginSuccess), nameof(AccountController).Replace("Controller", ""));
+                    return RedirectToAction(
+                        nameof(LoginSuccess),
+                        nameof(AccountController).Replace("Controller", "")
+                    );
                 }
 
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
@@ -87,7 +97,10 @@ namespace WebMVC.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction(nameof(LogoutSuccess), nameof(AccountController).Replace("Controller", ""));
+            return RedirectToAction(
+                nameof(LogoutSuccess),
+                nameof(AccountController).Replace("Controller", "")
+            );
         }
 
         public IActionResult LogoutSuccess()

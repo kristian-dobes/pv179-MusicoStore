@@ -1,0 +1,75 @@
+@using WebMVC.Models.Product;
+@model SearchProductListViewModel
+
+@{
+    await Html.RenderPartialAsync("_SearchBox", new WebMVC.Models.Shared.SearchViewModel());
+}
+
+<h2>Filters</h2>
+<p>@Model.SearchParams.Query query</p>
+<p>@Model.SearchParams.Manufacturer manufacturer</p>
+<p>@Model.SearchParams.Category category</p>
+
+<h2>Products</h2>
+@if (Model.Products.Any())
+{
+    @foreach (var item in Model.Products)
+    {
+        <h3>@item.ProductName</h3>
+        <p>@item.Description</p>
+    }
+}
+else
+{
+    <p>No products found.</p>
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.SearchParams.Query) || Model.Manufacturers.Any())
+{
+    <h2>Manufacturers</h2>
+    @if (Model.Manufacturers.Any())
+    {
+        foreach (var manufacturer in Model.Manufacturers)
+        {
+            <button onclick="location.href='@Url.Action("Search", new { manufacturer = manufacturer.Name })'">
+                @manufacturer.Name
+            </button>
+        }
+    }
+    else if (!string.IsNullOrWhiteSpace(Model.SearchParams.Query))
+    {
+        <p>No manufacturers found.</p>
+    }
+}
+
+@if (!string.IsNullOrWhiteSpace(Model.SearchParams.Query) || Model.Categories.Any())
+{
+    <h2>Categories</h2>
+    @if (Model.Categories.Any())
+    {
+        foreach (var category in Model.Categories)
+        {
+            <button onclick="location.href='@Url.Action("Search", new { category = category.Name })'">
+                @category.Name
+            </button>
+        }
+    }
+    else if (!string.IsNullOrWhiteSpace(Model.SearchParams.Query))
+    {
+        <p>No categories found.</p>
+    }
+}
+
+<div class="pagination">
+    @for (int i = 1; i <= Model.TotalPages; i++)
+    {
+        <a asp-action="Search"
+           asp-route-page="@i"
+           asp-route-query="@Model.SearchParams.Query"
+           asp-route-manufacturer="@Model.SearchParams.Manufacturer"
+           asp-route-category="@Model.SearchParams.Category"
+           class="@(i == Model.CurrentPage ? "active" : "")">
+            @($" {i} ")
+        </a>
+    }
+</div>
