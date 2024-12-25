@@ -14,11 +14,13 @@ namespace DataAccessLayer.Models
         public DateTime Date { get; set; } = DateTime.Now;
 
         public int UserId { get; set; }
-        [ForeignKey(nameof(UserId))]
         public virtual User? User { get; set; }
 
         public virtual ICollection<OrderItem>? OrderItems { get; set; }
 
         public OrderStatus OrderStatus { get; set; }
+
+        public int? GiftCardId { get; set; }
+        public virtual GiftCard? GiftCard { get; set; }
     }
 }

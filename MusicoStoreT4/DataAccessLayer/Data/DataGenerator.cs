@@ -229,4 +229,68 @@ public static class DataGenerator
             }
         };
     }
+
+    private static List<GiftCard> PrepareGiftCardsModels()
+    {
+        return new List<GiftCard>()
+        {
+            new GiftCard()
+            {
+                DiscountAmount = 200.00m,
+                ValidityStartDate = DateTime.Now.AddMonths(-1),
+                ValidityEndDate = DateTime.Now.AddMonths(6),
+                CouponCodes = new List<CouponCode>()
+                {
+                    new CouponCode { Code = "GIFT200-1", IsUsed = false },
+                    new CouponCode { Code = "GIFT200-2", IsUsed = false },
+                }
+            },
+            new GiftCard()
+            {
+                DiscountAmount = 100.00m,
+                ValidityStartDate = DateTime.Now.AddMonths(-2),
+                ValidityEndDate = DateTime.Now.AddMonths(4),
+                CouponCodes = new List<CouponCode>()
+                {
+                    new CouponCode { Code = "GIFT100-1", IsUsed = false },
+                    new CouponCode { Code = "GIFT100-2", IsUsed = false },
+                }
+            }
+        };
+    }
+
+    private static List<CouponCode> PrepareCouponCodesModels()
+    {
+        return new List<CouponCode>()
+        {
+            new CouponCode()
+            {
+                Code = "GIFT200-1",
+                IsUsed = false,
+                GiftCardId = 1,
+                OrderId = null,
+            },
+            new CouponCode()
+            {
+                Code = "GIFT200-2",
+                IsUsed = false,
+                GiftCardId = 1,
+                OrderId = null,
+            },
+            new CouponCode()
+            {
+                Code = "GIFT100-1",
+                IsUsed = false,
+                GiftCardId = 2,
+                OrderId = null,
+            },
+            new CouponCode()
+            {
+                Code = "GIFT100-2",
+                IsUsed = false,
+                GiftCardId = 2,
+                OrderId = null,
+            }
+        };
+    }
 }
