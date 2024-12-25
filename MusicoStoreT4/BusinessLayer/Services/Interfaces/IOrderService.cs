@@ -1,4 +1,5 @@
 ﻿using BusinessLayer.DTOs.Order;
+using DataAccessLayer.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,5 +15,6 @@ namespace BusinessLayer.Services.Interfaces
         Task<int> CreateOrderAsync(CreateOrderDto createOrderDto);
         Task<bool> UpdateOrderAsync(int orderId, UpdateOrderDto updateOrderDto);
         Task<bool> DeleteOrderAsync(int orderId);
+        Task<IEnumerable<OrderDetailDTO?>> GetOrdersByUserAsync(int userId);
     }
 }

@@ -1,10 +1,9 @@
-using BusinessLayer.DTOs.Product;
 using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using WebMVC.Models;
+using WebMVC.Models.Product;
 
 namespace WebMVC.Controllers
 {
@@ -30,7 +29,7 @@ namespace WebMVC.Controllers
             if (product == null)
                 return NotFound();
 
-            var productViewModel = new ProductViewModel
+            var productHomeViewModel = new ProductHomeViewModel
             {
                 ProductId = product.ProductId,
                 ProductName = product.Name,
@@ -39,7 +38,7 @@ namespace WebMVC.Controllers
                 ImageFilePath = await _imageService.GetImagePathByProductIdAsync(productId)
             };
 
-            return View(productViewModel);
+            return View(productHomeViewModel);
         }
 
         public IActionResult Privacy()

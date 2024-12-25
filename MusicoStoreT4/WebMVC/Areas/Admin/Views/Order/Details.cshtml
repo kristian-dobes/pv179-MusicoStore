@@ -14,25 +14,31 @@
             Order ID
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.OrderId)
+            @Model.OrderId
         </dd>
         <dt class="col-sm-2">
             Created Date
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Created)
+            @Model.Created
         </dd>
         <dt class="col-sm-2">
             Total Items
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.OrderItemsCount)
+            @Model.OrderItemsCount
         </dd>
         <dt class="col-sm-2">
             Total Price
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.TotalPrice)
+            @Model.TotalOrderPrice.ToString("C")
+        </dd>
+        <dt class="col-sm-2">
+            Order Status
+        </dt>
+        <dd class="col-sm-10">
+            @Model.OrderStatus
         </dd>
     </dl>
 </div>
@@ -45,43 +51,43 @@
             Username
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.User.Username)
+            @Model.User?.Username
         </dd>
         <dt class="col-sm-2">
             Email
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.User.Email)
+            @Model.User?.Email
         </dd>
         <dt class="col-sm-2">
             Phone Number
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.User.PhoneNumber)
+            @Model.User?.PhoneNumber
         </dd>
         <dt class="col-sm-2">
             Address
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.User.Address)
+            @Model.User?.Address
         </dd>
         <dt class="col-sm-2">
             City
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.User.City)
+            @Model.User?.City
         </dd>
         <dt class="col-sm-2">
             State
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.User.State)
+            @Model.User?.State
         </dd>
         <dt class="col-sm-2">
             Postal Code
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.User.PostalCode)
+            @Model.User?.PostalCode
         </dd>
     </dl>
 </div>
@@ -96,20 +102,22 @@
                 <th>Description</th>
                 <th>Category</th>
                 <th>Manufacturer</th>
+                <th>Product Price</th>
                 <th>Quantity</th>
-                <th>Price</th>
+                <th>Total per Item</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var item in Model.OrderItems)
             {
                 <tr>
-                    <td>@Html.DisplayFor(modelItem => item.ProductName)</td>
-                    <td>@Html.DisplayFor(modelItem => item.ProductDescription)</td>
-                    <td>@Html.DisplayFor(modelItem => item.CategoryName)</td>
-                    <td>@Html.DisplayFor(modelItem => item.ManufacturerName)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Quantity)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Price)</td>
+                    <td>@item.ProductName</td>
+                    <td>@item.ProductDescription</td>
+                    <td>@item.CategoryName</td>
+                    <td>@item.ManufacturerName</td>
+                    <td>@item.ProductPrice.ToString("C")</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.TotalPricePerOrderItem.ToString("C")</td>
                 </tr>
             }
         </tbody>

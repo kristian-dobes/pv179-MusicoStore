@@ -36,6 +36,12 @@
                             <partial name="_AdminMenuPartial" />
                         }
 
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Order" asp-action="UserOrders">My Orders</a>
+                            </li>
+                        }
                     </ul>
                     <!-- Align the logout button to the right -->
                     <ul class="navbar-nav ms-auto">

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataAccessLayer.Models.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,6 @@ namespace BusinessLayer.Services.Interfaces
 {
     public interface ILogService : IBaseService
     {
-        Task LogRequestAsync(string method, string path);
+        Task LogRequestAsync(string method, string path, RequestSource source);
     }
 }

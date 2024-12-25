@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataAccessLayer.Models.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -17,5 +18,7 @@ namespace DataAccessLayer.Models
         public virtual User? User { get; set; }
 
         public virtual ICollection<OrderItem>? OrderItems { get; set; }
+
+        public OrderStatus OrderStatus { get; set; }
     }
 }

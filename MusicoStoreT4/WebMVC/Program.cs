@@ -11,6 +11,7 @@ using Infrastructure.Repository.Implementations;
 using Infrastructure.Repository.Interfaces;
 using Infrastructure.UnitOfWork;
 using WebMVC;
+using Presentations.Shared.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -104,6 +105,8 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
+app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

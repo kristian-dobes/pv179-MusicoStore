@@ -16,8 +16,8 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using DataAccessLayer.Models.Enums;
 
 namespace BusinessLayer.Services
 {
@@ -70,7 +70,8 @@ namespace BusinessLayer.Services
                     ProductId = itemDto.ProductId,
                     Quantity = itemDto.Quantity,
                     Price = (await _uow.ProductsRep.GetByIdAsync(itemDto.ProductId)).Price,
-                }).ToList()
+                }).ToList(),
+                OrderStatus = OrderStatus.Pending
             };
 
             await _uow.OrdersRep.AddAsync(order);
@@ -115,6 +116,7 @@ namespace BusinessLayer.Services
                 throw new ArgumentException($"Failed to update order with ID {orderId} due to concurrency issues.");
             }
         }
+
         public async Task<bool> DeleteOrderAsync(int orderId)
         {
             var order = await _uow.OrdersRep.GetByIdAsync(orderId);
@@ -124,6 +126,14 @@ namespace BusinessLayer.Services
 
             await _uow.OrdersRep.DeleteAsync(order.Id);
             return true;
+        }
+
+        public async Task<IEnumerable<OrderDetailDTO?>> GetOrdersByUserAsync(int userId)
+        {
+            var orders = await _uow.OrdersRep.GetOrdersByAsync(userId);
+
+            return orders.Select(o => o.Adapt<OrderDetailDTO>()).ToList();
+            //return (await _uow.OrdersRep.GetOrdersWithProductsAsync(userId)).Select(o => o.Adapt<OrderDetailDTO>()).ToList();
         }
     }
 }
