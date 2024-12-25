@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using BusinessLayer.DTOs.OrderItem;
 using BusinessLayer.DTOs.Product;
-using BusinessLayer.Enums;
 using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
@@ -17,6 +16,7 @@ using Mapster;
 using Microsoft.EntityFrameworkCore;
 using BusinessLayer.DTOs.Category;
 using BusinessLayer.DTOs.Manufacturer;
+using DataAccessLayer.Models.Enums;
 
 namespace BusinessLayer.Services
 {
@@ -125,20 +125,20 @@ namespace BusinessLayer.Services
             if (!(await _uow.ManufacturersRep.AnyAsync(m => m.Id == productDto.ManufacturerId)))
                 throw new ArgumentException($"Manufacturer with id {productDto.ManufacturerId} not found");
 
-            //var product = new Product
-            //{
-            //    Name = productDto.Name,
-            //    Description = productDto.Description,
-            //    Price = productDto.Price,
-            //    CategoryId = productDto.CategoryId,
-            //    ManufacturerId = productDto.ManufacturerId,
-            //    LastModifiedById = createdById,
-            //    EditCount = 0
-            //};
+            var product = new Product
+            {
+                Name = productDto.Name,
+                Description = productDto.Description,
+                Price = productDto.Price,
+                CategoryId = productDto.CategoryId,
+                ManufacturerId = productDto.ManufacturerId,
+                LastModifiedById = 1,
+                EditCount = 0
+            };
 
-            var product = productDto.Adapt<Product>();
-
+            // var product = productDto.Adapt<Product>();
             var added = await _uow.ProductsRep.AddAsync(product);
+
             try
             {
                 await _auditLogService.LogAsync(added.Id, AuditAction.Create, productDto.LastModifiedById);

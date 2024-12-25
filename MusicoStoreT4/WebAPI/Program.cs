@@ -61,6 +61,8 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddScoped<AuditSaveChangesInterceptor>();
+
 var databaseName = builder.Configuration["DatabaseName"];
 var folder = Environment.SpecialFolder.LocalApplicationData;
 var dbPath = Path.Join(Environment.GetFolderPath(folder), databaseName);
@@ -68,6 +70,8 @@ string imagesFolder = Path.Combine(Path.GetDirectoryName(dbPath) ?? string.Empty
 
 builder.Services.AddDbContextFactory<MyDBContext>(options =>
 {
+    var auditInterceptor = builder.Services.BuildServiceProvider().GetRequiredService<AuditSaveChangesInterceptor>();
+
     options
         .UseSqlite(
             $"Data Source={dbPath}",
@@ -75,6 +79,7 @@ builder.Services.AddDbContextFactory<MyDBContext>(options =>
         )
         .LogTo(s => System.Diagnostics.Debug.WriteLine(s))
         .UseLazyLoadingProxies()
+        .AddInterceptors(auditInterceptor)
         ;
 });
 
@@ -111,6 +116,7 @@ builder.Services.AddScoped<ILogService, LogService>();
 
 // Mapster Mapping configuration for using DTOs
 new MappingConfig().RegisterMappings();
+
 
 var app = builder.Build();
 

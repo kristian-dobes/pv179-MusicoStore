@@ -1,8 +1,8 @@
 ﻿using BusinessLayer.DTOs.Category;
-using BusinessLayer.Enums;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
+using DataAccessLayer.Models.Enums;
 using Infrastructure.UnitOfWork;
 using System;
 using System.Collections.Generic;
@@ -29,7 +29,7 @@ namespace BusinessLayer.Services
             var auditLog = new AuditLog
             {
                 ProductId = productId,
-                Action = action.ToString(),
+                Action = action,
                 ModifiedById = modifiedBy,
                 Created = DateTime.UtcNow
             };
