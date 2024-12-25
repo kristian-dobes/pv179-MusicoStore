@@ -52,7 +52,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(ManufacturerUpdateDTO createManufacturerDto)
+        public async Task<IActionResult> Create([FromBody] ManufacturerUpdateDTO createManufacturerDto)
         {
             try
             {
@@ -70,7 +70,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("{manufacturerId}")]
-        public async Task<IActionResult> Update(int manufacturerId, ManufacturerUpdateDTO updateManufacturerDto)
+        public async Task<IActionResult> Update(int manufacturerId, [FromBody] ManufacturerUpdateDTO updateManufacturerDto)
         {
             try
             {

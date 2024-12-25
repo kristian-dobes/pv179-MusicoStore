@@ -16,6 +16,7 @@ using Presentations.Shared.Middlewares;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<AuditSaveChangesInterceptor>();
 
 var databaseName = builder.Configuration["DatabaseName"];
 
@@ -31,10 +32,14 @@ if (!Directory.Exists(imagesFolder))
 // Register DbContext
 builder.Services.AddDbContext<MyDBContext>(options =>
 {
+    var auditInterceptor = builder.Services.BuildServiceProvider().GetRequiredService<AuditSaveChangesInterceptor>();
+    
     options
         .UseSqlite($"Data Source={dbPath}", x => x.MigrationsAssembly("DAL.SQLite.Migrations"))
         .LogTo(s => System.Diagnostics.Debug.WriteLine(s))
-        .UseLazyLoadingProxies();
+        .UseLazyLoadingProxies()
+        .AddInterceptors(auditInterceptor)
+        ;
 });
 
 new MapsterConfig().RegisterMappings();
