@@ -1,10 +1,7 @@
-﻿using BusinessLayer.Enums;
-using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
+﻿using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Models;
 using DataAccessLayer.Models.Enums;
 using Infrastructure.UnitOfWork;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
