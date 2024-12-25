@@ -1,10 +1,10 @@
-﻿using BusinessLayer.DTOs.OrderItem;
-using BusinessLayer.DTOs.User;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BusinessLayer.DTOs.OrderItem;
+using BusinessLayer.DTOs.User;
 
 namespace BusinessLayer.DTOs.Order
 {
@@ -15,6 +15,7 @@ namespace BusinessLayer.DTOs.Order
         public required int OrderItemsCount { get; set; }
         public required IEnumerable<OrderItemCompleteDTO> OrderItems { get; set; }
         public required CustomerOrderDTO User { get; set; }
-        public required decimal TotalPrice { get; set; }
+        public required decimal TotalOrderPrice { get; set; }
+        public required string OrderStatus { get; set; }
     }
 }
