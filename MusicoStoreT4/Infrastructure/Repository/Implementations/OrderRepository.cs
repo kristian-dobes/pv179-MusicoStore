@@ -45,5 +45,16 @@ namespace Infrastructure.Repository.Implementations
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<List<Order>> GetOrdersWithProductsAsync(int userId)
+        {
+            return await _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .ThenInclude(p => p.Image)
+                .Where(o => o.UserId == userId)
+                .OrderByDescending(o => o.Date)
+                .ToListAsync();
+        }
     }
 }

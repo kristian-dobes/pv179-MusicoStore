@@ -11,12 +11,12 @@ namespace WebMVC.Controllers
 {
     public class OrderController : Controller
     {
-        private readonly MyDBContext _context;
+        private readonly IOrderService _orderService;
         private readonly UserManager<LocalIdentityUser> _userManager;
 
-        public OrderController(MyDBContext context, UserManager<LocalIdentityUser> userManager)
+        public OrderController(IOrderService orderService, UserManager<LocalIdentityUser> userManager)
         {
-            _context = context;
+            _orderService = orderService;
             _userManager = userManager;
         }
 
@@ -26,13 +26,7 @@ namespace WebMVC.Controllers
             var userId = await GetCurrentUserId();
             // var userId = 3;
 
-            var orders = await _context.Orders
-                .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.Product)
-                .ThenInclude(p => p.Image)
-                .Where(o => o.UserId == userId)
-                .OrderByDescending(o => o.Date)
-                .ToListAsync();
+            var orders = await _orderService.GetOrdersWithProductsAsync(userId);
 
             var ordersVMs = orders.Select(o => new OrderViewModel
             {

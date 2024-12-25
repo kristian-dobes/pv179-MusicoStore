@@ -116,6 +116,7 @@ namespace BusinessLayer.Services
                 throw new ArgumentException($"Failed to update order with ID {orderId} due to concurrency issues.");
             }
         }
+
         public async Task<bool> DeleteOrderAsync(int orderId)
         {
             var order = await _uow.OrdersRep.GetByIdAsync(orderId);
@@ -125,6 +126,11 @@ namespace BusinessLayer.Services
 
             await _uow.OrdersRep.DeleteAsync(order.Id);
             return true;
+        }
+
+        public async Task<List<Order>> GetOrdersWithProductsAsync(int userId)
+        {
+            return await _uow.OrdersRep.GetOrdersWithProductsAsync(userId);
         }
     }
 }
