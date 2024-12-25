@@ -108,31 +108,36 @@ public static class DataGenerator
             {
                 Id = 1,
                 Date = new DateTime(2024, 10, 1),
-                UserId = 2
+                UserId = 2,
+                OrderStatus = OrderStatus.Pending
             },
             new Order()
             {
                 Id = 2,
                 Date = new DateTime(2024, 11, 15),
                 UserId = 3,
+                OrderStatus = OrderStatus.Pending
             },
             new Order()
             {
                 Id = 3,
                 Date = new DateTime(2024, 12, 5),
                 UserId = 3,
+                OrderStatus = OrderStatus.Pending
             },
             new Order()
             {
                 Id = 4,
                 Date = new DateTime(2025, 1, 20),
                 UserId = 2,
+                OrderStatus = OrderStatus.Pending
             },
             new Order()
             {
                 Id = 5,
                 Date = new DateTime(2025, 2, 10),
                 UserId = 2,
+                OrderStatus = OrderStatus.Pending
             },
         };
     }
@@ -176,7 +181,7 @@ public static class DataGenerator
             new OrderItem()
             {
                 Id = 5,
-                OrderId = 4,
+                OrderId = 3,
                 ProductId = 5,
                 Quantity = 1,
                 Price = 720.05m,
@@ -184,7 +189,7 @@ public static class DataGenerator
             new OrderItem()
             {
                 Id = 6,
-                OrderId = 5,
+                OrderId = 4,
                 ProductId = 6,
                 Quantity = 3,
                 Price = 29.99m,
@@ -192,7 +197,7 @@ public static class DataGenerator
             new OrderItem()
             {
                 Id = 7,
-                OrderId = 4,
+                OrderId = 5,
                 ProductId = 6,
                 Quantity = 2,
                 Price = 25.54m,
