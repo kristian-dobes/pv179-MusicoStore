@@ -14,6 +14,7 @@ using Infrastructure.Repository.Implementations;
 using Infrastructure.Repository.Implementations.Implementations;
 using Mapster;
 using BusinessLayer;
+using Presentations.Shared.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
