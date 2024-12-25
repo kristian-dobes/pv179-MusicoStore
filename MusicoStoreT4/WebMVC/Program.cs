@@ -56,6 +56,7 @@ builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 builder.Services.AddScoped<ILogRepository, LogRepository>();
+builder.Services.AddScoped<IGiftCardRepository, GiftCardRepository>();
 
 // Register Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -76,6 +77,7 @@ builder.Services.AddScoped<IImageService>(provider =>
 });
 builder.Services.AddScoped<IManufacturerFacade, ManufacturerFacade>();
 builder.Services.AddScoped<ILogService, LogService>();
+builder.Services.AddScoped<IGiftCardService, GiftCardService>();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {

@@ -92,6 +92,7 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ILogRepository, LogRepository>();
+builder.Services.AddScoped<IGiftCardRepository, GiftCardRepository>();
 
 // Register Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -109,6 +110,7 @@ builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IManufacturerFacade, ManufacturerFacade>();
 builder.Services.AddScoped<ILogService, LogService>();
+builder.Services.AddScoped<IGiftCardService, GiftCardService>();
 
 // Mapster Mapping configuration for using DTOs
 new MappingConfig().RegisterMappings();

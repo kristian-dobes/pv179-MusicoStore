@@ -19,6 +19,7 @@ namespace Infrastructure.UnitOfWork
         IProductImageRepository ProductImagesRep { get; }
         IAuditLogRepository ProductAuditsRep { get; }
         ILogRepository LogsRep { get; }
+        IGiftCardRepository GiftCardsRep { get; }
 
         Task<int> SaveAsync();
         void BeginTransaction();

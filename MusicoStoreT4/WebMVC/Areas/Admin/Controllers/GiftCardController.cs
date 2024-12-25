@@ -12,30 +12,31 @@ namespace WebMVC.Areas.Admin.Controllers
     [Authorize(Roles = "Admin")]
     public class GiftCardController : Controller
     {
-        private readonly IManufacturerService _manufacturerService;
+        private readonly IGiftCardService _giftCardService;
 
-        public GiftCardController(IManufacturerService manufacturerService)
+        public GiftCardController(IGiftCardService giftCardService)
         {
-            _manufacturerService = manufacturerService;
+            _giftCardService = giftCardService;
         }
 
-        // GET: Admin/Manufacturer
+        // GET: Admin/GiftCard
         public async Task<IActionResult> Index()
         {
-            var manufacturers = await _manufacturerService.GetManufacturersAsync();
+            var giftCards = await _giftCardService.GetGiftCardsAsync();
 
-            if (!manufacturers.Any())
+            if (!giftCards.Any())
             {
                 return NotFound();
             }
 
-            return View(manufacturers.Adapt<IEnumerable<ManufacturerSummaryViewModel>>());
+            return View(giftCards.Adapt<IEnumerable<ManufacturerSummaryViewModel>>());
         }
 
-        // GET: Admin/Manufacturer/Details/5
+        /*
+        // GET: Admin/GiftCard/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            var manufacturer = await _manufacturerService.GetById(id);
+            var manufacturer = await _giftCardService.GetById(id);
 
             if (manufacturer == null)
             {
@@ -45,7 +46,7 @@ namespace WebMVC.Areas.Admin.Controllers
             return View(manufacturer.Adapt<ManufacturerSummaryViewModel>());
         }
 
-        // GET: Admin/Manufacturer/Create
+        // GET: Admin/GiftCard/Create
         public IActionResult Create()
         {
             // TODO use list of available categories and manufacturers
@@ -56,7 +57,7 @@ namespace WebMVC.Areas.Admin.Controllers
             return View();
         }
 
-        // POST: Admin/Manufacturer/Create
+        // POST: Admin/GiftCard/Create
         [HttpPost]
         public async Task<IActionResult> Create(ManufacturerNameViewModel model)
         {
@@ -67,15 +68,15 @@ namespace WebMVC.Areas.Admin.Controllers
 
             var manufacturer = model.Adapt<ManufacturerUpdateDTO>();
 
-            await _manufacturerService.CreateManufacturerAsync(manufacturer);
+            await _giftCardService.CreateManufacturerAsync(manufacturer);
 
             return RedirectToAction("Index");
         }
 
-        // GET: Admin/Manufacturer/Edit/5
+        // GET: Admin/GiftCard/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var manufacturer = await _manufacturerService.GetById(id);
+            var manufacturer = await _giftCardService.GetById(id);
 
             if (manufacturer == null)
             {
@@ -86,7 +87,7 @@ namespace WebMVC.Areas.Admin.Controllers
             return View(manufacturer.Adapt<ManufacturerNameViewModel>());
         }
 
-        // POST: Admin/Manufacturer/Edit/5
+        // POST: Admin/GiftCard/Edit/5
         [HttpPost]
         public async Task<IActionResult> Edit(int id, ManufacturerNameViewModel model)
         {
@@ -98,15 +99,15 @@ namespace WebMVC.Areas.Admin.Controllers
 
             var manufacturer = model.Adapt<ManufacturerUpdateDTO>();
 
-            var manufacturerResult = await _manufacturerService.UpdateManufacturerAsync(id, manufacturer);
+            var manufacturerResult = await _giftCardService.UpdateManufacturerAsync(id, manufacturer);
 
             return View(manufacturerResult.Adapt<ManufacturerNameViewModel>());
         }
 
-        // GET: Admin/Manufacturer/Delete/5
+        // GET: Admin/GiftCard/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
-            var manufacturer = await _manufacturerService.GetById(id);
+            var manufacturer = await _giftCardService.GetById(id);
 
             if (manufacturer == null)
                 return NotFound();
@@ -117,13 +118,14 @@ namespace WebMVC.Areas.Admin.Controllers
             return View(manufacturer.Adapt<ManufacturerSummaryViewModel>());
         }
 
-        // POST: Admin/Manufacturer/Delete/5
+        // POST: Admin/GiftCard/Delete/5
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirm(int id)
         {
-            await _manufacturerService.DeleteManufacturerAsync(id);
+            await _giftCardService.DeleteManufacturerAsync(id);
 
             return RedirectToAction("Index");
         }
+        */
     }
 }
