@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebMVC.Models.Order;
+using static NuGet.Packaging.PackagingConstants;
 
 namespace WebMVC.Areas.Admin.Controllers
 {
@@ -44,6 +45,8 @@ namespace WebMVC.Areas.Admin.Controllers
             {
                 return NotFound();
             }
+
+            // TODO access OrderItem and assign ProductImage ??
 
             return View(order.Adapt<OrderDetailViewModel>());
         }

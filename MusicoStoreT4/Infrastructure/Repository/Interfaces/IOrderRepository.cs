@@ -9,6 +9,6 @@ namespace Infrastructure.Repository.Interfaces
 {
     public interface IOrderRepository : IRepository<Order>
     {
-        Task<List<Order>> GetOrdersWithProductsAsync(int userId);
+        Task<IEnumerable<Order>> GetOrdersByAsync(int userId);
     }
 }

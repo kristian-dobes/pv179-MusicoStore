@@ -34,7 +34,6 @@ namespace WebMVC
 
             TypeAdapterConfig<OrderDetailDTO, OrderDetailViewModel>.NewConfig()
                 .Map(dest => dest.OrderId, src => src.OrderId);
-                //.PreserveReference(true);
         }
     }
 }

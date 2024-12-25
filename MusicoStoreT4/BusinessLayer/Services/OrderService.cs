@@ -128,9 +128,12 @@ namespace BusinessLayer.Services
             return true;
         }
 
-        public async Task<List<Order>> GetOrdersWithProductsAsync(int userId)
+        public async Task<IEnumerable<OrderDetailDTO?>> GetOrdersByUserAsync(int userId)
         {
-            return await _uow.OrdersRep.GetOrdersWithProductsAsync(userId);
+            var orders = await _uow.OrdersRep.GetOrdersByAsync(userId);
+
+            return orders.Select(o => o.Adapt<OrderDetailDTO>()).ToList();
+            //return (await _uow.OrdersRep.GetOrdersWithProductsAsync(userId)).Select(o => o.Adapt<OrderDetailDTO>()).ToList();
         }
     }
 }

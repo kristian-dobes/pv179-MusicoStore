@@ -46,7 +46,7 @@ namespace Infrastructure.Repository.Implementations
             return true;
         }
 
-        public async Task<List<Order>> GetOrdersWithProductsAsync(int userId)
+        public async Task<IEnumerable<Order>> GetOrdersByAsync(int userId)
         {
             return await _context.Orders
                 .Include(o => o.OrderItems)

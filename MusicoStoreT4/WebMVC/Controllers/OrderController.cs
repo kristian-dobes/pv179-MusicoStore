@@ -1,55 +1,56 @@
 ﻿using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
+using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WebMVC.Models;
+using WebMVC.Models.Order;
 
 namespace WebMVC.Controllers
 {
     public class OrderController : Controller
     {
         private readonly IOrderService _orderService;
+        private readonly IImageService _imageService;
         private readonly UserManager<LocalIdentityUser> _userManager;
 
-        public OrderController(IOrderService orderService, UserManager<LocalIdentityUser> userManager)
+        public OrderController(IOrderService orderService, IImageService imageService, UserManager<LocalIdentityUser> userManager)
         {
             _orderService = orderService;
+            _imageService = imageService;
             _userManager = userManager;
         }
 
         [HttpGet]
         public async Task<IActionResult> UserOrders()
         {
-            var userId = await GetCurrentUserId();
-            // var userId = 3;
+            //var userId = await GetCurrentUserId();
+            var userId = 3; // for testing
+            
+            var orders = await _orderService.GetOrdersByUserAsync(userId);
 
-            var orders = await _orderService.GetOrdersWithProductsAsync(userId);
+            if (orders == null || !orders.Any())
+                return View("NoOrders");
 
-            var ordersVMs = orders.Select(o => new OrderViewModel
+            var ordersVM = orders.Adapt<IEnumerable<OrderDetailViewModel>>();
+
+            // access OrderItem and assign ProductImage
+            foreach (var order in ordersVM)
             {
-                Id = o.Id,
-                OrderDate = o.Date,
-                OrderStatusStr = o.OrderStatus.ToString(),
-                OrderItems = o.OrderItems.Select(oi => new OrderItemViewModel
+                foreach (var orderItem in order.OrderItems)
                 {
-                    ProductName = oi.Product.Name,
-                    Quantity = oi.Quantity,
-                    Price = oi.Price,
-                    Product = new ProductViewModel()
+                    if (orderItem != null)
                     {
-                        ProductId = oi.Product.Id,
-                        ProductName = oi.Product.Name,
-                        Description = oi.Product.Description,
-                        Price = oi.Product.Price,
-                        ImageFilePath = oi.Product.Image?.FilePath ?? ""  // fix this?
+                        orderItem.ProductImage = await _imageService.GetImagePathByProductIdAsync(orderItem.ProductId); // TODO can improve this ?
                     }
-                }).ToList()
-            });
+                }
 
-            return View(ordersVMs);
+            }
+
+            return View(ordersVM);
         }
 
         private async Task<int> GetCurrentUserId()

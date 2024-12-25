@@ -15,6 +15,6 @@ namespace BusinessLayer.Services.Interfaces
         Task<int> CreateOrderAsync(CreateOrderDto createOrderDto);
         Task<bool> UpdateOrderAsync(int orderId, UpdateOrderDto updateOrderDto);
         Task<bool> DeleteOrderAsync(int orderId);
-        Task<List<Order>> GetOrdersWithProductsAsync(int userId);
+        Task<IEnumerable<OrderDetailDTO?>> GetOrdersByUserAsync(int userId);
     }
 }
