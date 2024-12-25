@@ -21,6 +21,8 @@ namespace DataAccessLayer.Data
         public virtual DbSet<ProductImage> ProductImages { get; set; }
         public virtual DbSet<Log> Logs { get; set; }
         public virtual DbSet<AuditLog> AuditLogs { get; set; }
+        public virtual DbSet<CouponCode> CouponCodes { get; set; }
+        public virtual DbSet<GiftCard> GiftCards { get; set; }
 
         public MyDBContext(DbContextOptions<MyDBContext> options) : base(options)
         {
@@ -60,6 +62,12 @@ namespace DataAccessLayer.Data
                 .HasOne(order => order.User)
                 .WithMany(user => user.Orders)
                 .HasForeignKey(order => order.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CouponCode>()
+                .HasOne(couponCode => couponCode.GiftCard)
+                .WithMany(giftCard => giftCard.CouponCodes)
+                .HasForeignKey(couponCode => couponCode.GiftCardId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Seed();
