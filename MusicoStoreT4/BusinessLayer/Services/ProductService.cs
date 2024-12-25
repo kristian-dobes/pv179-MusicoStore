@@ -67,11 +67,8 @@ namespace BusinessLayer.Services
                             Quantity = oi.Quantity,
                         })
                         .ToList(),
-                    Category = p.Category != null ? p.Category.Adapt<CategorySummaryDTO>() : null,
-                    Manufacturer =
-                        p.Manufacturer != null
-                            ? p.Manufacturer.Adapt<ManufacturerSummaryDTO>()
-                            : null
+                    Category = p.Category?.Adapt<CategorySummaryDTO>(),
+                    Manufacturer = p.Manufacturer?.Adapt<ManufacturerSummaryDTO>()
                 })
                 .ToList();
         }
