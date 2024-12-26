@@ -1,4 +1,5 @@
-﻿using BusinessLayer.DTOs.Manufacturer;
+﻿using BusinessLayer.DTOs.Category;
+using BusinessLayer.DTOs.Manufacturer;
 
 namespace WebMVC.Models.Product
 {
@@ -11,6 +12,7 @@ namespace WebMVC.Models.Product
         public required int CategoryId { get; set; }
         public required int ManufacturerId { get; set; }
 
+        public IEnumerable<CategorySummaryDTO> Categories { get; set; } = [];
         public IEnumerable<ManufacturerSummaryDTO> Manufacturers { get; set; } = [];
     }   
 }
