@@ -1,13 +1,13 @@
-﻿using DataAccessLayer.Data;
-using DataAccessLayer.Models;
-using Infrastructure.Repository.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using DataAccessLayer.Data;
+using DataAccessLayer.Models;
+using Infrastructure.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repository.Implementations
 {
@@ -15,7 +15,8 @@ namespace Infrastructure.Repository.Implementations
     {
         private readonly MyDBContext _context;
 
-        public ManufacturerRepository(MyDBContext context) : base(context)
+        public ManufacturerRepository(MyDBContext context)
+            : base(context)
         {
             _context = context;
         }
@@ -40,9 +41,12 @@ namespace Infrastructure.Repository.Implementations
 
         public async Task<List<Manufacturer>> GetManufacturersWithProductsAsync()
         {
-            return await _context.Manufacturers
-                .Include(m => m.Products)
-                .ToListAsync();
+            return await _context.Manufacturers.Include(m => m.Products).ToListAsync();
+        }
+
+        public IQueryable<Manufacturer> GetAllQuery()
+        {
+            return _context.Manufacturers.AsQueryable();
         }
     }
 }

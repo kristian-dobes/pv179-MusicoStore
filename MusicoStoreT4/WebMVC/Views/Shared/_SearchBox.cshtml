@@ -1,0 +1,9 @@
+﻿@using BusinessLayer.Enums;
+@using WebMVC.Models.Shared;
+@model SearchViewModel
+
+<form asp-action="Search" asp-controller="Product" method="get">
+    <input type="text" name="query" placeholder="Search products(categories, manufacturers)..." />
+    @* <select asp-for="SearchIn" asp-items="Html.GetEnumSelectList<SearchField>()"></select> *@
+    <button type="submit">Search</button>
+</form>

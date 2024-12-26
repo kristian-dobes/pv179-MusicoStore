@@ -1,4 +1,4 @@
-﻿using BusinessLayer.DTOs.Category;
+using BusinessLayer.DTOs.Category;
 using BusinessLayer.DTOs.Manufacturer;
 
 namespace WebMVC.Models.Product

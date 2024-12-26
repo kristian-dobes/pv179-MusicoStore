@@ -4,14 +4,14 @@ using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Infrastructure.Repository.Implementations.Implementations;
 using Infrastructure.Repository.Implementations;
+using Infrastructure.Repository.Implementations.Implementations;
 using Infrastructure.Repository.Interfaces;
 using Infrastructure.UnitOfWork;
-using WebMVC;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Presentations.Shared.Middlewares;
+using WebMVC;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,7 +45,8 @@ builder.Services.AddDbContext<MyDBContext>(options =>
 new MapsterConfig().RegisterMappings();
 
 // Register Identity
-builder.Services.AddIdentity<LocalIdentityUser, IdentityRole>()
+builder
+    .Services.AddIdentity<LocalIdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<MyDBContext>()
     .AddDefaultTokenProviders();
 
@@ -82,6 +83,8 @@ builder.Services.AddScoped<IImageService>(provider =>
 builder.Services.AddScoped<IManufacturerFacade, ManufacturerFacade>();
 builder.Services.AddScoped<ILogService, LogService>();
 
+new MapsterConfig().RegisterMappings();
+
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.Password.RequireDigit = true;
@@ -117,10 +120,9 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "areas",
-    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+);
+app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 
 using (var scope = app.Services.CreateScope())
 {

@@ -1,7 +1,11 @@
 ﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Threading.Tasks;
 using BusinessLayer.DTOs;
 using BusinessLayer.DTOs.Order;
@@ -10,14 +14,10 @@ using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
-using Mapster;
-using Infrastructure.UnitOfWork;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using DataAccessLayer.Models.Enums;
+using Infrastructure.UnitOfWork;
+using Mapster;
+using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Services
 {
@@ -25,52 +25,67 @@ namespace BusinessLayer.Services
     {
         private readonly IUnitOfWork _uow;
 
-        public OrderService(IUnitOfWork unitOfWork) : base(unitOfWork)
+        public OrderService(IUnitOfWork unitOfWork)
+            : base(unitOfWork)
         {
             _uow = unitOfWork;
         }
 
-        public async Task<IEnumerable<OrderDetailDTO>> GetAllOrdersAsync()
+        public async Task<IEnumerable<OrderDetailDto>> GetAllOrdersAsync()
         {
             var orders = await _uow.OrdersRep.GetAllAsync();
 
-            return orders.Select(o => o.Adapt<OrderDetailDTO>()).ToList();
+            return orders.Select(o => o.Adapt<OrderDetailDto>()).ToList();
         }
 
-        public async Task<OrderDetailDTO?> GetOrderByIdAsync(int id)
+        public async Task<OrderDetailDto?> GetOrderByIdAsync(int id)
         {
             var order = await _uow.OrdersRep.GetByIdAsync(id);
 
             if (order == null)
                 return null;
 
-            return order?.Adapt<OrderDetailDTO>();
+            return order?.Adapt<OrderDetailDto>();
         }
 
         public async Task<int> CreateOrderAsync(CreateOrderDto createOrderDto)
         {
-            if (createOrderDto == null || createOrderDto.Items == null || !createOrderDto.Items.Any())
+            if (
+                createOrderDto == null
+                || createOrderDto.Items == null
+                || !createOrderDto.Items.Any()
+            )
                 throw new ArgumentException("Order must contain at least one item.");
 
             if (!(await _uow.UsersRep.AnyAsync(u => u.Id == createOrderDto.CustomerId)))
-                throw new ArgumentException($"No such customer with id {createOrderDto.CustomerId}");
+                throw new ArgumentException(
+                    $"No such customer with id {createOrderDto.CustomerId}"
+                );
 
             foreach (var orderItemDto in createOrderDto.Items)
             {
                 if (!(await _uow.ProductsRep.AnyAsync(p => p.Id == orderItemDto.ProductId)))
-                    throw new ArgumentException($"No such product with id {orderItemDto.ProductId}. Order was not created.");
+                    throw new ArgumentException(
+                        $"No such product with id {orderItemDto.ProductId}. Order was not created."
+                    );
             }
 
             var order = new Order
             {
                 UserId = createOrderDto.CustomerId,
                 Date = DateTime.UtcNow,
-                OrderItems = (ICollection<OrderItem>)createOrderDto.Items.Select(async itemDto => new OrderItem
-                {
-                    ProductId = itemDto.ProductId,
-                    Quantity = itemDto.Quantity,
-                    Price = (await _uow.ProductsRep.GetByIdAsync(itemDto.ProductId)).Price,
-                }).ToList(),
+                OrderItems =
+                    (ICollection<OrderItem>)
+                        createOrderDto
+                            .Items.Select(async itemDto => new OrderItem
+                            {
+                                ProductId = itemDto.ProductId,
+                                Quantity = itemDto.Quantity,
+                                Price = (
+                                    await _uow.ProductsRep.GetByIdAsync(itemDto.ProductId)
+                                ).Price,
+                            })
+                            .ToList(),
                 OrderStatus = OrderStatus.Pending
             };
 
@@ -97,12 +112,14 @@ namespace BusinessLayer.Services
 
                 if (product != null)
                 {
-                    order.OrderItems.Add(new OrderItem
-                    {
-                        ProductId = itemDto.ProductId,
-                        Quantity = itemDto.Quantity,
-                        Price = product.Price
-                    });
+                    order.OrderItems.Add(
+                        new OrderItem
+                        {
+                            ProductId = itemDto.ProductId,
+                            Quantity = itemDto.Quantity,
+                            Price = product.Price
+                        }
+                    );
                 }
             }
 
@@ -113,7 +130,9 @@ namespace BusinessLayer.Services
             }
             catch (DbUpdateConcurrencyException)
             {
-                throw new ArgumentException($"Failed to update order with ID {orderId} due to concurrency issues.");
+                throw new ArgumentException(
+                    $"Failed to update order with ID {orderId} due to concurrency issues."
+                );
             }
         }
 
@@ -128,11 +147,11 @@ namespace BusinessLayer.Services
             return true;
         }
 
-        public async Task<IEnumerable<OrderDetailDTO?>> GetOrdersByUserAsync(int userId)
+        public async Task<IEnumerable<OrderDetailDto?>> GetOrdersByUserAsync(int userId)
         {
             var orders = await _uow.OrdersRep.GetOrdersByAsync(userId);
 
-            return orders.Select(o => o.Adapt<OrderDetailDTO>()).ToList();
+            return orders.Select(o => o.Adapt<OrderDetailDto>()).ToList();
             //return (await _uow.OrdersRep.GetOrdersWithProductsAsync(userId)).Select(o => o.Adapt<OrderDetailDTO>()).ToList();
         }
     }

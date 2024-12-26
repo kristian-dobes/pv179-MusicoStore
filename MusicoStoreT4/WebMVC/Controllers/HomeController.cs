@@ -1,7 +1,7 @@
+using System.Diagnostics;
 using BusinessLayer.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 using WebMVC.Models;
 using WebMVC.Models.Product;
 
@@ -14,7 +14,11 @@ namespace WebMVC.Controllers
         private readonly IProductService _productService;
         private readonly IImageService _imageService;
 
-        public HomeController(ILogger<HomeController> logger, IProductService productService, IImageService imageService)
+        public HomeController(
+            ILogger<HomeController> logger,
+            IProductService productService,
+            IImageService imageService
+        )
         {
             _logger = logger;
             _productService = productService;
@@ -49,7 +53,12 @@ namespace WebMVC.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(
+                new ErrorViewModel
+                {
+                    RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+                }
+            );
         }
     }
 }

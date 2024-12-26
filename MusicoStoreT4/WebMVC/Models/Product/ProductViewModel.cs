@@ -1,6 +1,6 @@
 namespace WebMVC.Models.Product
 {
-    public class ProductHomeViewModel
+    public class ProductViewModel
     {
         public int ProductId { get; set; }
         public string ProductName { get; set; }

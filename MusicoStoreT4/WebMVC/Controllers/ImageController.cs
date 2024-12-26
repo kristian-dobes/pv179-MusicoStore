@@ -1,5 +1,4 @@
 ﻿using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebMVC.Controllers
