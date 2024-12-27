@@ -48,93 +48,107 @@ namespace BusinessLayer.Services
             return order?.Adapt<OrderDetailDto>();
         }
 
-        public async Task<int> CreateOrderAsync(CreateOrderDto createOrderDto)
+        public async Task<bool> CreateOrderAsync(CreateOrderDto createOrderDto)
         {
-            if (
-                createOrderDto == null
-                || createOrderDto.Items == null
-                || !createOrderDto.Items.Any()
-            )
-                throw new ArgumentException("Order must contain at least one item.");
+            // Validate input
+            if (createOrderDto == null || createOrderDto.Items == null || !createOrderDto.Items.Any())
+                throw new ArgumentException("Order must contain at least one item.", nameof(createOrderDto));
 
-            if (!(await _uow.UsersRep.AnyAsync(u => u.Id == createOrderDto.CustomerId)))
-                throw new ArgumentException(
-                    $"No such customer with id {createOrderDto.CustomerId}"
-                );
+            // Validate customer existence
+            if (!await _uow.UsersRep.AnyAsync(u => u.Id == createOrderDto.CustomerId))
+                throw new ArgumentException($"No such customer with id {createOrderDto.CustomerId}", nameof(createOrderDto.CustomerId));
 
-            foreach (var orderItemDto in createOrderDto.Items)
+            // Validate product existence and create order items
+            var orderItems = new List<OrderItem>();
+            var productIds = createOrderDto.Items.Select(i => i.ProductId).ToHashSet();
+            var products = await _uow.ProductsRep.GetByIdsAsync(productIds); // bulk fetch
+
+            foreach (var itemDto in createOrderDto.Items)
             {
-                if (!(await _uow.ProductsRep.AnyAsync(p => p.Id == orderItemDto.ProductId)))
-                    throw new ArgumentException(
-                        $"No such product with id {orderItemDto.ProductId}. Order was not created."
-                    );
+                var product = products.FirstOrDefault(p => p.Id == itemDto.ProductId);
+                if (product == null)
+                    throw new ArgumentException($"No such product with id {itemDto.ProductId}", nameof(itemDto.ProductId));
+
+                orderItems.Add(new OrderItem
+                {
+                    ProductId = itemDto.ProductId,
+                    Quantity = itemDto.Quantity,
+                    Price = product.Price
+                });
             }
 
             var order = new Order
             {
                 UserId = createOrderDto.CustomerId,
                 Date = DateTime.UtcNow,
-                OrderItems =
-                    (ICollection<OrderItem>)
-                        createOrderDto
-                            .Items.Select(async itemDto => new OrderItem
-                            {
-                                ProductId = itemDto.ProductId,
-                                Quantity = itemDto.Quantity,
-                                Price = (
-                                    await _uow.ProductsRep.GetByIdAsync(itemDto.ProductId)
-                                ).Price,
-                            })
-                            .ToList(),
-                OrderStatus = OrderStatus.Pending
+                OrderItems = orderItems,
+                OrderStatus = PaymentStatus.Pending
             };
 
             await _uow.OrdersRep.AddAsync(order);
 
-            return 1;
+            try
+            {
+                await _uow.SaveAsync();
+            }
+            catch (DbUpdateException)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public async Task<bool> UpdateOrderAsync(int orderId, UpdateOrderDto updateOrderDto)
         {
-            var order = await _uow.OrdersRep.GetByIdAsync(orderId);
+            if (updateOrderDto == null)
+                throw new ArgumentNullException(nameof(updateOrderDto), "UpdateOrderDto cannot be null.");
 
+            // Fetch the order
+            var order = await _uow.OrdersRep.GetByIdAsync(orderId);
             if (order == null)
                 throw new ArgumentException($"Order with ID {orderId} not found.");
 
+            // Update the order date if provided
             if (updateOrderDto.OrderDate.HasValue)
                 order.Date = updateOrderDto.OrderDate.Value;
 
+            // Remove all existing order items
             order.OrderItems.Clear();
 
-            foreach (var itemDto in updateOrderDto.OrderItems)
-            {
-                var product = await _uow.ProductsRep.GetByIdAsync(itemDto.ProductId);
+            // bulk fetch
+            var productIds = updateOrderDto.OrderItems.Select(item => item.ProductId).Distinct();
+            var products = await _uow.ProductsRep.GetByIdsAsync(productIds); 
 
-                if (product != null)
-                {
-                    order.OrderItems.Add(
-                        new OrderItem
-                        {
-                            ProductId = itemDto.ProductId,
-                            Quantity = itemDto.Quantity,
-                            Price = product.Price
-                        }
-                    );
-                }
-            }
+            if (products.Count() != productIds.Count())
+                throw new ArgumentException("One or more products in the order are invalid.");
 
+            // Add new order items
+            order.OrderItems = updateOrderDto.OrderItems
+                .Join(products, itemDto => itemDto.ProductId, product => product.Id,
+                    (itemDto, product) => new OrderItem
+                    {
+                        ProductId = product.Id,
+                        Quantity = itemDto.Quantity,
+                        Price = product.Price
+                    })
+                .ToList();
+
+            // Save changes within a transaction
+            //using var transaction = await _uow.BeginTransactionAsync();
             try
             {
                 await _uow.SaveAsync();
+               // await transaction.CommitAsync();
                 return true;
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                throw new ArgumentException(
-                    $"Failed to update order with ID {orderId} due to concurrency issues."
-                );
+                //await transaction.RollbackAsync();
+                throw new ArgumentException($"Failed to update order with ID {orderId} due to concurrency issues.", ex);
             }
         }
+
 
         public async Task<bool> DeleteOrderAsync(int orderId)
         {

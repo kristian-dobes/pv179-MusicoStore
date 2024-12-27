@@ -19,6 +19,6 @@ namespace DataAccessLayer.Models
 
         public virtual ICollection<OrderItem>? OrderItems { get; set; }
 
-        public OrderStatus OrderStatus { get; set; }
+        public PaymentStatus OrderStatus { get; set; }
     }
 }

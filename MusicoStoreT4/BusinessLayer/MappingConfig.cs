@@ -130,7 +130,7 @@ namespace BusinessLayer
                             ? src.OrderItems.Sum(oi => oi.Price * oi.Quantity)
                             : 0
                 )
-                .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString());
+                .Map(dest => dest.PaymentStatus, src => src.OrderStatus.ToString());
         }
     }
 }

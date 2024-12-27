@@ -62,7 +62,6 @@ namespace BusinessLayer.Services
                     OrderItems = p
                         .OrderItems.Select(oi => new OrderItemDto
                         {
-                            OrderItemId = oi.Id,
                             ProductId = p.Id,
                             Quantity = oi.Quantity,
                         })

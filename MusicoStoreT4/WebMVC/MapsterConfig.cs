@@ -2,6 +2,7 @@ using BusinessLayer;
 using BusinessLayer.DTOs.Category;
 using BusinessLayer.DTOs.Manufacturer;
 using BusinessLayer.DTOs.Order;
+using BusinessLayer.DTOs.OrderItem;
 using BusinessLayer.DTOs.Product;
 using Mapster;
 using WebMVC.Models.Category;
@@ -38,7 +39,19 @@ namespace WebMVC
 
             TypeAdapterConfig<OrderDetailDto, OrderDetailViewModel>
                 .NewConfig()
-                .Map(dest => dest.OrderId, src => src.OrderId);
+                .Map(dest => dest.OrderId, src => src.OrderId)
+                .Map(dest => dest.PaymentStatus, src => src.PaymentStatus);
+
+            TypeAdapterConfig<OrderItemCompleteDTO, OrderItemDto>
+                .NewConfig()
+                .Map(dest => dest.ProductId, src => src.ProductId)
+                .Map(dest => dest.Quantity, src => src.Quantity);
+            TypeAdapterConfig<OrderDetailDto, OrderUpdateViewModel>
+                .NewConfig()
+                .Map(dest => dest.Items, src => src.OrderItems.Adapt<IEnumerable<OrderItemDto>>()); // Map nested collection
+            TypeAdapterConfig<OrderUpdateViewModel, UpdateOrderDto>
+                .NewConfig()
+                .Map(dest => dest.OrderItems, src => src.Items);
 
             TypeAdapterConfig<ProductDto, ProductDetailViewModel>
                 .NewConfig()

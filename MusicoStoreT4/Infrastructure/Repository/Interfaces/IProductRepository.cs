@@ -11,5 +11,6 @@ namespace Infrastructure.Repository.Interfaces
     {
         Task<List<Product>> GetAllWithDetailsAsync();
         IQueryable<Product> GetAllQuery();
+        Task<IEnumerable<Product>> GetByIdsAsync(IEnumerable<int> ids);
     }
 }

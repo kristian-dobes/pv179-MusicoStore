@@ -52,5 +52,10 @@ namespace Infrastructure.Repository.Implementations
         {
             return _context.Products.AsQueryable();
         }
+
+        public async Task<IEnumerable<Product>> GetByIdsAsync(IEnumerable<int> ids)
+        {
+            return await _context.Products.Where(p => ids.Contains(p.Id)).ToListAsync();
+        }
     }
 }
