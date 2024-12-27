@@ -28,14 +28,6 @@ namespace WebMVC.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            //debug print to console category attributes
-            foreach (var category in categories)
-            {
-                System.Console.WriteLine($"Category ID: {category.CategoryId}");
-                System.Console.WriteLine($"Category Name: {category.Name}");
-                System.Console.WriteLine($"Category ProductCount: {category.ProductCount}");
-            }
-
             return View(categories.Adapt<IEnumerable<CategorySummaryViewModel>>());
         }
 
@@ -55,11 +47,6 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/Category/Create
         public IActionResult Create()
         {
-            // TODO use list of available categories and categories
-            // not like this:
-            //ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
-            //ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
-
             return View();
         }
 
@@ -89,7 +76,6 @@ namespace WebMVC.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            // using CreateViewModel for Edit as well, as they are the same
             return View(category.Adapt<CategoryNameViewModel>());
         }
 
@@ -104,10 +90,9 @@ namespace WebMVC.Areas.Admin.Controllers
             }
 
             var category = model.Adapt<CategoryUpdateDTO>();
+            await _categoryService.UpdateCategoryAsync(id, category);
 
-            var categoryResult = await _categoryService.UpdateCategoryAsync(id, category);
-
-            return View(categoryResult.Adapt<CategoryNameViewModel>());
+            return RedirectToAction("Details", new { id });
         }
 
         // GET: Admin/Category/Delete/5

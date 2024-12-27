@@ -142,9 +142,9 @@ namespace WebMVC.Areas.Admin.Controllers
                 return Unauthorized("User must be authenticated to edit the product.");
             product.LastModifiedById = user.UserId;
 
-            var productResult = await _productService.UpdateProductAsync(id, product);
+            await _productService.UpdateProductAsync(id, product);
 
-            return View(productResult.Adapt<ProductUpdateViewModel>());
+            return RedirectToAction("Details", new { id });
         }
 
         // GET: Admin/Product/Delete/5

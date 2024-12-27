@@ -48,11 +48,6 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/Manufacturer/Create
         public IActionResult Create()
         {
-            // TODO use list of available categories and manufacturers
-            // not like this:
-            //ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
-            //ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "Id", "Name");
-
             return View();
         }
 
@@ -82,7 +77,6 @@ namespace WebMVC.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            // using CreateViewModel for Edit as well, as they are the same
             return View(manufacturer.Adapt<ManufacturerNameViewModel>());
         }
 
@@ -97,10 +91,9 @@ namespace WebMVC.Areas.Admin.Controllers
             }
 
             var manufacturer = model.Adapt<ManufacturerUpdateDTO>();
-
-            var manufacturerResult = await _manufacturerService.UpdateManufacturerAsync(id, manufacturer);
-
-            return View(manufacturerResult.Adapt<ManufacturerNameViewModel>());
+            await _manufacturerService.UpdateManufacturerAsync(id, manufacturer);
+         
+            return RedirectToAction("Details", new { id });
         }
 
         // GET: Admin/Manufacturer/Delete/5
