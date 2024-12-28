@@ -16,6 +16,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Tests.Other;
 using BusinessLayer;
+using Microsoft.AspNetCore.Identity;
 
 namespace Tests
 {
@@ -23,14 +24,22 @@ namespace Tests
     public class CategoryServiceTests
     {
         private IUnitOfWork _uow;
+        private Mock<UserManager<LocalIdentityUser>> _mockUserManager;
         private CategoryService _service;
 
         [SetUp]
         public void SetUp()
         {
             var context = MockDbContext.GenerateMock();
+
+            // Mock UserManager dependencies
+            var store = new Mock<IUserStore<LocalIdentityUser>>();
+            _mockUserManager = new Mock<UserManager<LocalIdentityUser>>(
+                store.Object, null, null, null, null, null, null, null, null
+            );
+
             _uow = new UnitOfWork(context,
-                                  new UserRepository(context),
+                                  new UserRepository(context, _mockUserManager.Object),
                                   new CategoryRepository(context),
                                   new ManufacturerRepository(context),
                                   new OrderRepository(context),

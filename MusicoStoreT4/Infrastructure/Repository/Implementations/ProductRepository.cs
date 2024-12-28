@@ -2,7 +2,6 @@
 using DataAccessLayer.Models;
 using Infrastructure.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace Infrastructure.Repository.Implementations
 {
@@ -56,6 +55,24 @@ namespace Infrastructure.Repository.Implementations
         public async Task<IEnumerable<Product>> GetByIdsAsync(IEnumerable<int> ids)
         {
             return await _context.Products.Where(p => ids.Contains(p.Id)).ToListAsync();
+        }
+
+        public async Task<List<int>> GetProductIdsByManufacturerAsync(int manufacturerId)
+        {
+            return await _context.Products
+                .Where(p => p.ManufacturerId == manufacturerId)
+                .Select(p => p.Id)
+                .ToListAsync();
+        }
+
+        public async Task ReassignProductsToManufacturerAsync(int sourceManufacturerId, int destinationManufacturerId, int modifiedById)
+        {
+            await _context.Products
+                .Where(p => p.ManufacturerId == sourceManufacturerId)
+                .ExecuteUpdateAsync(updates => updates
+                    .SetProperty(p => p.ManufacturerId, destinationManufacturerId)
+                    .SetProperty(p => p.LastModifiedById, modifiedById)
+                );
         }
     }
 }

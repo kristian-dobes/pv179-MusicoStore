@@ -15,13 +15,7 @@ namespace BusinessLayer.Services.Interfaces
         Task<IEnumerable<ProductWithDetailsDto>> GetAllProductsWithDetailsAsync();
         Task<ProductCompleteDTO> UpdateProductAsync(int id, ProductUpdateDTO productDto);
         Task<ProductDto> CreateProductAsync(ProductCreateDTO productDto);
-        Task ReassignProductsToManufacturerAsync(
-            int sourceManufacturerId,
-            int targetManufacturerId,
-            int modifiedBy
-        );
-        Task<IEnumerable<ProductDto>> GetProductsByManufacturerAsync(int manufacturerId);
-        Task UpdateProductManufacturerAsync(int productId, int newManufacturerId, int modifiedBy);
+        Task ReassignProductsToManufacturerAsync(int sourceManufacturerId, int destinationManufacturerId, int modifiedById);
         Task<IEnumerable<TopSellingProductDto>> GetTopSellingProductsByCategoryAsync(
             DateTime startDate,
             DateTime endDate,

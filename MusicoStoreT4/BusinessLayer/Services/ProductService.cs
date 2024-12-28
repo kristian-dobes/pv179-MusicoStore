@@ -172,51 +172,19 @@ namespace BusinessLayer.Services
             }
         }
 
-        public async Task ReassignProductsToManufacturerAsync(
-            int sourceManufacturerId,
-            int targetManufacturerId,
-            int modifiedBy
-        )
+        public async Task ReassignProductsToManufacturerAsync(int sourceManufacturerId, int destinationManufacturerId, int modifiedById)
         {
-            var productsToUpdate = await _uow.ProductsRep.WhereAsync(p =>
-                p.ManufacturerId == sourceManufacturerId
-            );
+            // products to reassign
+            var productIds = await _uow.ProductsRep.GetProductIdsByManufacturerAsync(sourceManufacturerId);
 
-            foreach (var product in productsToUpdate)
+            // reassign products
+            await _uow.ProductsRep.ReassignProductsToManufacturerAsync(sourceManufacturerId, destinationManufacturerId, modifiedById);
+
+            // Log each product update
+            foreach (var productId in productIds)
             {
-                product.ManufacturerId = targetManufacturerId;
-                product.LastModifiedById = modifiedBy;
-                product.EditCount++;
-                await _auditLogService.LogAsync(product.Id, AuditAction.Update, modifiedBy);
+                await _auditLogService.LogAsync(productId, AuditAction.Update, modifiedById);
             }
-            await _uow.SaveAsync();
-        }
-
-        public async Task<IEnumerable<ProductDto>> GetProductsByManufacturerAsync(
-            int manufacturerId
-        )
-        {
-            return (await _uow.ProductsRep.WhereAsync(p => p.ManufacturerId == manufacturerId))
-                .Select(p => p.MapToProductDTO())
-                .ToList();
-        }
-
-        public async Task UpdateProductManufacturerAsync(
-            int productId,
-            int newManufacturerId,
-            int modifiedBy
-        )
-        {
-            var product = await _uow.ProductsRep.GetByIdAsync(productId);
-
-            if (product == null)
-                throw new KeyNotFoundException($"Product with ID {productId} not found.");
-
-            product.ManufacturerId = newManufacturerId;
-            product.LastModifiedById = modifiedBy;
-            product.EditCount++;
-            await _auditLogService.LogAsync(product.Id, AuditAction.Update, modifiedBy);
-            await _uow.SaveAsync();
         }
 
         public async Task<IEnumerable<TopSellingProductDto>> GetTopSellingProductsByCategoryAsync(
