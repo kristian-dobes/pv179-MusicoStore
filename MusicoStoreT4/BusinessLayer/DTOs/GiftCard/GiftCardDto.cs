@@ -10,6 +10,6 @@ namespace BusinessLayer.DTOs.GiftCard
         public DateTime ValidityStartDate { get; set; }
         public DateTime ValidityEndDate { get; set; }
 
-        public IEnumerable<CouponCodeDto> CouponCodes { get; set; }
+        public virtual IEnumerable<CouponCodeDto> CouponCodes { get; set; }
     }
 }

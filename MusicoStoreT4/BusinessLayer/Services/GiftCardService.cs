@@ -52,5 +52,63 @@ namespace BusinessLayer.Services
 
             return added.Adapt<GiftCardDto>();
         }
+
+        public async Task<GiftCardDto?> UpdateGiftCardAsync(UpdateGiftCardDto updateGiftCardDto)
+        {
+            var existingGiftCard = (await _uow.GiftCardsRep
+                .WhereAsync(gc => gc.Id == updateGiftCardDto.GiftCardId)).FirstOrDefault();
+
+            if (existingGiftCard == null)
+            {
+                throw new KeyNotFoundException("Gift card ID not found");
+            }
+
+            if (updateGiftCardDto.DiscountAmount.HasValue && updateGiftCardDto.DiscountAmount <= 0)
+            {
+                throw new ArgumentException("DiscountAmount must be larger than 0");
+            }
+
+            if (updateGiftCardDto.DiscountAmount.HasValue)
+            {
+                existingGiftCard.DiscountAmount = updateGiftCardDto.DiscountAmount.Value;
+            }
+
+            if (updateGiftCardDto.ValidityStartDate.HasValue)
+            {
+                existingGiftCard.ValidityStartDate = updateGiftCardDto.ValidityStartDate.Value;
+            }
+
+            if (updateGiftCardDto.ValidityEndDate.HasValue)
+            {
+                existingGiftCard.ValidityEndDate = updateGiftCardDto.ValidityEndDate.Value;
+            }
+
+            if (updateGiftCardDto.CouponCodes != null)
+            {
+                var existingCoupons = existingGiftCard.CouponCodes.ToList();
+                foreach (var coupon in updateGiftCardDto.CouponCodes)
+                {
+                    var existingCoupon = existingCoupons.FirstOrDefault(c => c.Id == coupon.CouponCodeId);
+                    if (existingCoupon != null)
+                    {
+                        existingCoupon.Code = coupon.Code;
+                        existingCoupon.IsUsed = coupon.IsUsed;
+                        existingCoupon.OrderId = coupon.OrderId;
+                    }
+                    else
+                    {
+                        existingGiftCard.CouponCodes.Add(new CouponCode
+                        {
+                            Code = coupon.Code,
+                            IsUsed = coupon.IsUsed,
+                            OrderId = coupon.OrderId
+                        });
+                    }
+                }
+            }
+
+            await _uow.SaveAsync();
+            return existingGiftCard.Adapt<GiftCardDto>();
+        }
     }
 }

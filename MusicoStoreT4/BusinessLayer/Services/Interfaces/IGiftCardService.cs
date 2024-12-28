@@ -12,5 +12,6 @@ namespace BusinessLayer.Services.Interfaces
         Task<IEnumerable<GiftCardDto>> GetGiftCardsAsync();
         Task<GiftCardDto> GetById(int giftCardId);
         Task<GiftCardDto> CreateGiftCardAsync(CreateGiftCardDto createGiftCardDto);
+        Task<GiftCardDto?> UpdateGiftCardAsync(UpdateGiftCardDto updateGiftCardDto);
     }
 }

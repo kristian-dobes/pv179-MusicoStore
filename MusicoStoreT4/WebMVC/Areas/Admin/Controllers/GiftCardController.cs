@@ -65,6 +65,8 @@ namespace WebMVC.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(GiftCardViewModel model)
         {
+            model.Created = DateTime.Now;
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -82,38 +84,35 @@ namespace WebMVC.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
-        /*
-        // GET: Admin/GiftCard/Edit/5
+        // GET: Admin/GiftCard/Edit/id
         public async Task<IActionResult> Edit(int id)
         {
-            var manufacturer = await _giftCardService.GetById(id);
+            var giftCard = await _giftCardService.GetById(id);
 
-            if (manufacturer == null)
+            if (giftCard == null)
             {
                 return NotFound();
             }
 
-            // using CreateViewModel for Edit as well, as they are the same
-            return View(manufacturer.Adapt<ManufacturerNameViewModel>());
+            return View(giftCard.Adapt<GiftCardViewModel>());
         }
 
-        // POST: Admin/GiftCard/Edit/5
+        // POST: Admin/GiftCard/Edit/id
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, ManufacturerNameViewModel model)
+        public async Task<IActionResult> Edit(GiftCardViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
-                // return BadRequest(ModelState);
             }
 
-            var manufacturer = model.Adapt<ManufacturerUpdateDTO>();
+            var updateGiftCardDto = model.Adapt<UpdateGiftCardDto>();
+            var giftCardResult = await _giftCardService.UpdateGiftCardAsync(updateGiftCardDto);
 
-            var manufacturerResult = await _giftCardService.UpdateManufacturerAsync(id, manufacturer);
-
-            return View(manufacturerResult.Adapt<ManufacturerNameViewModel>());
+            return View(giftCardResult.Adapt<GiftCardViewModel>());
         }
 
+        /*
         // GET: Admin/GiftCard/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
