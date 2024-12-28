@@ -30,23 +30,25 @@ namespace WebMVC.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            return View(giftCards.Adapt<IEnumerable<GiftCardViewModel>>().ToList());
+            List<GiftCardViewModel> a = giftCards.Select(gc => gc.Adapt<GiftCardViewModel>()).ToList();
+
+            return base.View(a);
         }
 
-        /*
-        // GET: Admin/GiftCard/Details/5
+        // GET: Admin/GiftCard/Details/id
         public async Task<IActionResult> Details(int id)
         {
-            var manufacturer = await _giftCardService.GetById(id);
+            var giftCard = await _giftCardService.GetById(id);
 
-            if (manufacturer == null)
+            if (giftCard == null)
             {
                 return NotFound();
             }
 
-            return View(manufacturer.Adapt<ManufacturerSummaryViewModel>());
+            return View(giftCard.Adapt<GiftCardViewModel>());
         }
 
+        /*
         // GET: Admin/GiftCard/Create
         public IActionResult Create()
         {

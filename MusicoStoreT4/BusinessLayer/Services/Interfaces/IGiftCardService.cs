@@ -1,4 +1,4 @@
-﻿using BusinessLayer.DTOs.Category;
+﻿using BusinessLayer.DTOs.GiftCard;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +10,6 @@ namespace BusinessLayer.Services.Interfaces
     public interface IGiftCardService
     {
         Task<IEnumerable<GiftCardDto>> GetGiftCardsAsync();
+        Task<GiftCardDto> GetById(int giftCardId);
     }
 }

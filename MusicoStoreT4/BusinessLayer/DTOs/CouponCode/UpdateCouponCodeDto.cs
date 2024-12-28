@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLayer.DTOs.Category
+namespace BusinessLayer.DTOs.CouponCode
 {
     public class UpdateCouponCodeDto
     {

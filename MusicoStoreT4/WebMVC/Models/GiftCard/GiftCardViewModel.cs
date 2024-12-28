@@ -1,5 +1,4 @@
-﻿
-namespace WebMVC.Models.GiftCard
+﻿namespace WebMVC.Models.GiftCard
 {
     public class GiftCardViewModel
     {

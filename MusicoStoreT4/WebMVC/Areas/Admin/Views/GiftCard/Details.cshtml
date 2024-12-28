@@ -1,37 +1,87 @@
-﻿@model WebMVC.Models.Manufacturer.ManufacturerSummaryViewModel
+﻿@model WebMVC.Models.GiftCard.GiftCardViewModel
 
 @{
-    ViewData["Title"] = "Manufacturer Details";
+    ViewData["Title"] = "Gift Card Details";
 }
 
 <h1>Details</h1>
 
 <div>
-    <h4>Manufacturer:</h4>
+    <h4>Gift card:</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.ManufacturerId)
+            @Html.DisplayNameFor(model => model.GiftCardId)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.ManufacturerId)
+            @Html.DisplayFor(model => model.GiftCardId)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
+            @Html.DisplayNameFor(model => model.Created)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Name)
+            @Html.DisplayFor(model => model.Created)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ProductCount)
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.DiscountAmount)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ProductCount)
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.DiscountAmount)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ValidityStartDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ValidityStartDate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ValidityEndDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ValidityEndDate)
         </dd>
     </dl>
+
+    <h4>Coupon Codes:</h4>
+    <hr />
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.CouponCodes.First().CouponCodeId)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CouponCodes.First().Code)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CouponCodes.First().IsUsed)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CouponCodes.First().OrderId)
+                </th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var coupon in Model.CouponCodes)
+            {
+                <tr>
+                    <td>@coupon.CouponCodeId</td>
+                    <td>@coupon.Code</td>
+                    <td>@coupon.IsUsed</td>
+                    <td>@coupon.OrderId</td>
+                    <td>
+                        <a asp-action="EditCoupon" asp-route-id="@coupon.CouponCodeId">Edit</a> |
+                        <a asp-action="DeleteCoupon" asp-route-id="@coupon.CouponCodeId">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
+
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.ManufacturerId">Edit</a> |
-    <a asp-action="Delete" asp-route-id="@Model?.ManufacturerId">Delete</a> |
+    <a asp-action="Edit" asp-route-id="@Model?.GiftCardId">Edit Gift Card</a> |
+    <a asp-action="Delete" asp-route-id="@Model?.GiftCardId">Delete Gift Card</a> |
     <a asp-action="Index">Back to List</a>
 </div>

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLayer.DTOs.Category
+namespace BusinessLayer.DTOs.GiftCard
 {
     public class CreateGiftCardDto
     {
