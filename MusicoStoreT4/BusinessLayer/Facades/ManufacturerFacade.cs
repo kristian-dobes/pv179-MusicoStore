@@ -19,15 +19,15 @@ namespace BusinessLayer.Facades
             _productService = productService;
         }
 
-        public async Task MergeManufacturersAsync(int sourceManufacturerId, int targetManufacturerId, int modifiedById)
+        public async Task MergeManufacturersAsync(int sourceManufacturerId, int destinationManufacturerId, int modifiedById)
         {
-            if (sourceManufacturerId == targetManufacturerId)
+            if (sourceManufacturerId == destinationManufacturerId)
             {
                 throw new InvalidOperationException("Source and target manufacturers must be different.");
             }
 
             var sourceExists = await _manufacturerService.ValidateManufacturerAsync(sourceManufacturerId);
-            var targetExists = await _manufacturerService.ValidateManufacturerAsync(targetManufacturerId);
+            var targetExists = await _manufacturerService.ValidateManufacturerAsync(destinationManufacturerId);
 
             if (!sourceExists)
             {
@@ -36,10 +36,10 @@ namespace BusinessLayer.Facades
 
             if (!targetExists)
             {
-                throw new KeyNotFoundException($"Target manufacturer with ID {targetManufacturerId} not found.");
+                throw new KeyNotFoundException($"Target manufacturer with ID {destinationManufacturerId} not found.");
             }
 
-            await _productService.ReassignProductsToManufacturerAsync(sourceManufacturerId, targetManufacturerId, modifiedById);
+            await _productService.ReassignProductsToManufacturerAsync(sourceManufacturerId, destinationManufacturerId, modifiedById);
             await _manufacturerService.DeleteManufacturerAsync(sourceManufacturerId);
         }
     }
