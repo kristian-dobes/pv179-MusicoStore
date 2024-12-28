@@ -112,29 +112,27 @@ namespace WebMVC.Areas.Admin.Controllers
             return View(giftCardResult.Adapt<GiftCardViewModel>());
         }
 
-        /*
-        // GET: Admin/GiftCard/Delete/5
+        // GET: Admin/GiftCard/Delete/id
         public async Task<IActionResult> Delete(int id)
         {
-            var manufacturer = await _giftCardService.GetById(id);
+            var giftCard = await _giftCardService.GetById(id);
 
-            if (manufacturer == null)
+            if (giftCard == null)
                 return NotFound();
 
-            if (manufacturer.ProductCount > 0)
-                return BadRequest("Manufacturer has products, cannot delete.");
+            if (giftCard.CouponCodes.Count() > 0)
+                return BadRequest("Gift card has coupon codes, cannot delete.");
 
-            return View(manufacturer.Adapt<ManufacturerSummaryViewModel>());
+            return View(giftCard.Adapt<GiftCardViewModel>());
         }
 
-        // POST: Admin/GiftCard/Delete/5
+        // POST: Admin/GiftCard/Delete/id
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirm(int id)
         {
-            await _giftCardService.DeleteManufacturerAsync(id);
+            await _giftCardService.DeleteGiftCardAsync(id);
 
             return RedirectToAction("Index");
         }
-        */
     }
 }

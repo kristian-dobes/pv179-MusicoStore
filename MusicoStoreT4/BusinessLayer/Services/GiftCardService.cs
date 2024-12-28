@@ -110,5 +110,17 @@ namespace BusinessLayer.Services
             await _uow.SaveAsync();
             return existingGiftCard.Adapt<GiftCardDto>();
         }
+
+        public async Task<bool> DeleteGiftCardAsync(int giftCardId)
+        {
+            var existingGiftCard = await _uow.GiftCardsRep.GetByIdAsync(giftCardId);
+
+            if (existingGiftCard == null)
+            {
+                throw new KeyNotFoundException("Gift card ID not found");
+            }
+
+            return await _uow.GiftCardsRep.DeleteAsync(giftCardId);
+        }
     }
 }
