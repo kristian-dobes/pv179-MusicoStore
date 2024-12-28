@@ -94,6 +94,7 @@ namespace WebMVC.Controllers
             return View(model);
         }
 
+        [Route("/Account/LogOut")] // Shared route (Can logout from other Areas, eg. Admin)
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
