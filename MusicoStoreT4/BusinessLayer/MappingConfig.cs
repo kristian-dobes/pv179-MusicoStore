@@ -33,19 +33,28 @@ namespace BusinessLayer
                 .Map(dest => dest.QuantityInStock, src => src.QuantityInStock)
                 .Map(dest => dest.LastModifiedById, src => src.LastModifiedById)
                 .Map(dest => dest.EditCount, src => src.EditCount)
-                .Map(dest => dest.CategoryId, src => src.CategoryId)
+                .Map(dest => dest.PrimaryCategoryId, src => src.PrimaryCategoryId)
                 .Map(dest => dest.ManufacturerId, src => src.ManufacturerId);
         }
 
         public void RegisterDTOMaps()
         {
+            TypeAdapterConfig<Category, CategoryBasicDto>
+                .NewConfig()
+                .Map(dest => dest.CategoryId, src => src.Id)
+                .Map(dest => dest.Name, src => src.Name);
+
             TypeAdapterConfig<Product, ProductCompleteDTO>
                 .NewConfig()
                 .Map(dest => dest.ProductId, src => src.Id)
-                .Map(dest => dest.CategoryId, src => src.CategoryId)
-                .Map(dest => dest.CategoryName, src => src.Category.Name)
+                .Map(dest => dest.PrimaryCategoryId, src => src.PrimaryCategoryId)
+                .Map(dest => dest.PrimaryCategoryName, src => src.PrimaryCategory.Name)
                 .Map(dest => dest.ManufacturerId, src => src.ManufacturerId)
-                .Map(dest => dest.ManufacturerName, src => src.Manufacturer.Name);
+                .Map(dest => dest.ManufacturerName, src => src.Manufacturer.Name)
+                .Map(
+                    dest => dest.SecondaryCategories,
+                    src => src.SecondaryCategories.Adapt<IEnumerable<CategoryBasicDto>>()
+                );
 
             TypeAdapterConfig<Manufacturer, ManufacturerSummaryDTO>
                 .NewConfig()
@@ -62,7 +71,7 @@ namespace BusinessLayer
                 .Map(dest => dest.Name, src => src.Name)
                 .Map(
                     dest => dest.Products,
-                    src => src.Products.Adapt<IEnumerable<ProductCompleteDTO>>()
+                    src => src.PrimaryProducts.Adapt<IEnumerable<ProductCompleteDTO>>()
                 );
             TypeAdapterConfig<Category, CategorySummaryDTO>
                 .NewConfig()
@@ -70,7 +79,7 @@ namespace BusinessLayer
                 .Map(dest => dest.Name, src => src.Name)
                 .Map(
                     dest => dest.ProductCount,
-                    src => src.Products != null ? src.Products.Count() : 0
+                    src => src.PrimaryProducts != null ? src.PrimaryProducts.Count() : 0
                 );
 
             TypeAdapterConfig<User, UserSummaryDTO>
@@ -102,8 +111,8 @@ namespace BusinessLayer
                 .Map(dest => dest.ProductName, src => src.Product.Name)
                 .Map(dest => dest.ProductDescription, src => src.Product.Description)
                 .Map(dest => dest.ProductQuantityInStock, src => src.Product.QuantityInStock)
-                .Map(dest => dest.CategoryId, src => src.Product.CategoryId)
-                .Map(dest => dest.CategoryName, src => src.Product.Category.Name)
+                .Map(dest => dest.CategoryId, src => src.Product.PrimaryCategoryId)
+                .Map(dest => dest.CategoryName, src => src.Product.PrimaryCategory.Name)
                 .Map(dest => dest.ManufacturerId, src => src.Product.ManufacturerId)
                 .Map(dest => dest.ManufacturerName, src => src.Product.Manufacturer.Name)
                 .Map(dest => dest.Quantity, src => src.Quantity)

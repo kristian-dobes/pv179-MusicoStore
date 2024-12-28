@@ -23,11 +23,16 @@ namespace DataAccessLayer.Models
 
         public virtual ICollection<OrderItem>? OrderItems { get; set; }
 
-        public int CategoryId { get; set; }
-        [ForeignKey(nameof(CategoryId))]
-        public virtual Category? Category { get; set; }
+        public int PrimaryCategoryId { get; set; }
+
+        [ForeignKey(nameof(PrimaryCategoryId))]
+        public virtual Category? PrimaryCategory { get; set; }
+
+        public virtual ICollection<Category>? SecondaryCategories { get; set; } =
+            new List<Category>();
 
         public int ManufacturerId { get; set; }
+
         [ForeignKey(nameof(ManufacturerId))]
         public virtual Manufacturer? Manufacturer { get; set; }
 

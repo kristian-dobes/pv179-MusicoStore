@@ -47,12 +47,12 @@ namespace BusinessLayer.Services
             var newCategory = new Category { Name = newCategoryName };
             await _uow.CategoriesRep.AddAsync(newCategory);
 
-            var productsToMove = sourceCategory1.Products?.Concat(sourceCategory2.Products ?? Enumerable.Empty<Product>())
+            var productsToMove = sourceCategory1.PrimaryProducts?.Concat(sourceCategory2.PrimaryProducts ?? Enumerable.Empty<Product>())
                                  ?? Enumerable.Empty<Product>();
 
             foreach (var product in productsToMove)
             {
-                product.CategoryId = newCategory.Id;
+                product.PrimaryCategoryId = newCategory.Id;
             }
 
             await _uow.CategoriesRep.DeleteAsync(sourceCategory1.Id);
@@ -108,7 +108,7 @@ namespace BusinessLayer.Services
                 return false; // Not found
             }
 
-            if (category.Products != null && category.Products.Any())
+            if (category.PrimaryProducts != null && category.PrimaryProducts.Any())
             {
                 return false;
             }

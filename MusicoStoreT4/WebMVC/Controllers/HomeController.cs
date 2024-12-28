@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using BusinessLayer.DTOs.Category;
 using BusinessLayer.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -39,6 +40,7 @@ namespace WebMVC.Controllers
                 ProductName = product.Name,
                 Description = product.Description,
                 Price = product.Price,
+                PrimaryCategory = product.PrimaryCategoryName,
                 ImageFilePath = await _imageService.GetImagePathByProductIdAsync(productId)
             };
 

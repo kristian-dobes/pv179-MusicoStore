@@ -45,7 +45,7 @@ namespace Infrastructure.Repository.Implementations
 
         public async Task<List<Category>> GetCategoriesWithProductsAsync()
         {
-            return await _context.Categories.Include(c => c.Products).ToListAsync();
+            return await _context.Categories.Include(c => c.PrimaryProducts).ToListAsync();
         }
 
         public IQueryable<Category> GetAllQuery()

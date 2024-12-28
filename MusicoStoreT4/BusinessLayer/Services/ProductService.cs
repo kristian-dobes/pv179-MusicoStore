@@ -58,7 +58,7 @@ namespace BusinessLayer.Services
                     ProductPrice = p.Price,
                     ProductQuantityInStock = p.QuantityInStock,
                     ProductManufacturer = p.ManufacturerId,
-                    ProductCategory = p.CategoryId,
+                    ProductCategory = p.PrimaryCategoryId,
                     OrderItems = p
                         .OrderItems.Select(oi => new OrderItemDto
                         {
@@ -67,7 +67,7 @@ namespace BusinessLayer.Services
                             Quantity = oi.Quantity,
                         })
                         .ToList(),
-                    Category = p.Category?.Adapt<CategorySummaryDTO>(),
+                    Category = p.PrimaryCategory?.Adapt<CategorySummaryDTO>(),
                     Manufacturer = p.Manufacturer?.Adapt<ManufacturerSummaryDTO>()
                 })
                 .ToList();
@@ -98,7 +98,7 @@ namespace BusinessLayer.Services
                 throw new KeyNotFoundException(
                     $"Category with ID {productDto.CategoryId} not found."
                 );
-            product.Category = category;
+            product.PrimaryCategory = category;
 
             // Update product fields
             product.Name = productDto.Name;
@@ -107,7 +107,7 @@ namespace BusinessLayer.Services
             product.QuantityInStock = productDto.QuantityInStock;
             product.LastModifiedById = productDto.LastModifiedById;
             product.EditCount++;
-            product.CategoryId = productDto.CategoryId;
+            product.PrimaryCategoryId = productDto.CategoryId;
             product.ManufacturerId = productDto.ManufacturerId;
 
             // Log the update action and save changes
@@ -231,7 +231,7 @@ namespace BusinessLayer.Services
 
             // Perform the grouping and aggregation in-memory
             var query = orderItems
-                .GroupBy(oi => new { oi.Product.Category.Id, oi.Product.Category.Name })
+                .GroupBy(oi => new { oi.Product.PrimaryCategory.Id, oi.Product.PrimaryCategory.Name })
                 .Select(categoryGroup => new TopSellingProductDto
                 {
                     CategoryId = categoryGroup.Key.Id,
@@ -288,7 +288,7 @@ namespace BusinessLayer.Services
 
             if (filterProductDto.CategoryId.HasValue)
                 productsQuery = productsQuery.Where(p =>
-                    p.CategoryId == filterProductDto.CategoryId
+                    p.PrimaryCategoryId == filterProductDto.CategoryId
                 );
 
             if (filterProductDto.ManufacturerId.HasValue)
@@ -297,7 +297,7 @@ namespace BusinessLayer.Services
                 );
 
             var products = await productsQuery
-                .Include(p => p.Category)
+                .Include(p => p.PrimaryCategory)
                 .Include(p => p.Manufacturer)
                 .Select(p => p.MapToProductDTO())
                 .ToListAsync();
@@ -312,7 +312,7 @@ namespace BusinessLayer.Services
         {
             IQueryable<Product> productQuery = _uow
                 .ProductsRep.GetAllQuery()
-                .Include(a => a.Category)
+                .Include(a => a.PrimaryCategory)
                 .Include(a => a.Manufacturer);
 
             // Get the total count of posts
@@ -337,7 +337,7 @@ namespace BusinessLayer.Services
         {
             IQueryable<Product> productQuery = _uow
                 .ProductsRep.GetAllQuery()
-                .Include(p => p.Category)
+                .Include(p => p.PrimaryCategory)
                 .Include(p => p.Manufacturer);
 
             string? searchQuery = query?.ToLower();
@@ -353,7 +353,7 @@ namespace BusinessLayer.Services
             if (!string.IsNullOrWhiteSpace(category))
             {
                 productQuery = productQuery.Where(p =>
-                    p.Category != null && p.Category.Name == category
+                    p.PrimaryCategory != null && p.PrimaryCategory.Name == category
                 );
             }
 
@@ -370,7 +370,7 @@ namespace BusinessLayer.Services
                             p.Manufacturer != null
                             && p.Manufacturer.Name.ToLower().Contains(searchQuery)
                         )
-                        || (p.Category != null && p.Category.Name.ToLower().Contains(searchQuery))
+                        || (p.PrimaryCategory != null && p.PrimaryCategory.Name.ToLower().Contains(searchQuery))
                     )
                 );
 
