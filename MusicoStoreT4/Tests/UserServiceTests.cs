@@ -34,7 +34,8 @@ namespace Tests
                                   new ProductRepository(context),
                                   new ProductImageRepository(context),
                                   new AuditLogRepository(context),
-                                  new LogRepository(context));
+                                  new LogRepository(context),
+                                  new GiftCardRepository(context));
             _userService = new UserService(_uow);
         }
 

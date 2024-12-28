@@ -30,7 +30,8 @@ namespace Tests
                                   new ProductRepository(context),
                                   new ProductImageRepository(context),
                                   new AuditLogRepository(context),
-                                  new LogRepository(context));
+                                  new LogRepository(context),
+                                  new GiftCardRepository(context));
             _manufacturerFacade = new ManufacturerFacade(new ManufacturerService(_uow), new ProductService(_uow, new AuditLogService(_uow)));
         }
 

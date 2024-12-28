@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace DAL.SQLite.Migrations.Migrations
 {
     /// <inheritdoc />
@@ -24,8 +26,15 @@ namespace DAL.SQLite.Migrations.Migrations
                 nullable: false,
                 defaultValue: 0);
 
+            migrationBuilder.AddColumn<int>(
+                name: "Source",
+                table: "Logs",
+                type: "INTEGER",
+                nullable: false,
+                defaultValue: 0);
+
             migrationBuilder.CreateTable(
-                name: "GiftCard",
+                name: "GiftCards",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
@@ -37,11 +46,11 @@ namespace DAL.SQLite.Migrations.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_GiftCard", x => x.Id);
+                    table.PrimaryKey("PK_GiftCards", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "CouponCode",
+                name: "CouponCodes",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
@@ -54,15 +63,15 @@ namespace DAL.SQLite.Migrations.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CouponCode", x => x.Id);
+                    table.PrimaryKey("PK_CouponCodes", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CouponCode_GiftCard_GiftCardId",
+                        name: "FK_CouponCodes_GiftCards_GiftCardId",
                         column: x => x.GiftCardId,
-                        principalTable: "GiftCard",
+                        principalTable: "GiftCards",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CouponCode_Orders_OrderId",
+                        name: "FK_CouponCodes_Orders_OrderId",
                         column: x => x.OrderId,
                         principalTable: "Orders",
                         principalColumn: "Id",
@@ -74,231 +83,251 @@ namespace DAL.SQLite.Migrations.Migrations
                 keyColumn: "Id",
                 keyValue: 1,
                 column: "Created",
-                value: new DateTime(2024, 12, 25, 22, 43, 19, 56, DateTimeKind.Local).AddTicks(2868));
+                value: new DateTime(2024, 12, 28, 17, 17, 20, 839, DateTimeKind.Local).AddTicks(9844));
 
             migrationBuilder.UpdateData(
                 table: "Categories",
                 keyColumn: "Id",
                 keyValue: 2,
                 column: "Created",
-                value: new DateTime(2024, 12, 25, 22, 43, 19, 56, DateTimeKind.Local).AddTicks(2911));
+                value: new DateTime(2024, 12, 28, 17, 17, 20, 839, DateTimeKind.Local).AddTicks(9887));
 
             migrationBuilder.UpdateData(
                 table: "Categories",
                 keyColumn: "Id",
                 keyValue: 3,
                 column: "Created",
-                value: new DateTime(2024, 12, 25, 22, 43, 19, 56, DateTimeKind.Local).AddTicks(2913));
+                value: new DateTime(2024, 12, 28, 17, 17, 20, 839, DateTimeKind.Local).AddTicks(9889));
+
+            migrationBuilder.InsertData(
+                table: "GiftCards",
+                columns: new[] { "Id", "Created", "DiscountAmount", "ValidityEndDate", "ValidityStartDate" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2024, 11, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(1166), 200.00m, new DateTime(2025, 6, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(1169), new DateTime(2024, 11, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(1168) },
+                    { 2, new DateTime(2024, 10, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(1174), 100.00m, new DateTime(2025, 4, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(1177), new DateTime(2024, 10, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(1176) }
+                });
 
             migrationBuilder.UpdateData(
                 table: "Manufacturers",
                 keyColumn: "Id",
                 keyValue: 1,
                 columns: new[] { "Created", "Name" },
-                values: new object[] { new DateTime(2024, 12, 25, 22, 43, 19, 57, DateTimeKind.Local).AddTicks(8249), "Gleichner - Kris" });
+                values: new object[] { new DateTime(2024, 12, 28, 17, 17, 20, 841, DateTimeKind.Local).AddTicks(5627), "Ryan, Gleichner and Tromp" });
 
             migrationBuilder.UpdateData(
                 table: "Manufacturers",
                 keyColumn: "Id",
                 keyValue: 2,
                 columns: new[] { "Created", "Name" },
-                values: new object[] { new DateTime(2024, 12, 25, 22, 43, 19, 58, DateTimeKind.Local).AddTicks(841), "Nicolas, Rutherford and Raynor" });
+                values: new object[] { new DateTime(2024, 12, 28, 17, 17, 20, 841, DateTimeKind.Local).AddTicks(8984), "Dietrich, Jast and Stokes" });
 
             migrationBuilder.UpdateData(
                 table: "Manufacturers",
                 keyColumn: "Id",
                 keyValue: 3,
                 columns: new[] { "Created", "Name" },
-                values: new object[] { new DateTime(2024, 12, 25, 22, 43, 19, 58, DateTimeKind.Local).AddTicks(1143), "Mills Group" });
+                values: new object[] { new DateTime(2024, 12, 28, 17, 17, 20, 841, DateTimeKind.Local).AddTicks(9289), "Cormier and Sons" });
 
             migrationBuilder.UpdateData(
                 table: "Manufacturers",
                 keyColumn: "Id",
                 keyValue: 4,
                 columns: new[] { "Created", "Name" },
-                values: new object[] { new DateTime(2024, 12, 25, 22, 43, 19, 58, DateTimeKind.Local).AddTicks(1277), "Considine - Casper" });
+                values: new object[] { new DateTime(2024, 12, 28, 17, 17, 20, 842, DateTimeKind.Local).AddTicks(2443), "Hilpert and Sons" });
 
             migrationBuilder.UpdateData(
                 table: "Manufacturers",
                 keyColumn: "Id",
                 keyValue: 5,
                 columns: new[] { "Created", "Name" },
-                values: new object[] { new DateTime(2024, 12, 25, 22, 43, 19, 58, DateTimeKind.Local).AddTicks(1355), "Johnston, Jacobs and Casper" });
+                values: new object[] { new DateTime(2024, 12, 28, 17, 17, 20, 842, DateTimeKind.Local).AddTicks(3512), "Spinka - Larkin" });
 
             migrationBuilder.UpdateData(
                 table: "OrderItems",
                 keyColumn: "Id",
                 keyValue: 1,
                 column: "Created",
-                value: new DateTime(2024, 12, 25, 22, 43, 19, 62, DateTimeKind.Local).AddTicks(8442));
+                value: new DateTime(2024, 12, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(992));
 
             migrationBuilder.UpdateData(
                 table: "OrderItems",
                 keyColumn: "Id",
                 keyValue: 2,
                 column: "Created",
-                value: new DateTime(2024, 12, 25, 22, 43, 19, 62, DateTimeKind.Local).AddTicks(8446));
+                value: new DateTime(2024, 12, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(996));
 
             migrationBuilder.UpdateData(
                 table: "OrderItems",
                 keyColumn: "Id",
                 keyValue: 3,
                 column: "Created",
-                value: new DateTime(2024, 12, 25, 22, 43, 19, 62, DateTimeKind.Local).AddTicks(8449));
+                value: new DateTime(2024, 12, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(999));
 
             migrationBuilder.UpdateData(
                 table: "OrderItems",
                 keyColumn: "Id",
                 keyValue: 4,
                 column: "Created",
-                value: new DateTime(2024, 12, 25, 22, 43, 19, 62, DateTimeKind.Local).AddTicks(8452));
+                value: new DateTime(2024, 12, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(1003));
 
             migrationBuilder.UpdateData(
                 table: "OrderItems",
                 keyColumn: "Id",
                 keyValue: 5,
                 columns: new[] { "Created", "OrderId" },
-                values: new object[] { new DateTime(2024, 12, 25, 22, 43, 19, 62, DateTimeKind.Local).AddTicks(8455), 3 });
+                values: new object[] { new DateTime(2024, 12, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(1005), 3 });
 
             migrationBuilder.UpdateData(
                 table: "OrderItems",
                 keyColumn: "Id",
                 keyValue: 6,
                 columns: new[] { "Created", "OrderId" },
-                values: new object[] { new DateTime(2024, 12, 25, 22, 43, 19, 62, DateTimeKind.Local).AddTicks(8458), 4 });
+                values: new object[] { new DateTime(2024, 12, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(1008), 4 });
 
             migrationBuilder.UpdateData(
                 table: "OrderItems",
                 keyColumn: "Id",
                 keyValue: 7,
                 columns: new[] { "Created", "OrderId" },
-                values: new object[] { new DateTime(2024, 12, 25, 22, 43, 19, 62, DateTimeKind.Local).AddTicks(8460), 5 });
+                values: new object[] { new DateTime(2024, 12, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(1011), 5 });
 
             migrationBuilder.UpdateData(
                 table: "Orders",
                 keyColumn: "Id",
                 keyValue: 1,
                 columns: new[] { "Created", "GiftCardId", "OrderStatus" },
-                values: new object[] { new DateTime(2024, 12, 25, 22, 43, 19, 62, DateTimeKind.Local).AddTicks(8420), null, 0 });
+                values: new object[] { new DateTime(2024, 12, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(970), null, 0 });
 
             migrationBuilder.UpdateData(
                 table: "Orders",
                 keyColumn: "Id",
                 keyValue: 2,
                 columns: new[] { "Created", "GiftCardId", "OrderStatus" },
-                values: new object[] { new DateTime(2024, 12, 25, 22, 43, 19, 62, DateTimeKind.Local).AddTicks(8426), null, 0 });
+                values: new object[] { new DateTime(2024, 12, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(976), null, 0 });
 
             migrationBuilder.UpdateData(
                 table: "Orders",
                 keyColumn: "Id",
                 keyValue: 3,
                 columns: new[] { "Created", "GiftCardId", "OrderStatus" },
-                values: new object[] { new DateTime(2024, 12, 25, 22, 43, 19, 62, DateTimeKind.Local).AddTicks(8429), null, 0 });
+                values: new object[] { new DateTime(2024, 12, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(979), null, 0 });
 
             migrationBuilder.UpdateData(
                 table: "Orders",
                 keyColumn: "Id",
                 keyValue: 4,
                 columns: new[] { "Created", "GiftCardId", "OrderStatus" },
-                values: new object[] { new DateTime(2024, 12, 25, 22, 43, 19, 62, DateTimeKind.Local).AddTicks(8432), null, 0 });
+                values: new object[] { new DateTime(2024, 12, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(983), null, 0 });
 
             migrationBuilder.UpdateData(
                 table: "Orders",
                 keyColumn: "Id",
                 keyValue: 5,
                 columns: new[] { "Created", "GiftCardId", "OrderStatus" },
-                values: new object[] { new DateTime(2024, 12, 25, 22, 43, 19, 62, DateTimeKind.Local).AddTicks(8436), null, 0 });
+                values: new object[] { new DateTime(2024, 12, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(987), null, 0 });
 
             migrationBuilder.UpdateData(
                 table: "ProductImages",
                 keyColumn: "Id",
                 keyValue: 1,
                 column: "Created",
-                value: new DateTime(2024, 12, 25, 21, 43, 19, 62, DateTimeKind.Utc).AddTicks(8523));
+                value: new DateTime(2024, 12, 28, 16, 17, 20, 846, DateTimeKind.Utc).AddTicks(1079));
 
             migrationBuilder.UpdateData(
                 table: "ProductImages",
                 keyColumn: "Id",
                 keyValue: 2,
                 column: "Created",
-                value: new DateTime(2024, 12, 25, 21, 43, 19, 62, DateTimeKind.Utc).AddTicks(8528));
+                value: new DateTime(2024, 12, 28, 16, 17, 20, 846, DateTimeKind.Utc).AddTicks(1082));
 
             migrationBuilder.UpdateData(
                 table: "Products",
                 keyColumn: "Id",
                 keyValue: 1,
-                columns: new[] { "Created", "Description", "EditCount", "ManufacturerId", "Name", "Price", "QuantityInStock" },
-                values: new object[] { new DateTime(2024, 12, 25, 22, 43, 19, 60, DateTimeKind.Local).AddTicks(6979), "Andy shoes are designed to keeping in mind durability as well as trends, the most stylish range of shoes & sandals", 8, 3, "Digital Piano", 565.362568440393670m, 8 });
-
-            migrationBuilder.UpdateData(
-                table: "Products",
-                keyColumn: "Id",
-                keyValue: 2,
-                columns: new[] { "CategoryId", "Created", "Description", "Name", "Price", "QuantityInStock" },
-                values: new object[] { 1, new DateTime(2024, 12, 25, 22, 43, 19, 60, DateTimeKind.Local).AddTicks(9088), "The Football Is Good For Training And Recreational Purposes", "Replacement Strings", 684.96010820961580m, 61 });
-
-            migrationBuilder.UpdateData(
-                table: "Products",
-                keyColumn: "Id",
-                keyValue: 3,
-                columns: new[] { "CategoryId", "Created", "Description", "EditCount", "ManufacturerId", "Name", "Price" },
-                values: new object[] { 3, new DateTime(2024, 12, 25, 22, 43, 19, 60, DateTimeKind.Local).AddTicks(9146), "The Apollotech B340 is an affordable wireless mouse with reliable connectivity, 12 months battery life and modern design", 8, 1, "Amplifiers", 897.109330520378350m });
-
-            migrationBuilder.UpdateData(
-                table: "Products",
-                keyColumn: "Id",
-                keyValue: 4,
-                columns: new[] { "Created", "Description", "EditCount", "ManufacturerId", "Name", "Price", "QuantityInStock" },
-                values: new object[] { new DateTime(2024, 12, 25, 22, 43, 19, 60, DateTimeKind.Local).AddTicks(9171), "The automobile layout consists of a front-engine design, with transaxle-type transmissions mounted at the rear of the engine and four wheel drive", 10, 3, "Violin", 222.696079361963560m, 42 });
-
-            migrationBuilder.UpdateData(
-                table: "Products",
-                keyColumn: "Id",
-                keyValue: 5,
                 columns: new[] { "CategoryId", "Created", "Description", "EditCount", "Name", "Price", "QuantityInStock" },
-                values: new object[] { 3, new DateTime(2024, 12, 25, 22, 43, 19, 60, DateTimeKind.Local).AddTicks(9192), "Boston's most advanced compression wear technology increases muscle oxygenation, stabilizes active muscles", 2, "Studio Monitors", 115.322522072856220m, 89 });
+                values: new object[] { 2, new DateTime(2024, 12, 28, 17, 17, 20, 843, DateTimeKind.Local).AddTicks(9232), "New ABC 13 9370, 13.3, 5th Gen CoreA5-8250U, 8GB RAM, 256GB SSD, power UHD Graphics, OS 10 Home, OS Office A & J 2016", 4, "Drum Kit", 570.172504559409280m, 4 });
+
+            migrationBuilder.UpdateData(
+                table: "Products",
+                keyColumn: "Id",
+                keyValue: 2,
+                columns: new[] { "CategoryId", "Created", "Description", "EditCount", "ManufacturerId", "Name", "Price", "QuantityInStock" },
+                values: new object[] { 3, new DateTime(2024, 12, 28, 17, 17, 20, 844, DateTimeKind.Local).AddTicks(1556), "The Football Is Good For Training And Recreational Purposes", 4, 3, "Violin", 547.355156961588130m, 56 });
+
+            migrationBuilder.UpdateData(
+                table: "Products",
+                keyColumn: "Id",
+                keyValue: 3,
+                columns: new[] { "Created", "EditCount", "ManufacturerId", "Price", "QuantityInStock" },
+                values: new object[] { new DateTime(2024, 12, 28, 17, 17, 20, 844, DateTimeKind.Local).AddTicks(1625), 9, 4, 202.803457034509750m, 30 });
+
+            migrationBuilder.UpdateData(
+                table: "Products",
+                keyColumn: "Id",
+                keyValue: 4,
+                columns: new[] { "CategoryId", "Created", "Description", "EditCount", "ManufacturerId", "Name", "Price" },
+                values: new object[] { 2, new DateTime(2024, 12, 28, 17, 17, 20, 844, DateTimeKind.Local).AddTicks(1647), "The beautiful range of Apple Naturalé that has an exciting mix of natural ingredients. With the Goodness of 100% Natural Ingredients", 2, 5, "Drum Kit", 841.544487096196060m });
+
+            migrationBuilder.UpdateData(
+                table: "Products",
+                keyColumn: "Id",
+                keyValue: 5,
+                columns: new[] { "CategoryId", "Created", "Description", "EditCount", "ManufacturerId", "Name", "Price", "QuantityInStock" },
+                values: new object[] { 3, new DateTime(2024, 12, 28, 17, 17, 20, 844, DateTimeKind.Local).AddTicks(1667), "New range of formal shirts are designed keeping you in mind. With fits and styling that will make you stand apart", 6, 1, "Replacement Strings", 935.232292537739560m, 91 });
 
             migrationBuilder.UpdateData(
                 table: "Products",
                 keyColumn: "Id",
                 keyValue: 6,
-                columns: new[] { "Created", "Description", "EditCount", "Name", "Price", "QuantityInStock" },
-                values: new object[] { new DateTime(2024, 12, 25, 22, 43, 19, 60, DateTimeKind.Local).AddTicks(9213), "The beautiful range of Apple Naturalé that has an exciting mix of natural ingredients. With the Goodness of 100% Natural Ingredients", 5, "Digital Piano", 401.858894914975180m, 89 });
+                columns: new[] { "CategoryId", "Created", "Description", "EditCount", "ManufacturerId", "Name", "Price", "QuantityInStock" },
+                values: new object[] { 1, new DateTime(2024, 12, 28, 17, 17, 20, 844, DateTimeKind.Local).AddTicks(1703), "The automobile layout consists of a front-engine design, with transaxle-type transmissions mounted at the rear of the engine and four wheel drive", 6, 4, "Guitar Picks", 612.4402861205410m, 87 });
 
             migrationBuilder.UpdateData(
                 table: "Products",
                 keyColumn: "Id",
                 keyValue: 7,
                 columns: new[] { "Created", "Description", "EditCount", "Name", "Price", "QuantityInStock" },
-                values: new object[] { new DateTime(2024, 12, 25, 22, 43, 19, 60, DateTimeKind.Local).AddTicks(9232), "Andy shoes are designed to keeping in mind durability as well as trends, the most stylish range of shoes & sandals", 3, "Karaoke Machines", 977.352757469786710m, 77 });
+                values: new object[] { new DateTime(2024, 12, 28, 17, 17, 20, 844, DateTimeKind.Local).AddTicks(1722), "The automobile layout consists of a front-engine design, with transaxle-type transmissions mounted at the rear of the engine and four wheel drive", 5, "Amplifiers", 936.598669674414220m, 52 });
 
             migrationBuilder.UpdateData(
                 table: "Users",
                 keyColumn: "Id",
                 keyValue: 2,
                 columns: new[] { "Address", "City", "Created", "Email", "PhoneNumber", "PostalCode", "State", "Username" },
-                values: new object[] { "0490 Nasir Union", "Hansenshire", new DateTime(2024, 12, 25, 22, 43, 19, 62, DateTimeKind.Local).AddTicks(4189), "Tyrel_OConner29@gmail.com", "+043 037 356 960", "53132", "North Carolina", "Tyrel_OConner" });
+                values: new object[] { "36073 Jayde Crossing", "Evanmouth", new DateTime(2024, 12, 28, 17, 17, 20, 845, DateTimeKind.Local).AddTicks(6452), "Jordyn.Prohaska.Dooley87@gmail.com", "+197 249 376 552", "95327", "Rhode Island", "Jordyn.Prohaska" });
 
             migrationBuilder.UpdateData(
                 table: "Users",
                 keyColumn: "Id",
                 keyValue: 3,
                 columns: new[] { "Address", "City", "Created", "Email", "PhoneNumber", "PostalCode", "State", "Username" },
-                values: new object[] { "682 McGlynn Road", "Lake Jaleelburgh", new DateTime(2024, 12, 25, 22, 43, 19, 62, DateTimeKind.Local).AddTicks(7377), "Marie.Morissette33_Grant23@yahoo.com", "+587 610 536 109", "22872", "Idaho", "Marie.Morissette33" });
+                values: new object[] { "99068 Deja Spur", "North Hassanstad", new DateTime(2024, 12, 28, 17, 17, 20, 845, DateTimeKind.Local).AddTicks(9519), "Lee.Weissnat71.Ebert70@yahoo.com", "+799 202 536 199", "76918-0379", "Maryland", "Lee.Weissnat71" });
 
             migrationBuilder.UpdateData(
                 table: "Users",
                 keyColumn: "Id",
                 keyValue: 4,
                 columns: new[] { "Address", "City", "Created", "Email", "PhoneNumber", "PostalCode", "State", "Username" },
-                values: new object[] { "75534 Champlin Pine", "Rebeccaland", new DateTime(2024, 12, 25, 22, 43, 19, 62, DateTimeKind.Local).AddTicks(7698), "Daren91.Kling42@gmail.com", "+375 947 240 784", "47305-4504", "Tennessee", "Daren91" });
+                values: new object[] { "6728 Morton Heights", "East Eloy", new DateTime(2024, 12, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(135), "Francesco.Ferry8490@gmail.com", "+183 409 832 663", "86292-6467", "Ohio", "Francesco.Ferry84" });
 
             migrationBuilder.UpdateData(
                 table: "Users",
                 keyColumn: "Id",
                 keyValue: 5,
                 columns: new[] { "Address", "City", "Created", "Email", "PhoneNumber", "PostalCode", "State", "Username" },
-                values: new object[] { "565 Robel Isle", "Octavialand", new DateTime(2024, 12, 25, 22, 43, 19, 62, DateTimeKind.Local).AddTicks(7927), "Chadd90_Schuppe9@gmail.com", "+249 538 552 023", "14606-0254", "North Carolina", "Chadd90" });
+                values: new object[] { "9652 Gerhold Terrace", "Pietrostad", new DateTime(2024, 12, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(379), "Beryl.Pouros72.Becker85@yahoo.com", "+282 764 582 013", "84672-8107", "Illinois", "Beryl.Pouros72" });
+
+            migrationBuilder.InsertData(
+                table: "CouponCodes",
+                columns: new[] { "Id", "Code", "Created", "GiftCardId", "IsUsed", "OrderId" },
+                values: new object[,]
+                {
+                    { 1, "GIFT200-1", new DateTime(2024, 11, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(1117), 1, false, null },
+                    { 2, "GIFT200-2", new DateTime(2024, 11, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(1125), 1, false, null },
+                    { 3, "GIFT100-1", new DateTime(2024, 10, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(1129), 2, false, null },
+                    { 4, "GIFT100-2", new DateTime(2024, 10, 28, 17, 17, 20, 846, DateTimeKind.Local).AddTicks(1133), 2, false, null }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_GiftCardId",
@@ -306,20 +335,20 @@ namespace DAL.SQLite.Migrations.Migrations
                 column: "GiftCardId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CouponCode_GiftCardId",
-                table: "CouponCode",
+                name: "IX_CouponCodes_GiftCardId",
+                table: "CouponCodes",
                 column: "GiftCardId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CouponCode_OrderId",
-                table: "CouponCode",
+                name: "IX_CouponCodes_OrderId",
+                table: "CouponCodes",
                 column: "OrderId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Orders_GiftCard_GiftCardId",
+                name: "FK_Orders_GiftCards_GiftCardId",
                 table: "Orders",
                 column: "GiftCardId",
-                principalTable: "GiftCard",
+                principalTable: "GiftCards",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.SetNull);
         }
@@ -328,14 +357,14 @@ namespace DAL.SQLite.Migrations.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Orders_GiftCard_GiftCardId",
+                name: "FK_Orders_GiftCards_GiftCardId",
                 table: "Orders");
 
             migrationBuilder.DropTable(
-                name: "CouponCode");
+                name: "CouponCodes");
 
             migrationBuilder.DropTable(
-                name: "GiftCard");
+                name: "GiftCards");
 
             migrationBuilder.DropIndex(
                 name: "IX_Orders_GiftCardId",
@@ -349,236 +378,240 @@ namespace DAL.SQLite.Migrations.Migrations
                 name: "OrderStatus",
                 table: "Orders");
 
+            migrationBuilder.DropColumn(
+                name: "Source",
+                table: "Logs");
+
             migrationBuilder.UpdateData(
                 table: "Categories",
                 keyColumn: "Id",
                 keyValue: 1,
                 column: "Created",
-                value: new DateTime(2024, 12, 23, 22, 41, 5, 370, DateTimeKind.Local).AddTicks(7819));
+                value: new DateTime(2024, 12, 20, 19, 12, 32, 41, DateTimeKind.Local).AddTicks(7663));
 
             migrationBuilder.UpdateData(
                 table: "Categories",
                 keyColumn: "Id",
                 keyValue: 2,
                 column: "Created",
-                value: new DateTime(2024, 12, 23, 22, 41, 5, 370, DateTimeKind.Local).AddTicks(7857));
+                value: new DateTime(2024, 12, 20, 19, 12, 32, 41, DateTimeKind.Local).AddTicks(7709));
 
             migrationBuilder.UpdateData(
                 table: "Categories",
                 keyColumn: "Id",
                 keyValue: 3,
                 column: "Created",
-                value: new DateTime(2024, 12, 23, 22, 41, 5, 370, DateTimeKind.Local).AddTicks(7860));
+                value: new DateTime(2024, 12, 20, 19, 12, 32, 41, DateTimeKind.Local).AddTicks(7711));
 
             migrationBuilder.UpdateData(
                 table: "Manufacturers",
                 keyColumn: "Id",
                 keyValue: 1,
                 columns: new[] { "Created", "Name" },
-                values: new object[] { new DateTime(2024, 12, 23, 22, 41, 5, 372, DateTimeKind.Local).AddTicks(3189), "Beatty LLC" });
+                values: new object[] { new DateTime(2024, 12, 20, 19, 12, 32, 43, DateTimeKind.Local).AddTicks(2586), "Simonis - Gusikowski" });
 
             migrationBuilder.UpdateData(
                 table: "Manufacturers",
                 keyColumn: "Id",
                 keyValue: 2,
                 columns: new[] { "Created", "Name" },
-                values: new object[] { new DateTime(2024, 12, 23, 22, 41, 5, 372, DateTimeKind.Local).AddTicks(5805), "Weissnat, Wolf and Cronin" });
+                values: new object[] { new DateTime(2024, 12, 20, 19, 12, 32, 43, DateTimeKind.Local).AddTicks(5610), "Hane LLC" });
 
             migrationBuilder.UpdateData(
                 table: "Manufacturers",
                 keyColumn: "Id",
                 keyValue: 3,
                 columns: new[] { "Created", "Name" },
-                values: new object[] { new DateTime(2024, 12, 23, 22, 41, 5, 372, DateTimeKind.Local).AddTicks(6180), "Klein and Sons" });
+                values: new object[] { new DateTime(2024, 12, 20, 19, 12, 32, 43, DateTimeKind.Local).AddTicks(8571), "Zboncak, Gulgowski and Boehm" });
 
             migrationBuilder.UpdateData(
                 table: "Manufacturers",
                 keyColumn: "Id",
                 keyValue: 4,
                 columns: new[] { "Created", "Name" },
-                values: new object[] { new DateTime(2024, 12, 23, 22, 41, 5, 372, DateTimeKind.Local).AddTicks(6277), "Gleichner - Hirthe" });
+                values: new object[] { new DateTime(2024, 12, 20, 19, 12, 32, 43, DateTimeKind.Local).AddTicks(8811), "Fay, Blick and MacGyver" });
 
             migrationBuilder.UpdateData(
                 table: "Manufacturers",
                 keyColumn: "Id",
                 keyValue: 5,
                 columns: new[] { "Created", "Name" },
-                values: new object[] { new DateTime(2024, 12, 23, 22, 41, 5, 372, DateTimeKind.Local).AddTicks(6362), "Ernser, Beier and Leffler" });
+                values: new object[] { new DateTime(2024, 12, 20, 19, 12, 32, 43, DateTimeKind.Local).AddTicks(8920), "Funk, Herman and Gulgowski" });
 
             migrationBuilder.UpdateData(
                 table: "OrderItems",
                 keyColumn: "Id",
                 keyValue: 1,
                 column: "Created",
-                value: new DateTime(2024, 12, 23, 22, 41, 5, 376, DateTimeKind.Local).AddTicks(3046));
+                value: new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5202));
 
             migrationBuilder.UpdateData(
                 table: "OrderItems",
                 keyColumn: "Id",
                 keyValue: 2,
                 column: "Created",
-                value: new DateTime(2024, 12, 23, 22, 41, 5, 376, DateTimeKind.Local).AddTicks(3053));
+                value: new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5213));
 
             migrationBuilder.UpdateData(
                 table: "OrderItems",
                 keyColumn: "Id",
                 keyValue: 3,
                 column: "Created",
-                value: new DateTime(2024, 12, 23, 22, 41, 5, 376, DateTimeKind.Local).AddTicks(3056));
+                value: new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5216));
 
             migrationBuilder.UpdateData(
                 table: "OrderItems",
                 keyColumn: "Id",
                 keyValue: 4,
                 column: "Created",
-                value: new DateTime(2024, 12, 23, 22, 41, 5, 376, DateTimeKind.Local).AddTicks(3059));
+                value: new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5219));
 
             migrationBuilder.UpdateData(
                 table: "OrderItems",
                 keyColumn: "Id",
                 keyValue: 5,
                 columns: new[] { "Created", "OrderId" },
-                values: new object[] { new DateTime(2024, 12, 23, 22, 41, 5, 376, DateTimeKind.Local).AddTicks(3062), 4 });
+                values: new object[] { new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5222), 4 });
 
             migrationBuilder.UpdateData(
                 table: "OrderItems",
                 keyColumn: "Id",
                 keyValue: 6,
                 columns: new[] { "Created", "OrderId" },
-                values: new object[] { new DateTime(2024, 12, 23, 22, 41, 5, 376, DateTimeKind.Local).AddTicks(3065), 5 });
+                values: new object[] { new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5225), 5 });
 
             migrationBuilder.UpdateData(
                 table: "OrderItems",
                 keyColumn: "Id",
                 keyValue: 7,
                 columns: new[] { "Created", "OrderId" },
-                values: new object[] { new DateTime(2024, 12, 23, 22, 41, 5, 376, DateTimeKind.Local).AddTicks(3068), 4 });
+                values: new object[] { new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5228), 4 });
 
             migrationBuilder.UpdateData(
                 table: "Orders",
                 keyColumn: "Id",
                 keyValue: 1,
                 column: "Created",
-                value: new DateTime(2024, 12, 23, 22, 41, 5, 376, DateTimeKind.Local).AddTicks(3021));
+                value: new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5177));
 
             migrationBuilder.UpdateData(
                 table: "Orders",
                 keyColumn: "Id",
                 keyValue: 2,
                 column: "Created",
-                value: new DateTime(2024, 12, 23, 22, 41, 5, 376, DateTimeKind.Local).AddTicks(3029));
+                value: new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5183));
 
             migrationBuilder.UpdateData(
                 table: "Orders",
                 keyColumn: "Id",
                 keyValue: 3,
                 column: "Created",
-                value: new DateTime(2024, 12, 23, 22, 41, 5, 376, DateTimeKind.Local).AddTicks(3033));
+                value: new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5186));
 
             migrationBuilder.UpdateData(
                 table: "Orders",
                 keyColumn: "Id",
                 keyValue: 4,
                 column: "Created",
-                value: new DateTime(2024, 12, 23, 22, 41, 5, 376, DateTimeKind.Local).AddTicks(3037));
+                value: new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5190));
 
             migrationBuilder.UpdateData(
                 table: "Orders",
                 keyColumn: "Id",
                 keyValue: 5,
                 column: "Created",
-                value: new DateTime(2024, 12, 23, 22, 41, 5, 376, DateTimeKind.Local).AddTicks(3040));
+                value: new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(5194));
 
             migrationBuilder.UpdateData(
                 table: "ProductImages",
                 keyColumn: "Id",
                 keyValue: 1,
                 column: "Created",
-                value: new DateTime(2024, 12, 23, 21, 41, 5, 376, DateTimeKind.Utc).AddTicks(3137));
+                value: new DateTime(2024, 12, 20, 18, 12, 32, 47, DateTimeKind.Utc).AddTicks(5287));
 
             migrationBuilder.UpdateData(
                 table: "ProductImages",
                 keyColumn: "Id",
                 keyValue: 2,
                 column: "Created",
-                value: new DateTime(2024, 12, 23, 21, 41, 5, 376, DateTimeKind.Utc).AddTicks(3141));
+                value: new DateTime(2024, 12, 20, 18, 12, 32, 47, DateTimeKind.Utc).AddTicks(5291));
 
             migrationBuilder.UpdateData(
                 table: "Products",
                 keyColumn: "Id",
                 keyValue: 1,
-                columns: new[] { "Created", "Description", "EditCount", "ManufacturerId", "Name", "Price", "QuantityInStock" },
-                values: new object[] { new DateTime(2024, 12, 23, 22, 41, 5, 374, DateTimeKind.Local).AddTicks(1754), "New ABC 13 9370, 13.3, 5th Gen CoreA5-8250U, 8GB RAM, 256GB SSD, power UHD Graphics, OS 10 Home, OS Office A & J 2016", 2, 1, "Instrument Cases", 916.756656955665670m, 2 });
-
-            migrationBuilder.UpdateData(
-                table: "Products",
-                keyColumn: "Id",
-                keyValue: 2,
-                columns: new[] { "CategoryId", "Created", "Description", "Name", "Price", "QuantityInStock" },
-                values: new object[] { 2, new DateTime(2024, 12, 23, 22, 41, 5, 374, DateTimeKind.Local).AddTicks(3893), "The slim & simple Maple Gaming Keyboard from Dev Byte comes with a sleek body and 7- Color RGB LED Back-lighting for smart functionality", "Stage Lighting Kits", 696.452188913228980m, 20 });
-
-            migrationBuilder.UpdateData(
-                table: "Products",
-                keyColumn: "Id",
-                keyValue: 3,
-                columns: new[] { "CategoryId", "Created", "Description", "EditCount", "ManufacturerId", "Name", "Price" },
-                values: new object[] { 1, new DateTime(2024, 12, 23, 22, 41, 5, 374, DateTimeKind.Local).AddTicks(3949), "The automobile layout consists of a front-engine design, with transaxle-type transmissions mounted at the rear of the engine and four wheel drive", 9, 5, "Tuners", 827.323363910434150m });
-
-            migrationBuilder.UpdateData(
-                table: "Products",
-                keyColumn: "Id",
-                keyValue: 4,
-                columns: new[] { "Created", "Description", "EditCount", "ManufacturerId", "Name", "Price", "QuantityInStock" },
-                values: new object[] { new DateTime(2024, 12, 23, 22, 41, 5, 374, DateTimeKind.Local).AddTicks(3972), "Carbonite web goalkeeper gloves are ergonomically designed to give easy fit", 6, 2, "PA Systems", 77.8222499204874250m, 74 });
-
-            migrationBuilder.UpdateData(
-                table: "Products",
-                keyColumn: "Id",
-                keyValue: 5,
                 columns: new[] { "CategoryId", "Created", "Description", "EditCount", "Name", "Price", "QuantityInStock" },
-                values: new object[] { 2, new DateTime(2024, 12, 23, 22, 41, 5, 374, DateTimeKind.Local).AddTicks(3994), "The beautiful range of Apple Naturalé that has an exciting mix of natural ingredients. With the Goodness of 100% Natural Ingredients", 4, "Violin", 849.776702110556320m, 76 });
+                values: new object[] { 3, new DateTime(2024, 12, 20, 19, 12, 32, 45, DateTimeKind.Local).AddTicks(4548), "New range of formal shirts are designed keeping you in mind. With fits and styling that will make you stand apart", 8, "Studio Monitors", 285.440906448078580m, 64 });
+
+            migrationBuilder.UpdateData(
+                table: "Products",
+                keyColumn: "Id",
+                keyValue: 2,
+                columns: new[] { "CategoryId", "Created", "Description", "EditCount", "ManufacturerId", "Name", "Price", "QuantityInStock" },
+                values: new object[] { 1, new DateTime(2024, 12, 20, 19, 12, 32, 45, DateTimeKind.Local).AddTicks(6568), "The slim & simple Maple Gaming Keyboard from Dev Byte comes with a sleek body and 7- Color RGB LED Back-lighting for smart functionality", 6, 4, "Studio Monitors", 888.376722137502940m, 11 });
+
+            migrationBuilder.UpdateData(
+                table: "Products",
+                keyColumn: "Id",
+                keyValue: 3,
+                columns: new[] { "Created", "EditCount", "ManufacturerId", "Price", "QuantityInStock" },
+                values: new object[] { new DateTime(2024, 12, 20, 19, 12, 32, 45, DateTimeKind.Local).AddTicks(6631), 5, 1, 832.920864068872360m, 60 });
+
+            migrationBuilder.UpdateData(
+                table: "Products",
+                keyColumn: "Id",
+                keyValue: 4,
+                columns: new[] { "CategoryId", "Created", "Description", "EditCount", "ManufacturerId", "Name", "Price" },
+                values: new object[] { 3, new DateTime(2024, 12, 20, 19, 12, 32, 45, DateTimeKind.Local).AddTicks(6655), "Ergonomic executive chair upholstered in bonded black leather and PVC padded seat and back for all-day comfort and support", 5, 1, "Microphone Stands", 142.659807442379470m });
+
+            migrationBuilder.UpdateData(
+                table: "Products",
+                keyColumn: "Id",
+                keyValue: 5,
+                columns: new[] { "CategoryId", "Created", "Description", "EditCount", "ManufacturerId", "Name", "Price", "QuantityInStock" },
+                values: new object[] { 2, new DateTime(2024, 12, 20, 19, 12, 32, 45, DateTimeKind.Local).AddTicks(6674), "Andy shoes are designed to keeping in mind durability as well as trends, the most stylish range of shoes & sandals", 9, 4, "PA Systems", 260.263970053370020m, 46 });
 
             migrationBuilder.UpdateData(
                 table: "Products",
                 keyColumn: "Id",
                 keyValue: 6,
-                columns: new[] { "Created", "Description", "EditCount", "Name", "Price", "QuantityInStock" },
-                values: new object[] { new DateTime(2024, 12, 23, 22, 41, 5, 374, DateTimeKind.Local).AddTicks(4016), "The Nagasaki Lander is the trademarked name of several series of Nagasaki sport bikes, that started with the 1984 ABC800J", 2, "Amplifiers", 433.57686887410840m, 11 });
+                columns: new[] { "CategoryId", "Created", "Description", "EditCount", "ManufacturerId", "Name", "Price", "QuantityInStock" },
+                values: new object[] { 2, new DateTime(2024, 12, 20, 19, 12, 32, 45, DateTimeKind.Local).AddTicks(6693), "Andy shoes are designed to keeping in mind durability as well as trends, the most stylish range of shoes & sandals", 5, 2, "Tuners", 794.708059541154760m, 9 });
 
             migrationBuilder.UpdateData(
                 table: "Products",
                 keyColumn: "Id",
                 keyValue: 7,
                 columns: new[] { "Created", "Description", "EditCount", "Name", "Price", "QuantityInStock" },
-                values: new object[] { new DateTime(2024, 12, 23, 22, 41, 5, 374, DateTimeKind.Local).AddTicks(4037), "Carbonite web goalkeeper gloves are ergonomically designed to give easy fit", 1, "Tuners", 783.379086455068390m, 29 });
+                values: new object[] { new DateTime(2024, 12, 20, 19, 12, 32, 45, DateTimeKind.Local).AddTicks(6711), "The beautiful range of Apple Naturalé that has an exciting mix of natural ingredients. With the Goodness of 100% Natural Ingredients", 3, "Digital Piano", 566.440561047907360m, 91 });
 
             migrationBuilder.UpdateData(
                 table: "Users",
                 keyColumn: "Id",
                 keyValue: 2,
                 columns: new[] { "Address", "City", "Created", "Email", "PhoneNumber", "PostalCode", "State", "Username" },
-                values: new object[] { "216 Karl Locks", "South Kristianview", new DateTime(2024, 12, 23, 22, 41, 5, 375, DateTimeKind.Local).AddTicks(9082), "Stanton15_Abbott83@hotmail.com", "+718 215 150 102", "62342-5756", "Florida", "Stanton15" });
+                values: new object[] { "55444 Joanie Brooks", "Lonietown", new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(1181), "Dedrick11_Osinski62@gmail.com", "+573 337 181 092", "06867", "Alaska", "Dedrick11" });
 
             migrationBuilder.UpdateData(
                 table: "Users",
                 keyColumn: "Id",
                 keyValue: 3,
                 columns: new[] { "Address", "City", "Created", "Email", "PhoneNumber", "PostalCode", "State", "Username" },
-                values: new object[] { "3095 Littel Plains", "Goodwinville", new DateTime(2024, 12, 23, 22, 41, 5, 376, DateTimeKind.Local).AddTicks(2021), "Sydney3358@gmail.com", "+352 888 458 091", "57712-9318", "New Mexico", "Sydney33" });
+                values: new object[] { "586 Hayley Canyon", "Port Jefferyhaven", new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(4127), "Scottie.Botsford.Flatley@hotmail.com", "+351 446 428 244", "10860-7758", "Ohio", "Scottie.Botsford" });
 
             migrationBuilder.UpdateData(
                 table: "Users",
                 keyColumn: "Id",
                 keyValue: 4,
                 columns: new[] { "Address", "City", "Created", "Email", "PhoneNumber", "PostalCode", "State", "Username" },
-                values: new object[] { "7834 Kshlerin Ports", "New Lonnie", new DateTime(2024, 12, 23, 22, 41, 5, 376, DateTimeKind.Local).AddTicks(2305), "Ida_Fahey187@yahoo.com", "+980 902 011 823", "68552", "Florida", "Ida_Fahey1" });
+                values: new object[] { "64850 Gunner Corners", "South Francesview", new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(4449), "Freida_Block_Kling@hotmail.com", "+682 498 654 825", "65335", "Maine", "Freida_Block" });
 
             migrationBuilder.UpdateData(
                 table: "Users",
                 keyColumn: "Id",
                 keyValue: 5,
                 columns: new[] { "Address", "City", "Created", "Email", "PhoneNumber", "PostalCode", "State", "Username" },
-                values: new object[] { "39363 Zieme Overpass", "McClureburgh", new DateTime(2024, 12, 23, 22, 41, 5, 376, DateTimeKind.Local).AddTicks(2524), "Willie_Bailey1017@gmail.com", "+992 488 379 498", "19758-6313", "Nevada", "Willie_Bailey10" });
+                values: new object[] { "83154 Roberts Circles", "Brockside", new DateTime(2024, 12, 20, 19, 12, 32, 47, DateTimeKind.Local).AddTicks(4685), "Quinton25_Denesik70@hotmail.com", "+523 090 604 967", "86363", "Arkansas", "Quinton25" });
         }
     }
 }

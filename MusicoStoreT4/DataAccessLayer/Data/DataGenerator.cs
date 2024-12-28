@@ -30,6 +30,12 @@ public static class DataGenerator
         // Images
         var images = PrepareImagesModels();
         modelBuilder.Entity<ProductImage>().HasData(images);
+
+        var coupons = PrepareCouponCodesModels();
+        modelBuilder.Entity<CouponCode>().HasData(coupons);
+
+        var giftCards = PrepareGiftCardsModels(coupons);
+        modelBuilder.Entity<GiftCard>().HasData(giftCards);
     }
 
     // Dictionary to store product for each category
@@ -230,41 +236,14 @@ public static class DataGenerator
         };
     }
 
-    private static List<GiftCard> PrepareGiftCardsModels()
-    {
-        return new List<GiftCard>()
-        {
-            new GiftCard()
-            {
-                DiscountAmount = 200.00m,
-                ValidityStartDate = DateTime.Now.AddMonths(-1),
-                ValidityEndDate = DateTime.Now.AddMonths(6),
-                CouponCodes = new List<CouponCode>()
-                {
-                    new CouponCode { Code = "GIFT200-1", IsUsed = false },
-                    new CouponCode { Code = "GIFT200-2", IsUsed = false },
-                }
-            },
-            new GiftCard()
-            {
-                DiscountAmount = 100.00m,
-                ValidityStartDate = DateTime.Now.AddMonths(-2),
-                ValidityEndDate = DateTime.Now.AddMonths(4),
-                CouponCodes = new List<CouponCode>()
-                {
-                    new CouponCode { Code = "GIFT100-1", IsUsed = false },
-                    new CouponCode { Code = "GIFT100-2", IsUsed = false },
-                }
-            }
-        };
-    }
-
     private static List<CouponCode> PrepareCouponCodesModels()
     {
         return new List<CouponCode>()
         {
             new CouponCode()
             {
+                Id = 1,
+                Created = DateTime.Now.AddMonths(-1),
                 Code = "GIFT200-1",
                 IsUsed = false,
                 GiftCardId = 1,
@@ -272,6 +251,8 @@ public static class DataGenerator
             },
             new CouponCode()
             {
+                Id = 2,
+                Created = DateTime.Now.AddMonths(-1),
                 Code = "GIFT200-2",
                 IsUsed = false,
                 GiftCardId = 1,
@@ -279,6 +260,8 @@ public static class DataGenerator
             },
             new CouponCode()
             {
+                Id = 3,
+                Created = DateTime.Now.AddMonths(-2),
                 Code = "GIFT100-1",
                 IsUsed = false,
                 GiftCardId = 2,
@@ -286,10 +269,35 @@ public static class DataGenerator
             },
             new CouponCode()
             {
+                Id = 4,
+                Created = DateTime.Now.AddMonths(-2),
                 Code = "GIFT100-2",
                 IsUsed = false,
                 GiftCardId = 2,
                 OrderId = null,
+            }
+        };
+    }
+
+    private static List<GiftCard> PrepareGiftCardsModels(List<CouponCode> couponCodes)
+    {
+        return new List<GiftCard>()
+        {
+            new GiftCard()
+            {
+                Id = 1,
+                Created = DateTime.Now.AddMonths(-1),
+                DiscountAmount = 200.00m,
+                ValidityStartDate = DateTime.Now.AddMonths(-1),
+                ValidityEndDate = DateTime.Now.AddMonths(6)
+            },
+            new GiftCard()
+            {
+                Id = 2,
+                Created = DateTime.Now.AddMonths(-2),
+                DiscountAmount = 100.00m,
+                ValidityStartDate = DateTime.Now.AddMonths(-2),
+                ValidityEndDate = DateTime.Now.AddMonths(4)
             }
         };
     }

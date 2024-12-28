@@ -5,6 +5,7 @@ using Mapster;
 using WebMVC.Models.Manufacturer;
 using BusinessLayer.DTOs.Manufacturer;
 using DataAccessLayer.Models;
+using WebMVC.Models.GiftCard;
 
 namespace WebMVC.Areas.Admin.Controllers
 {
@@ -29,7 +30,7 @@ namespace WebMVC.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            return View(giftCards.Adapt<IEnumerable<ManufacturerSummaryViewModel>>());
+            return View(giftCards.Adapt<IEnumerable<GiftCardViewModel>>().ToList());
         }
 
         /*
