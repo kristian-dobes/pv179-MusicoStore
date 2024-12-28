@@ -162,7 +162,7 @@ namespace BusinessLayer.Services
                 );
                 await _uow.SaveAsync();
 
-                return added.MapToProductDTO();
+                return added.Adapt<ProductDto>();
             }
             catch (Exception ex)
             {
@@ -197,9 +197,10 @@ namespace BusinessLayer.Services
             int manufacturerId
         )
         {
-            return (await _uow.ProductsRep.WhereAsync(p => p.ManufacturerId == manufacturerId))
-                .Select(p => p.MapToProductDTO())
-                .ToList();
+            var products = await _uow.ProductsRep.WhereAsync(p =>
+                p.ManufacturerId == manufacturerId
+            );
+            return products.Adapt<IEnumerable<ProductDto>>();
         }
 
         public async Task UpdateProductManufacturerAsync(
@@ -231,7 +232,11 @@ namespace BusinessLayer.Services
 
             // Perform the grouping and aggregation in-memory
             var query = orderItems
-                .GroupBy(oi => new { oi.Product.PrimaryCategory.Id, oi.Product.PrimaryCategory.Name })
+                .GroupBy(oi => new
+                {
+                    oi.Product.PrimaryCategory.Id,
+                    oi.Product.PrimaryCategory.Name
+                })
                 .Select(categoryGroup => new TopSellingProductDto
                 {
                     CategoryId = categoryGroup.Key.Id,
@@ -298,11 +303,11 @@ namespace BusinessLayer.Services
 
             var products = await productsQuery
                 .Include(p => p.PrimaryCategory)
+                .Include(p => p.SecondaryCategories)
                 .Include(p => p.Manufacturer)
-                .Select(p => p.MapToProductDTO())
                 .ToListAsync();
 
-            return products;
+            return products.Adapt<IEnumerable<ProductDto>>();
         }
 
         public async Task<(IEnumerable<ProductDto>, int totalCount)> GetProductsAsync(
@@ -338,6 +343,7 @@ namespace BusinessLayer.Services
             IQueryable<Product> productQuery = _uow
                 .ProductsRep.GetAllQuery()
                 .Include(p => p.PrimaryCategory)
+                .Include(p => p.SecondaryCategories)
                 .Include(p => p.Manufacturer);
 
             string? searchQuery = query?.ToLower();
@@ -354,6 +360,8 @@ namespace BusinessLayer.Services
             {
                 productQuery = productQuery.Where(p =>
                     p.PrimaryCategory != null && p.PrimaryCategory.Name == category
+                    || p.SecondaryCategories != null
+                        && p.SecondaryCategories.Any(c => c.Name == category)
                 );
             }
 
@@ -370,7 +378,16 @@ namespace BusinessLayer.Services
                             p.Manufacturer != null
                             && p.Manufacturer.Name.ToLower().Contains(searchQuery)
                         )
-                        || (p.PrimaryCategory != null && p.PrimaryCategory.Name.ToLower().Contains(searchQuery))
+                        || (
+                            p.PrimaryCategory != null
+                            && p.PrimaryCategory.Name.ToLower().Contains(searchQuery)
+                        )
+                        || (
+                            p.SecondaryCategories != null
+                            && p.SecondaryCategories.Any(c =>
+                                c.Name.ToLower().Contains(searchQuery)
+                            )
+                        )
                     )
                 );
 

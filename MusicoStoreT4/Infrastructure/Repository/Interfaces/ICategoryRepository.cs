@@ -11,6 +11,8 @@ namespace Infrastructure.Repository.Interfaces
     public interface ICategoryRepository : IRepository<Category>
     {
         Task<List<Category>> GetCategoriesWithProductsAsync();
+        Task<List<Category>> GetCategoriesWithPrimaryProductsAsync();
+        Task<List<Category>> GetCategoriesWithSecondaryProductsAsync();
         IQueryable<Category> GetAllQuery();
     }
 }

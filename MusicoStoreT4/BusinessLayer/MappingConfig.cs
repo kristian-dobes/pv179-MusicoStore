@@ -44,6 +44,27 @@ namespace BusinessLayer
                 .Map(dest => dest.CategoryId, src => src.Id)
                 .Map(dest => dest.Name, src => src.Name);
 
+            TypeAdapterConfig<Product, ProductDto>
+                .NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.Name, src => src.Name)
+                .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.Price, src => src.Price)
+                .Map(
+                    dest => dest.PrimaryCategoryName,
+                    src => src.PrimaryCategory != null ? src.PrimaryCategory.Name : ""
+                )
+                .Map(
+                    dest => dest.ManufacturerName,
+                    src => src.Manufacturer != null ? src.Manufacturer.Name : ""
+                )
+                .Map(dest => dest.QuantityInStock, src => src.QuantityInStock)
+                .Map(dest => dest.DateCreated, src => src.Created)
+                .Map(
+                    dest => dest.SecondaryCategories,
+                    src => src.SecondaryCategories.Select(c => c.Name)
+                );
+
             TypeAdapterConfig<Product, ProductCompleteDTO>
                 .NewConfig()
                 .Map(dest => dest.ProductId, src => src.Id)
@@ -70,8 +91,12 @@ namespace BusinessLayer
                 .Map(dest => dest.CategoryId, src => src.Id)
                 .Map(dest => dest.Name, src => src.Name)
                 .Map(
-                    dest => dest.Products,
-                    src => src.PrimaryProducts.Adapt<IEnumerable<ProductCompleteDTO>>()
+                    dest => dest.PrimaryProducts,
+                    src => src.PrimaryProducts.Adapt<IEnumerable<ProductDto>>()
+                )
+                .Map(
+                    dest => dest.SecondaryProducts,
+                    src => src.SecondaryProducts.Adapt<IEnumerable<ProductDto>>()
                 );
             TypeAdapterConfig<Category, CategorySummaryDTO>
                 .NewConfig()
