@@ -8,6 +8,6 @@
         public DateTime ValidityStartDate { get; set; }
         public DateTime ValidityEndDate { get; set; }
 
-        public virtual ICollection<CouponCodeViewModel> CouponCodes { get; set; }
+        public virtual ICollection<CouponCodeViewModel>? CouponCodes { get; set; }
     }
 }

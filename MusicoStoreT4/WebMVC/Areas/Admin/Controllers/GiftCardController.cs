@@ -6,6 +6,10 @@ using WebMVC.Models.Manufacturer;
 using BusinessLayer.DTOs.Manufacturer;
 using DataAccessLayer.Models;
 using WebMVC.Models.GiftCard;
+using BusinessLayer.Services;
+using WebMVC.Models.Product;
+using Microsoft.AspNetCore.Identity;
+using BusinessLayer.DTOs.GiftCard;
 
 namespace WebMVC.Areas.Admin.Controllers
 {
@@ -14,10 +18,12 @@ namespace WebMVC.Areas.Admin.Controllers
     public class GiftCardController : Controller
     {
         private readonly IGiftCardService _giftCardService;
+        private readonly UserManager<LocalIdentityUser> _userManager;
 
-        public GiftCardController(IGiftCardService giftCardService)
+        public GiftCardController(IGiftCardService giftCardService, UserManager<LocalIdentityUser> userManager)
         {
             _giftCardService = giftCardService;
+            _userManager = userManager;
         }
 
         // GET: Admin/GiftCard
@@ -48,34 +54,35 @@ namespace WebMVC.Areas.Admin.Controllers
             return View(giftCard.Adapt<GiftCardViewModel>());
         }
 
-        /*
         // GET: Admin/GiftCard/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            // TODO use list of available categories and manufacturers
-            // not like this:
-            //ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
-            //ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "Id", "Name");
-
-            return View();
+            var productCreateViewModel = new GiftCardViewModel();
+            return View(productCreateViewModel);
         }
 
-        // POST: Admin/GiftCard/Create
+        // POST: Admin/Product/Create
         [HttpPost]
-        public async Task<IActionResult> Create(ManufacturerNameViewModel model)
+        public async Task<IActionResult> Create(GiftCardViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var manufacturer = model.Adapt<ManufacturerUpdateDTO>();
+            var user = await _userManager.GetUserAsync(User);
 
-            await _giftCardService.CreateManufacturerAsync(manufacturer);
+            if (user == null)
+                return Unauthorized("User must be authenticated to create the product.");
+
+            var giftCard = model.Adapt<CreateGiftCardDto>();
+
+            await _giftCardService.CreateGiftCardAsync(giftCard);
 
             return RedirectToAction("Index");
         }
 
+        /*
         // GET: Admin/GiftCard/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
