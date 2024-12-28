@@ -1,20 +1,19 @@
-using BusinessLayer.Services;
+using BusinessLayer;
 using BusinessLayer.Facades;
 using BusinessLayer.Facades.Interfaces;
-using DataAccessLayer.Data;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
-using WebAPI.Middlewares;
+using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
-using Infrastructure.Repository.Interfaces;
-using Infrastructure.Repository;
-using Infrastructure.UnitOfWork;
+using DataAccessLayer.Data;
+using DataAccessLayer.Models;
 using Infrastructure.Repository.Implementations;
 using Infrastructure.Repository.Implementations.Implementations;
-using Mapster;
-using BusinessLayer;
+using Infrastructure.Repository.Interfaces;
+using Infrastructure.UnitOfWork;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Presentations.Shared.Middlewares;
+using WebAPI.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -84,7 +83,11 @@ builder.Services.AddDbContextFactory<MyDBContext>(options =>
         ;
 });
 
-builder.Services.AddScoped<IUserService, UserService>();
+// Register Identity
+builder
+    .Services.AddIdentity<LocalIdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<MyDBContext>()
+    .AddDefaultTokenProviders();
 
 // Register Repositories
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
@@ -102,6 +105,7 @@ builder.Services.AddScoped<ILogRepository, LogRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Register Services
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IImageService>(provider =>
 {
@@ -112,12 +116,13 @@ builder.Services.AddScoped<IImageService>(provider =>
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddScoped<IManufacturerFacade, ManufacturerFacade>();
 builder.Services.AddScoped<ILogService, LogService>();
+
+// Register Facades
+builder.Services.AddScoped<IManufacturerFacade, ManufacturerFacade>();
 
 // Mapster Mapping configuration for using DTOs
 new MappingConfig().RegisterMappings();
-
 
 var app = builder.Build();
 
