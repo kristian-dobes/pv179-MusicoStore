@@ -1,7 +1,7 @@
 ﻿using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using WebMVC.Models;
+using WebMVC.Models.Account;
 
 namespace WebMVC.Controllers
 {
