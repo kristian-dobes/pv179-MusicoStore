@@ -74,15 +74,19 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<ILogService, LogService>();
 builder.Services.AddScoped<IImageService>(provider =>
 {
     var uow = provider.GetRequiredService<IUnitOfWork>();
     var imagesPath = imagesFolder;
     return new ImageService(uow, imagesPath);
 });
-builder.Services.AddScoped<IManufacturerFacade, ManufacturerFacade>();
-builder.Services.AddScoped<ILogService, LogService>();
 
+// Register Facades
+builder.Services.AddScoped<IManufacturerFacade, ManufacturerFacade>();
+builder.Services.AddScoped<IAuthFacade, AuthFacade>();
+
+// Register Mapster mappings
 new MapsterConfig().RegisterMappings();
 
 builder.Services.Configure<IdentityOptions>(options =>
@@ -131,6 +135,7 @@ using (var scope = app.Services.CreateScope())
 
 app.Run();
 
+// Seed Roles for Identity
 async Task SeedRoles(IServiceProvider serviceProvider)
 {
     var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
