@@ -7,6 +7,7 @@ using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using WebMVC.Models.User;
 
 namespace WebMVC.Areas.Admin.Controllers
@@ -63,11 +64,12 @@ namespace WebMVC.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ResetPassword(int id, UserResetPasswordViewModel model)
         {
+
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
-
+            
             // Retrieve the userId of the currently logged-in user
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -80,7 +82,17 @@ namespace WebMVC.Areas.Admin.Controllers
                 NewPassword = model.NewPassword
             };
 
-            await _authFacade.ResetUserPassword(dto);
+            var authenticationResult = await _authFacade.ResetUserPassword(dto);
+
+            if (!authenticationResult.Succeeded)
+            {
+                foreach (var error in authenticationResult.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
+
+                return View(model); // Re-render view with validation errors
+            }
 
             return RedirectToAction("Index");
         }
