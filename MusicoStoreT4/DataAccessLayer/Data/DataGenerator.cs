@@ -128,14 +128,7 @@ public static class DataGenerator
             .RuleFor(p => p.QuantityInStock, f => f.Random.Int(1, 100))
             .RuleFor(
                 p => p.SecondaryCategories,
-                (f, p) =>
-                {
-                    return f.PickRandom(
-                            categories.Where(c => c.Id != p.PrimaryCategoryId).ToList(),
-                            f.Random.Int(1, 2)
-                        )
-                        .ToList();
-                }
+                f => f.PickRandom(categories, f.Random.Int(1, 3)).ToList()
             )
             .Generate(count);
     }
@@ -144,11 +137,13 @@ public static class DataGenerator
     {
         return products
             .SelectMany(product =>
-                product.SecondaryCategories.Select(category => new Dictionary<string, object>
-                {
-                    { "ProductId", product.Id },
-                    { "CategoryId", category.Id }
-                })
+                product
+                    .SecondaryCategories.Where(c => c.Id != product.PrimaryCategoryId)
+                    .Select(category => new Dictionary<string, object>
+                    {
+                        { "ProductId", product.Id },
+                        { "CategoryId", category.Id }
+                    })
             )
             .ToList();
     }
