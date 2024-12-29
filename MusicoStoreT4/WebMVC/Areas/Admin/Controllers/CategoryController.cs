@@ -6,6 +6,7 @@ using BusinessLayer.DTOs.Category;
 using WebMVC.Models.Category;
 using BusinessLayer.Services;
 using Microsoft.AspNetCore.Identity;
+using DataAccessLayer.Models;
 
 namespace WebMVC.Areas.Admin.Controllers
 {
@@ -14,10 +15,12 @@ namespace WebMVC.Areas.Admin.Controllers
     public class CategoryController : Controller
     {
         private readonly ICategoryService _categoryService;
+        private readonly UserManager<LocalIdentityUser> _userManager;
 
-        public CategoryController(ICategoryService categoryService)
+        public CategoryController(ICategoryService categoryService, UserManager<LocalIdentityUser> userManager)
         {
             _categoryService = categoryService;
+            _userManager = userManager;
         }
 
         // GET: Admin/Category
@@ -148,12 +151,12 @@ namespace WebMVC.Areas.Admin.Controllers
                 return View(model);
             }
 
-            //// Retrieve the userId of the currently logged-in user
-            //var user = await _userManager.GetUserAsync(User);
-            //if (user == null)
-            //    return Unauthorized("User must be authenticated to delete the product.");
+            // Retrieve the userId of the currently logged-in user
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized("User must be authenticated to delete the product.");
 
-            await _categoryService.MergeCategoriesAndCreateNewAsync(model.NewCategoryName, model.SourceCategoryId1, model.SourceCategoryId2);
+            await _categoryService.MergeCategoriesAndCreateNewAsync(model.NewCategoryName, model.SourceCategoryId1, model.SourceCategoryId2, user.UserId);
            
             //return RedirectToAction("Details", new { id = newCategory.Id });
             return RedirectToAction("Index");

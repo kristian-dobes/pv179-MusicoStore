@@ -1,14 +1,7 @@
-﻿using BusinessLayer.DTOs.Category;
-using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
+﻿using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Models;
 using DataAccessLayer.Models.Enums;
 using Infrastructure.UnitOfWork;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BusinessLayer.Services
 {
@@ -21,28 +14,34 @@ namespace BusinessLayer.Services
             _uow = unitOfWork;
         }
 
-        public async Task LogAsync(int productId, AuditAction action, int modifiedBy)
+        public async Task LogAsync(IEnumerable<AuditLog> auditLogs)
         {
-            if (productId <= 0)
-                throw new ArgumentException("Invalid product ID.", nameof(productId));
-
-            var auditLog = new AuditLog
-            {
-                ProductId = productId,
-                Action = action,
-                ModifiedById = modifiedBy,
-                Created = DateTime.UtcNow
-            };
+            if (auditLogs == null || !auditLogs.Any())
+                throw new ArgumentException("No audit logs provided.", nameof(auditLogs));
 
             try
             {
-                await _uow.ProductAuditsRep.AddAsync(auditLog);
-                await _uow.SaveAsync();
+                await _uow.ProductAuditsRep.AddRangeAsync(auditLogs); // Bulk insert
+                await _uow.SaveAsync(); // Single save call
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException("Failed to log audit entry.", ex);
+                throw new InvalidOperationException("Failed to log audit entries.", ex);
             }
+        }
+
+        public async Task LogAsync(int productId, AuditAction action, int modifiedBy)
+        {
+            await LogAsync(new List<AuditLog>
+            {
+                new AuditLog
+                {
+                    ProductId = productId,
+                    Action = action,
+                    ModifiedById = modifiedBy,
+                    Created = DateTime.UtcNow
+                }
+            });
         }
     }
 }

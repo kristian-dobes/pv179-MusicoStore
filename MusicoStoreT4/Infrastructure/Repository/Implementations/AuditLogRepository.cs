@@ -38,5 +38,13 @@ namespace Infrastructure.Repository.Implementations
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task AddRangeAsync(IEnumerable<AuditLog> auditLogs)
+        {
+            if (auditLogs == null)
+                throw new ArgumentNullException(nameof(auditLogs));
+
+            await _context.Set<AuditLog>().AddRangeAsync(auditLogs);
+        }
     }
 }

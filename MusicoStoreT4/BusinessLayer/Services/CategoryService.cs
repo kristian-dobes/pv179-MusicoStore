@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using BusinessLayer.DTOs.Category;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Models;
+using DataAccessLayer.Models.Enums;
 using Infrastructure.UnitOfWork;
 using Mapster;
 
@@ -14,11 +15,13 @@ namespace BusinessLayer.Services
     public class CategoryService : BaseService, ICategoryService
     {
         private readonly IUnitOfWork _uow;
+        private readonly IAuditLogService _auditLogService;
 
-        public CategoryService(IUnitOfWork unitOfWork)
+        public CategoryService(IUnitOfWork unitOfWork, IAuditLogService auditLogService)
             : base(unitOfWork)
         {
             _uow = unitOfWork;
+            _auditLogService = auditLogService;
         }
 
         public async Task<IEnumerable<CategorySummaryDTO>> GetCategoriesAsync()
@@ -37,7 +40,8 @@ namespace BusinessLayer.Services
         public async Task<Category> MergeCategoriesAndCreateNewAsync(
             string newCategoryName,
             int sourceCategoryId1,
-            int sourceCategoryId2
+            int sourceCategoryId2,
+            int modifiedById
         )
         {
             // fetch categories with products
@@ -66,6 +70,27 @@ namespace BusinessLayer.Services
             // bulkp roduct update
             await _uow.ProductsRep.UpdatePrimaryCategoryAsync(primaryProductIds, newCategory.Id);
             await _uow.ProductsRep.UpdateSecondaryCategoriesAsync(secondaryProductIds, newCategory.Id, [sourceCategoryId1, sourceCategoryId2]);
+
+            // Collect audit logs
+            var auditLogs = primaryProductIds
+                .Select(productId => new AuditLog
+                {
+                    ProductId = productId,
+                    Action = AuditAction.Update,
+                    ModifiedById = modifiedById,
+                    Created = DateTime.UtcNow
+                })
+                .Concat(secondaryProductIds.Select(productId => new AuditLog
+                {
+                    ProductId = productId,
+                    Action = AuditAction.Update,
+                    ModifiedById = modifiedById,
+                    Created = DateTime.UtcNow
+                }))
+                .ToList();
+
+            // Log updates in bulk
+            await _auditLogService.LogAsync(auditLogs);
 
             await _uow.CategoriesRep.DeleteCategoriesAsync([sourceCategoryId1, sourceCategoryId2]);
 

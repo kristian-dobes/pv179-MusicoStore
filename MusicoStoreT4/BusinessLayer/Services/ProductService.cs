@@ -193,11 +193,17 @@ namespace BusinessLayer.Services
             // reassign products
             await _uow.ProductsRep.ReassignProductsToManufacturerAsync(sourceManufacturerId, destinationManufacturerId, modifiedById);
 
-            // Log each product update
-            foreach (var productId in productIds)
+            // list of audit logs for batch logging
+            var auditLogs = productIds.Select(productId => new AuditLog
             {
-                await _auditLogService.LogAsync(productId, AuditAction.Update, modifiedById);
-            }
+                ProductId = productId,
+                Action = AuditAction.Update,
+                ModifiedById = modifiedById,
+                Created = DateTime.UtcNow
+            }).ToList();
+
+            // bulk log
+            await _auditLogService.LogAsync(auditLogs);
 
             await _uow.SaveAsync();
         }
