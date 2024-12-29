@@ -57,7 +57,8 @@ namespace WebMVC
                 .Map(dest => dest.Quantity, src => src.Quantity);
             TypeAdapterConfig<OrderDetailDto, OrderUpdateViewModel>
                 .NewConfig()
-                .Map(dest => dest.Items, src => src.OrderItems.Adapt<IEnumerable<OrderItemDto>>()); // Map nested collection
+                .Map(dest => dest.Items, src => src.OrderItems.Adapt<IEnumerable<OrderItemDto>>()) // Map nested collection
+                .Map(dest => dest.PaymentStatus, src => src.PaymentStatus); 
             TypeAdapterConfig<OrderUpdateViewModel, UpdateOrderDto>
                 .NewConfig()
                 .Map(dest => dest.OrderItems, src => src.Items);

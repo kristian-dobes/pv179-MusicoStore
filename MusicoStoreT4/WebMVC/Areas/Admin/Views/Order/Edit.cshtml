@@ -11,6 +11,26 @@
 <form asp-action="Edit">
     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
+    <!-- Payment Status Section -->
+    <h4>Payment Status</h4>
+    <div class="form-group">
+        <label for="current-payment-status" class="control-label">Current Payment Status:</label>
+        <div id="current-payment-status" class="mb-2">
+            <strong>@Model.PaymentStatus</strong>
+        </div>
+        <label for="payment-status" class="control-label">Update Payment Status:</label>
+        @* <p class="text-muted">If no new status is selected, the current payment status will remain.</p> *@
+        <select id="payment-status" name="PaymentStatus" class="form-control">
+            <option value="" selected disabled>Select a new status (optional)</option>
+            <option value="Pending">Pending</option>
+            <option value="Paid">Paid</option>
+            <option value="Failed">Failed</option>
+            <option value="Refunded">Refunded</option>
+        </select>
+        <!-- Hidden field to preserve current status if no new status is selected -->
+        <input type="hidden" id="current-payment-status-hidden" name="PaymentStatus" value="@Model.PaymentStatus" />
+    </div>
+
     <h4>Order Items</h4>
     <hr />
 

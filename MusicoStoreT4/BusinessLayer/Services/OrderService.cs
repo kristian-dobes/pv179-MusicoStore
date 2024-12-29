@@ -113,6 +113,20 @@ namespace BusinessLayer.Services
             if (updateOrderDto.OrderDate.HasValue)
                 order.Date = updateOrderDto.OrderDate.Value;
 
+            // Update the payment status if provided
+            if (!string.IsNullOrWhiteSpace(updateOrderDto.PaymentStatus))
+            {
+                if (Enum.TryParse<PaymentStatus>(updateOrderDto.PaymentStatus, true, out var parsedStatus))
+                {
+                    order.OrderStatus = parsedStatus;
+                }
+                else
+                {
+                    // Set to 'Failed' if the payment status string is invalid
+                    order.OrderStatus = PaymentStatus.Failed;
+                }
+            }
+
             // Remove all existing order items
             order.OrderItems.Clear();
 

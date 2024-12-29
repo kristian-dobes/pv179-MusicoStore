@@ -6,5 +6,6 @@ namespace BusinessLayer.DTOs.Order
     {
         public DateTime? OrderDate { get; set; }
         public IEnumerable<OrderItemDto> OrderItems { get; set; }
+        public string PaymentStatus { get; set; }
     }
 }
