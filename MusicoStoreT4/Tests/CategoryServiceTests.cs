@@ -48,7 +48,8 @@ namespace Tests
                                   new ProductImageRepository(context),
                                   new AuditLogRepository(context),
                                   new LogRepository(context));
-            _service = new CategoryService(_uow);
+            
+            _service = new CategoryService(_uow, new AuditLogService(_uow));
             
             // Mapster Mapping configuration for using DTOs
             new MappingConfig().RegisterMappings();
@@ -111,7 +112,7 @@ namespace Tests
         public async Task MergeCategoriesAndCreateNewAsync_ShouldThrowException_WhenOneSourceCategoryIsMissing()
         {
             var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await _service.MergeCategoriesAndCreateNewAsync("New Category", 1, 20));
+                await _service.MergeCategoriesAndCreateNewAsync("New Category", 1, 20, 1));
 
             Assert.AreEqual("One or both source categories not found.", ex.Message);
         }
@@ -128,7 +129,7 @@ namespace Tests
             var newCategoryName = "New Category";
 
             // Act
-            var result = await _service.MergeCategoriesAndCreateNewAsync(newCategoryName, 1, 2);
+            var result = await _service.MergeCategoriesAndCreateNewAsync(newCategoryName, 1, 2, 1);
 
             // Assert
             Assert.IsNotNull(result);
@@ -157,7 +158,7 @@ namespace Tests
             var newCategoryName = "Merged Empty Category";
 
             // Act
-            var result = await _service.MergeCategoriesAndCreateNewAsync(newCategoryName, 1, 2);
+            var result = await _service.MergeCategoriesAndCreateNewAsync(newCategoryName, 1, 2, 1);
 
             // Assert
             Assert.IsNotNull(result);
@@ -195,7 +196,7 @@ namespace Tests
             var newCategoryName = "Merged Category";
 
             // Act
-            var result = await _service.MergeCategoriesAndCreateNewAsync(newCategoryName, 1, 2);
+            var result = await _service.MergeCategoriesAndCreateNewAsync(newCategoryName, 1, 2, 1);
 
             // Assert
             Assert.IsNotNull(result);

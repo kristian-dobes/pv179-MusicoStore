@@ -89,8 +89,12 @@ namespace BusinessLayer.Services
                 }))
                 .ToList();
 
+
             // Log updates in bulk
-            await _auditLogService.LogAsync(auditLogs);
+            if(auditLogs.Count != 0)
+            {
+                await _auditLogService.LogAsync(auditLogs);
+            }
 
             await _uow.CategoriesRep.DeleteCategoriesAsync([sourceCategoryId1, sourceCategoryId2]);
 
