@@ -118,6 +118,8 @@ namespace WebMVC.Areas.Admin.Controllers
 
             var productUpdateViewModel = product.Adapt<ProductUpdateViewModel>();
 
+            productUpdateViewModel.SecondaryCategoryIds = product.SecondaryCategories.Select(c => c.CategoryId);
+
             productUpdateViewModel.Manufacturers = manufacturers;   // TODO sort values by name
             productUpdateViewModel.Categories = categories;
 
@@ -130,11 +132,25 @@ namespace WebMVC.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
+                model.Categories = await _categoryService.GetCategoriesAsync();
+                model.Manufacturers = await _manufacturerService.GetManufacturersAsync();
                 return View(model);
                 // return BadRequest(ModelState);
             }
 
+            // Check if the PrimaryCategoryId is also in SecondaryCategoryIds
+            if (model.SecondaryCategoryIds.Contains(model.PrimaryCategoryId))
+            {
+                ModelState.AddModelError("SecondaryCategoryIds", "The primary category cannot also be a secondary category.");
+
+                // Reload categories and manufacturers for the view
+                model.Categories = await _categoryService.GetCategoriesAsync();
+                model.Manufacturers = await _manufacturerService.GetManufacturersAsync();
+                return View(model);
+            }
+
             var product = model.Adapt<ProductUpdateDTO>();
+            product.SecondaryCategoryIds = model.SecondaryCategoryIds;
 
             // Retrieve the userId of the currently logged-in user
             var user = await _userManager.GetUserAsync(User);

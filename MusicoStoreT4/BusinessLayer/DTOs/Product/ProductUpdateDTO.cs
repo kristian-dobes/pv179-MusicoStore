@@ -19,7 +19,7 @@ namespace BusinessLayer.DTOs.Product
         public required int QuantityInStock { get; set; }
         public required int LastModifiedById { get; set; }
         public required int PrimaryCategoryId { get; set; }
-        public required List<int> SecondaryCategoryIds { get; set; }
+        public required IEnumerable<int> SecondaryCategoryIds { get; set; }
         public required int ManufacturerId { get; set; }
     }
 }

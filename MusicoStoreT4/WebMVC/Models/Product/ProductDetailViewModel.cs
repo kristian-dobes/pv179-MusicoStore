@@ -13,7 +13,7 @@ namespace WebMVC.Models.Product
         public required int LastModifiedById { get; set; }
         public required int EditCount { get; set; }
         public required CategorySummaryDTO PrimaryCategory { get; set; }
-        public required IEnumerable<CategoryBasicDto> SecondaryCategories { get; set; }
+        public IEnumerable<CategoryBasicDto> SecondaryCategories { get; set; }
         public required ManufacturerSummaryDTO Manufacturer { get; set; }
     }
 }
