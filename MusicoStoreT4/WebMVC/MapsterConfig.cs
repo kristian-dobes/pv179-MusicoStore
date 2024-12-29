@@ -25,11 +25,14 @@ namespace WebMVC
                 .Map(dest => dest.Id, src => src.ProductId)
                 .Map(dest => dest.Manufacturer.ManufacturerId, src => src.ManufacturerId)
                 .Map(dest => dest.Manufacturer.Name, src => src.ManufacturerName)
-                .Map(dest => dest.Category.CategoryId, src => src.CategoryId)
-                .Map(dest => dest.Category.Name, src => src.CategoryName);
+                .Map(dest => dest.PrimaryCategory.CategoryId, src => src.PrimaryCategoryId)
+                .Map(dest => dest.PrimaryCategory.Name, src => src.PrimaryCategoryName)
+                .Map(dest => dest.SecondaryCategories, src => src.SecondaryCategories);
+
             TypeAdapterConfig<ProductCompleteDTO, ProductSummaryViewModel>
                 .NewConfig()
                 .Map(dest => dest.Id, src => src.ProductId);
+
             TypeAdapterConfig<ProductDto, ProductDetailViewModel>
                 .NewConfig()
                 .Map(dest => dest.Id, src => src.Id)
@@ -37,7 +40,13 @@ namespace WebMVC
                 .Map(dest => dest.Description, src => src.Description)
                 .Map(dest => dest.Price, src => src.Price)
                 .Map(dest => dest.Manufacturer.Name, src => src.ManufacturerName)
-                .Map(dest => dest.Category.Name, src => src.CategoryName);
+                .Map(dest => dest.PrimaryCategory.Name, src => src.PrimaryCategoryName)
+                .Map(
+                    dest => dest.SecondaryCategories,
+                    src => new List<CategoryBasicDto>(
+                        src.SecondaryCategories.Select(c => new CategoryBasicDto { Name = c })
+                    )
+                );
 
             TypeAdapterConfig<ManufacturerSummaryDTO, ManufacturerSummaryViewModel>
                 .NewConfig()
@@ -51,14 +60,17 @@ namespace WebMVC
                 .NewConfig()
                 .Map(dest => dest.OrderId, src => src.OrderId)
                 .Map(dest => dest.PaymentStatus, src => src.PaymentStatus);
+
             TypeAdapterConfig<OrderItemCompleteDTO, OrderItemDto>
                 .NewConfig()
                 .Map(dest => dest.ProductId, src => src.ProductId)
                 .Map(dest => dest.Quantity, src => src.Quantity);
+
             TypeAdapterConfig<OrderDetailDto, OrderUpdateViewModel>
                 .NewConfig()
                 .Map(dest => dest.Items, src => src.OrderItems.Adapt<IEnumerable<OrderItemDto>>()) // Map nested collection
-                .Map(dest => dest.PaymentStatus, src => src.PaymentStatus); 
+                .Map(dest => dest.PaymentStatus, src => src.PaymentStatus);
+
             TypeAdapterConfig<OrderUpdateViewModel, UpdateOrderDto>
                 .NewConfig()
                 .Map(dest => dest.OrderItems, src => src.Items);
@@ -69,6 +81,7 @@ namespace WebMVC
                 .Map(dest => dest.Email, src => src.Email)
                 .Map(dest => dest.Username, src => src.Username)
                 .Map(dest => dest.Created, src => src.Created);
+
             TypeAdapterConfig<UserSummaryDTO, UserSummaryViewModel>
                 .NewConfig()
                 .Map(dest => dest.UserId, src => src.UserId)

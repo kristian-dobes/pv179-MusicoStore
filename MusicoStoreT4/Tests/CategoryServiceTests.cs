@@ -169,7 +169,7 @@ namespace Tests
             var sourceCategories = (await _uow.CategoriesRep.WhereAsync(c => c.Id == 1 || c.Id == 2)).ToList();
             Assert.IsEmpty(sourceCategories);
 
-            var productsForNewCategory = (await _uow.ProductsRep.WhereAsync(p => p.CategoryId == savedCategory.Id)).ToList();
+            var productsForNewCategory = (await _uow.ProductsRep.WhereAsync(p => p.PrimaryCategoryId == savedCategory.Id)).ToList();
             Assert.IsEmpty(productsForNewCategory, "The new category should have no associated products.");
         }
 
@@ -187,8 +187,8 @@ namespace Tests
             Assert.IsNotNull(product1, "Product 1 is missing in the mock data.");
             Assert.IsNotNull(product2, "Product 2 is missing in the mock data.");
 
-            product1.CategoryId = category1.Id;
-            product2.CategoryId = category2.Id;
+            product1.PrimaryCategoryId = category1.Id;
+            product2.PrimaryCategoryId = category2.Id;
 
             await _uow.SaveAsync();
 
@@ -204,7 +204,7 @@ namespace Tests
             var savedCategory = (await _uow.CategoriesRep.WhereAsync(c => c.Name == newCategoryName)).FirstOrDefault();
             Assert.IsNotNull(savedCategory);
 
-            var reassignedProducts = (await _uow.ProductsRep.WhereAsync(p => p.CategoryId == savedCategory.Id)).ToList();
+            var reassignedProducts = (await _uow.ProductsRep.WhereAsync(p => p.PrimaryCategoryId == savedCategory.Id)).ToList();
             Assert.AreEqual(3, reassignedProducts.Count);
             Assert.Contains(product1, reassignedProducts);
             Assert.Contains(product2, reassignedProducts);

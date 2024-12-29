@@ -30,7 +30,7 @@ namespace Infrastructure.Repository.Implementations
             existingProduct.QuantityInStock = entity.QuantityInStock;
             existingProduct.LastModifiedById = entity.LastModifiedById;
             existingProduct.EditCount = entity.EditCount;
-            existingProduct.CategoryId = entity.CategoryId;
+            existingProduct.PrimaryCategoryId = entity.PrimaryCategoryId;
             existingProduct.ManufacturerId = entity.ManufacturerId;
 
             _context.Products.Update(existingProduct);
@@ -42,7 +42,7 @@ namespace Infrastructure.Repository.Implementations
         {
             return await _context.Products
                 .Include(p => p.OrderItems)
-                .Include(p => p.Category)
+                .Include(p => p.PrimaryCategory)
                 .Include(p => p.Manufacturer)
                 .ToListAsync();
         }
