@@ -13,6 +13,10 @@ namespace Infrastructure.Repository.Interfaces
         Task<List<Category>> GetCategoriesWithProductsAsync();
         Task<List<Category>> GetCategoriesWithPrimaryProductsAsync();
         Task<List<Category>> GetCategoriesWithSecondaryProductsAsync();
+        Task<Category?> GetCategoryWithAllProductsAsync(int categoryId);
         IQueryable<Category> GetAllQuery();
+        Task<bool> HasProductsAsync(int categoryId);
+        Task<Category?> GetByConditionAsync(Expression<Func<Category, bool>> predicate);
+        Task DeleteCategoriesAsync(IEnumerable<int> categoryIds);
     }
 }

@@ -15,12 +15,20 @@ namespace WebMVC.Areas.Admin.Controllers
     {
         private readonly IProductService _productService;
         private readonly IManufacturerService _manufacturerService;
+        private readonly ICategoryService _categoryService;
         private readonly UserManager<LocalIdentityUser> _userManager;
 
-        public ProductController(IProductService productService, IManufacturerService manufacturerService, UserManager<LocalIdentityUser> userManager)
+        public ProductController
+            (
+            IProductService productService,
+            IManufacturerService manufacturerService,
+            ICategoryService categoryService,
+            UserManager<LocalIdentityUser> userManager
+            )
         {
             _productService = productService;
             _manufacturerService = manufacturerService;
+            _categoryService = categoryService;
             _userManager = userManager;
         }
 
@@ -51,14 +59,23 @@ namespace WebMVC.Areas.Admin.Controllers
         }
 
         // GET: Admin/Product/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            // TODO use list of available categories and manufacturers
-            // not like this:
-            //ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
-            //ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "Id", "Name");
+            var manufacturers = await _manufacturerService.GetManufacturersAsync();
+            if (manufacturers == null)
+                return NotFound();
 
-            return View();
+            var categories = await _categoryService.GetCategoriesAsync();
+            if (categories == null)
+                return NotFound();
+
+            var productCreateViewModel = new ProductCreateViewModel()
+            {
+                Categories = categories,   // TODO sort values by name
+                Manufacturers = manufacturers
+            };
+
+            return View(productCreateViewModel);
         }
 
         // POST: Admin/Product/Create
@@ -80,8 +97,6 @@ namespace WebMVC.Areas.Admin.Controllers
 
             await _productService.CreateProductAsync(product);
 
-            //ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
-            //ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "Id", "Name", product.ManufacturerId);
             return RedirectToAction("Index");
         }
 
@@ -91,19 +106,22 @@ namespace WebMVC.Areas.Admin.Controllers
             var product = await _productService.GetProductByIdAsync(id);
 
             if (product == null)
-            {
                 return NotFound();
-            }
 
             var manufacturers = await _manufacturerService.GetManufacturersAsync();
             if (manufacturers == null)
-            {
                 return NotFound();
-            }
+
+            var categories = await _categoryService.GetCategoriesAsync();
+            if (categories == null)
+                return NotFound();
 
             var productUpdateViewModel = product.Adapt<ProductUpdateViewModel>();
 
-            productUpdateViewModel.Manufacturers = manufacturers;
+            productUpdateViewModel.SecondaryCategoryIds = product.SecondaryCategories.Select(c => c.CategoryId);
+
+            productUpdateViewModel.Manufacturers = manufacturers;   // TODO sort values by name
+            productUpdateViewModel.Categories = categories;
 
             return View(productUpdateViewModel);
         }
@@ -114,11 +132,25 @@ namespace WebMVC.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
+                model.Categories = await _categoryService.GetCategoriesAsync();
+                model.Manufacturers = await _manufacturerService.GetManufacturersAsync();
                 return View(model);
                 // return BadRequest(ModelState);
             }
 
+            // Check if the PrimaryCategoryId is also in SecondaryCategoryIds
+            if (model.SecondaryCategoryIds.Contains(model.PrimaryCategoryId))
+            {
+                ModelState.AddModelError("SecondaryCategoryIds", "The primary category cannot also be a secondary category.");
+
+                // Reload categories and manufacturers for the view
+                model.Categories = await _categoryService.GetCategoriesAsync();
+                model.Manufacturers = await _manufacturerService.GetManufacturersAsync();
+                return View(model);
+            }
+
             var product = model.Adapt<ProductUpdateDTO>();
+            product.SecondaryCategoryIds = model.SecondaryCategoryIds;
 
             // Retrieve the userId of the currently logged-in user
             var user = await _userManager.GetUserAsync(User);
@@ -126,9 +158,9 @@ namespace WebMVC.Areas.Admin.Controllers
                 return Unauthorized("User must be authenticated to edit the product.");
             product.LastModifiedById = user.UserId;
 
-            var productResult = await _productService.UpdateProductAsync(id, product);
+            await _productService.UpdateProductAsync(id, product);
 
-            return View(productResult.Adapt<ProductUpdateViewModel>());
+            return RedirectToAction("Details", new { id });
         }
 
         // GET: Admin/Product/Delete/5

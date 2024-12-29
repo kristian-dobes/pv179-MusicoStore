@@ -120,7 +120,7 @@ namespace WebAPI.Controllers
                     mergeCategoriesDTO.NewCategoryName,
                     mergeCategoriesDTO.SourceCategoryId1,
                     mergeCategoriesDTO.SourceCategoryId2,
-                    save: true
+                    1
                 );
 
                 var result = CreatedAtAction("GetCategoryById", new { id = newCategory.Id }, new

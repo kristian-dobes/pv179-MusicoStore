@@ -1,3 +1,4 @@
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @using WebMVC.Models.Product;
 @model SearchProductListViewModel
 
@@ -46,7 +47,7 @@
                 <p><strong>Stock:</strong> @item.QuantityInStock units available</p>
                 <p><strong>Primary Category:</strong> @item.PrimaryCategory.Name</p>
                 <p><strong>Manufacturer:</strong> @item.Manufacturer.Name</p>
-                @* <button class="details-btn" onclick="location.href='@Url.Action("Details", "Product", new { id = item.Id })'">View Details</button> *@
+                <a asp-action="Detailz" asp-controller="Product" asp-route-id="@item.Id" class="btn details-btn">View Detailz</a>
             </div>
         }
     </div>

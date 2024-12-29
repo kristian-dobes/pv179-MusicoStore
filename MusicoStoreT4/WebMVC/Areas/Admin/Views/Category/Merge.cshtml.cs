@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace WebMVC.Views.Product
+namespace WebMVC.Areas.Admin.Views.Category
 {
-    public class EditModel : PageModel
+    public class MergeModel : PageModel
     {
         public void OnGet()
         {

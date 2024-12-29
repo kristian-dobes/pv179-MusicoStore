@@ -16,6 +16,6 @@ namespace BusinessLayer.DTOs.Order
         public required IEnumerable<OrderItemCompleteDTO> OrderItems { get; set; }
         public required CustomerOrderDTO User { get; set; }
         public required decimal TotalOrderPrice { get; set; }
-        public required string OrderStatus { get; set; }
+        public required string PaymentStatus { get; set; }
     }
 }

@@ -62,7 +62,6 @@ namespace BusinessLayer.Services
                     OrderItems = p
                         .OrderItems.Select(oi => new OrderItemDto
                         {
-                            OrderItemId = oi.Id,
                             ProductId = p.Id,
                             Quantity = oi.Quantity,
                         })
@@ -87,26 +86,18 @@ namespace BusinessLayer.Services
             // Validate Manufacturer
             var manufacturer = await _uow.ManufacturersRep.GetByIdAsync(productDto.ManufacturerId);
             if (manufacturer == null)
-                throw new KeyNotFoundException(
-                    $"Manufacturer with ID {productDto.ManufacturerId} not found."
-                );
+                throw new KeyNotFoundException($"Manufacturer with ID {productDto.ManufacturerId} not found.");
             product.Manufacturer = manufacturer;
 
             // Validate Primary Category
-            var primaryCategory = await _uow.CategoriesRep.GetByIdAsync(
-                productDto.PrimaryCategoryId
-            );
+            var primaryCategory = await _uow.CategoriesRep.GetByIdAsync(productDto.PrimaryCategoryId);
             if (primaryCategory == null)
-                throw new KeyNotFoundException(
-                    $"Category with ID {productDto.PrimaryCategoryId} not found."
-                );
+                throw new KeyNotFoundException($"Category with ID {productDto.PrimaryCategoryId} not found.");
 
             // Validate Secondary Categories
-            var secondaryCategories = await _uow.CategoriesRep.WhereAsync(c =>
-                productDto.SecondaryCategoryIds.Contains(c.Id)
-            );
+            var secondaryCategories = await _uow.CategoriesRep.WhereAsync(c => productDto.SecondaryCategoryIds.Contains(c.Id));
 
-            if (secondaryCategories.Count() != productDto.SecondaryCategoryIds.Count)
+            if (secondaryCategories.Count() != productDto.SecondaryCategoryIds.Count())
                 throw new KeyNotFoundException("One or more secondary categories not found.");
             product.PrimaryCategory = primaryCategory;
 
@@ -194,23 +185,26 @@ namespace BusinessLayer.Services
             }
         }
 
-        public async Task ReassignProductsToManufacturerAsync(
-            int sourceManufacturerId,
-            int targetManufacturerId,
-            int modifiedBy
-        )
+        public async Task ReassignProductsToManufacturerAsync(int sourceManufacturerId, int destinationManufacturerId, int modifiedById)
         {
-            var productsToUpdate = await _uow.ProductsRep.WhereAsync(p =>
-                p.ManufacturerId == sourceManufacturerId
-            );
+            // products to reassign
+            var productIds = await _uow.ProductsRep.GetProductIdsByManufacturerAsync(sourceManufacturerId);
 
-            foreach (var product in productsToUpdate)
+            // reassign products
+            await _uow.ProductsRep.ReassignProductsToManufacturerAsync(sourceManufacturerId, destinationManufacturerId, modifiedById);
+
+            // list of audit logs for batch logging
+            var auditLogs = productIds.Select(productId => new AuditLog
             {
-                product.ManufacturerId = targetManufacturerId;
-                product.LastModifiedById = modifiedBy;
-                product.EditCount++;
-                await _auditLogService.LogAsync(product.Id, AuditAction.Update, modifiedBy);
-            }
+                ProductId = productId,
+                Action = AuditAction.Update,
+                ModifiedById = modifiedById,
+                Created = DateTime.UtcNow
+            }).ToList();
+
+            // bulk log
+            await _auditLogService.LogAsync(auditLogs);
+
             await _uow.SaveAsync();
         }
 

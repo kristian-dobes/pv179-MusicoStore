@@ -46,22 +46,14 @@ namespace WebAPI.Controllers
             return Ok(order);
         }
 
-        [HttpGet("with-items")]
-        public async Task<IActionResult> FetchWithOrderItems()
-        {
-            var orders = await _orderService.GetAllOrdersAsync();
-
-            return Ok(orders);
-        }
-
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateOrderDto createOrderDto)
         {
             try
             {
-                var createdOrdersAmount = await _orderService.CreateOrderAsync(createOrderDto);
+                var created = await _orderService.CreateOrderAsync(createOrderDto);
 
-                if (createdOrdersAmount == 0)
+                if (!created)
                     return BadRequest("None of the products were found or order creation failed.");
 
                 return Ok();
@@ -75,9 +67,6 @@ namespace WebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateOrderDto updateOrderDto)
         {
-            if (id != updateOrderDto.OrderId)
-                return BadRequest("Order ID mismatch.");
-
             try
             {
                 var updated = await _orderService.UpdateOrderAsync(id, updateOrderDto);

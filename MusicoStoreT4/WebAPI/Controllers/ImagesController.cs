@@ -1,13 +1,5 @@
 ﻿using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
-using DataAccessLayer.Models;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.IO;
-using System.Threading.Tasks;
-using WebAPI.DTOs.Images;
 
 namespace WebAPI.Controllers
 {

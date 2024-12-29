@@ -9,7 +9,7 @@
 
     <div class="card">
         <div class="card-header">
-            <h4>Product Information</h4>
+            <h4>Product Information:</h4>
         </div>
         <div class="card-body">
             <dl class="row">
@@ -34,8 +34,25 @@
                 <dt class="col-sm-3">@Html.DisplayNameFor(model => model.EditCount)</dt>
                 <dd class="col-sm-9">@Html.DisplayFor(model => model.EditCount)</dd>
 
-                <dt class="col-sm-3">Category</dt>
+                <dt class="col-sm-3">Primary Category</dt>
                 <dd class="col-sm-9">@Html.DisplayFor(model => model.PrimaryCategory.Name)</dd>
+
+                <dt class="col-sm-3">Secondary Categories</dt>
+                <dd class="col-sm-9">
+                    @if (Model.SecondaryCategories != null && Model.SecondaryCategories.Any())
+                    {
+                        <ul>
+                            @foreach (var category in Model.SecondaryCategories)
+                            {
+                                <li>@category.Name</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>0</p>
+                    }
+                </dd>
 
                 <dt class="col-sm-3">Manufacturer</dt>
                 <dd class="col-sm-9">@Html.DisplayFor(model => model.Manufacturer.Name)</dd>

@@ -75,6 +75,10 @@ namespace BusinessLayer
                 .Map(
                     dest => dest.SecondaryCategories,
                     src => src.SecondaryCategories.Adapt<IEnumerable<CategoryBasicDto>>()
+                )
+                .Map(
+                    dest => dest.NumberOfSecondaryCategories,
+                    src => src.SecondaryCategories != null ? src.SecondaryCategories.Count() : 0
                 );
 
             TypeAdapterConfig<Manufacturer, ManufacturerSummaryDTO>
@@ -164,7 +168,7 @@ namespace BusinessLayer
                             ? src.OrderItems.Sum(oi => oi.Price * oi.Quantity)
                             : 0
                 )
-                .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString());
+                .Map(dest => dest.PaymentStatus, src => src.OrderStatus.ToString());
         }
     }
 }

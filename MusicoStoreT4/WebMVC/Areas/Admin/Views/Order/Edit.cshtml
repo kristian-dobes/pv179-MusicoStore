@@ -1,0 +1,151 @@
+﻿@* This view was partly created with the help of ChatGPT *@
+@model WebMVC.Models.Order.OrderUpdateViewModel
+
+@{
+    ViewData["Title"] = "Edit Order";
+}
+
+<h1>Edit Order</h1>
+<hr />
+
+<form asp-action="Edit">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <!-- Payment Status Section -->
+    <h4>Payment Status</h4>
+    <div class="form-group">
+        <label for="current-payment-status" class="control-label">Current Payment Status:</label>
+        <div id="current-payment-status" class="mb-2">
+            <strong>@Model.PaymentStatus</strong>
+        </div>
+        <label for="payment-status" class="control-label">Update Payment Status:</label>
+        @* <p class="text-muted">If no new status is selected, the current payment status will remain.</p> *@
+        <select id="payment-status" name="PaymentStatus" class="form-control">
+            <option value="" selected disabled>Select a new status (optional)</option>
+            <option value="Pending">Pending</option>
+            <option value="Paid">Paid</option>
+            <option value="Failed">Failed</option>
+            <option value="Refunded">Refunded</option>
+        </select>
+        <!-- Hidden field to preserve current status if no new status is selected -->
+        <input type="hidden" id="current-payment-status-hidden" name="PaymentStatus" value="@Model.PaymentStatus" />
+    </div>
+
+    <h4>Order Items</h4>
+    <hr />
+
+    <!-- Order Items -->
+    <div id="order-items-container">
+        @if (Model?.Items != null && Model.Items.Count() > 0)
+        {
+            @for (int i = 0; i < Model.Items.Count(); i++)
+            {
+                <div class="order-item mb-3">
+                    <div class="form-row align-items-end">
+                        <div class="col-md-6">
+                            <label class="control-label">Product:</label>
+                            <select name="Items[@i].ProductId" class="form-control product-dropdown">
+                                <option value="" disabled>Select a product</option>
+                                @foreach (var product in Model.Products)
+                                {
+                                    @if (product.ProductId == Model.Items.ElementAt(i).ProductId)
+                                    {
+                                        <option value="@product.ProductId" selected="selected">
+                                            @product.Name - @product.Price ($)
+                                        </option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@product.ProductId">
+                                            @product.Name - @product.Price ($)
+                                        </option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="control-label">Quantity:</label>
+                            <input name="Items[@i].Quantity" type="number" class="form-control product-quantity" value="@Model.Items.ElementAt(i).Quantity" min="1" />
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-danger btn-remove-item">Remove</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <!-- Hidden Template -->
+    <div class="order-item-template d-none">
+        <div class="form-row align-items-end">
+            <div class="col-md-6">
+                <label class="control-label">Product:</label>
+                <select class="form-control product-dropdown">
+                    <option value="" disabled selected>Select a product</option>
+                    @foreach (var product in Model.Products)
+                    {
+                        <option value="@product.ProductId">@product.Name - @product.Price ($)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="control-label">Quantity:</label>
+                <input type="number" class="form-control product-quantity" placeholder="Enter quantity" min="1" />
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-danger btn-remove-item">Remove</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Button -->
+    <button type="button" class="btn btn-success mt-3" id="add-item-button">Add Product</button>
+
+    <div class="form-group mt-4">
+        <input type="submit" value="Save Changes" class="btn btn-primary" />
+        <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const orderItemsContainer = document.getElementById('order-items-container');
+            const addItemButton = document.getElementById('add-item-button');
+            const template = document.querySelector('.order-item-template');
+
+            addItemButton.addEventListener('click', function () {
+                const index = orderItemsContainer.children.length;
+                const newItem = template.cloneNode(true);
+                newItem.classList.remove('d-none');
+                newItem.querySelector('.product-dropdown').setAttribute('name', `Items[${index}].ProductId`);
+                newItem.querySelector('.product-quantity').setAttribute('name', `Items[${index}].Quantity`);
+
+                newItem.querySelector('.btn-remove-item').addEventListener('click', function () {
+                    newItem.remove();
+                    updateIndices();
+                });
+
+                orderItemsContainer.appendChild(newItem);
+            });
+
+            function updateIndices() {
+                const items = orderItemsContainer.children;
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    item.querySelector('.product-dropdown').setAttribute('name', `Items[${i}].ProductId`);
+                    item.querySelector('.product-quantity').setAttribute('name', `Items[${i}].Quantity`);
+                }
+            }
+
+            // Attach remove functionality to pre-rendered items
+            Array.from(orderItemsContainer.querySelectorAll('.btn-remove-item')).forEach(button => {
+                button.addEventListener('click', function () {
+                    button.closest('.order-item').remove();
+                    updateIndices();
+                });
+            });
+        });
+    </script>
+}

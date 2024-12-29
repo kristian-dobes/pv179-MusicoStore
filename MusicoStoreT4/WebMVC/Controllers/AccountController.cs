@@ -1,7 +1,7 @@
 ﻿using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using WebMVC.Models;
+using WebMVC.Models.Account;
 
 namespace WebMVC.Controllers
 {
@@ -94,6 +94,7 @@ namespace WebMVC.Controllers
             return View(model);
         }
 
+        [Route("/Account/LogOut")] // Shared route (Can logout from other Areas, eg. Admin)
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();

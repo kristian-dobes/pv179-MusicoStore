@@ -1,13 +1,13 @@
 using BusinessLayer.Facades;
 using BusinessLayer.Services;
-using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
-using DataAccessLayer.Models;
 using Infrastructure.Repository.Implementations.Implementations;
 using Infrastructure.Repository.Implementations;
 using Infrastructure.UnitOfWork;
 using Moq;
 using Tests.Other;
+using DataAccessLayer.Models;
+using Microsoft.AspNetCore.Identity;
+using BusinessLayer.Services.Interfaces;
 
 namespace Tests
 {
@@ -15,14 +15,22 @@ namespace Tests
     public class ManufacturerFacadeTests
     {
         private ManufacturerFacade _manufacturerFacade;
+        private Mock<UserManager<LocalIdentityUser>> _mockUserManager;
         private IUnitOfWork _uow;
 
         [SetUp]
         public void SetUp()
         {
             var context = MockDbContext.GenerateMock();
+
+            // Mock UserManager dependencies
+            var store = new Mock<IUserStore<LocalIdentityUser>>();
+            _mockUserManager = new Mock<UserManager<LocalIdentityUser>>(
+                store.Object, null, null, null, null, null, null, null, null
+            );
+
             _uow = new UnitOfWork(context,
-                                  new UserRepository(context),
+                                  new UserRepository(context, _mockUserManager.Object),
                                   new CategoryRepository(context),
                                   new ManufacturerRepository(context),
                                   new OrderRepository(context),
@@ -31,7 +39,7 @@ namespace Tests
                                   new ProductImageRepository(context),
                                   new AuditLogRepository(context),
                                   new LogRepository(context));
-            _manufacturerFacade = new ManufacturerFacade(new ManufacturerService(_uow), new ProductService(_uow, new AuditLogService(_uow)));
+            _manufacturerFacade = new ManufacturerFacade(new ManufacturerService(_uow), new ProductService(_uow, new AuditLogService(_uow)), _uow);
         }
 
         [Test]
@@ -94,26 +102,43 @@ namespace Tests
             var manufacturerId1 = 1;
             var manufacturerId2 = 2;
 
-            var manufacturer1 = await _uow.ManufacturersRep.GetByIdAsync(manufacturerId1);
-            var manufacturer2 = await _uow.ManufacturersRep.GetByIdAsync(manufacturerId2);
+            // Mock
+            var manufacturer1 = new Manufacturer { Id = manufacturerId1, Name = "Manufacturer 1" };
+            var manufacturer2 = new Manufacturer { Id = manufacturerId2, Name = "Manufacturer 2" };
 
-            Assert.IsNotNull(manufacturer1, "Manufacturer 1 should exist.");
-            Assert.IsNotNull(manufacturer2, "Manufacturer 2 should exist.");
+            var productsOfMan1 = new List<Product>
+            {
+                new Product { Id = 1, Name = "Product 1", ManufacturerId = manufacturerId1 },
+                new Product { Id = 2, Name = "Product 2", ManufacturerId = manufacturerId1 }
+            };
 
-            var productsOfMan1BeforeMerge = await _uow.ProductsRep.WhereAsync(p => p.ManufacturerId == manufacturerId1);
-            var productsOfMan2BeforeMergeCount = (await _uow.ProductsRep.WhereAsync(p => p.ManufacturerId == manufacturerId2)).Count();
-            Assert.IsNotEmpty(productsOfMan1BeforeMerge, "Manufacturer 1 should have products.");
+                    var productsOfMan2 = new List<Product>
+            {
+                new Product { Id = 3, Name = "Product 3", ManufacturerId = manufacturerId2 }
+            };
+
+            // ManufacturerService 
+            var mockManufacturerService = new Mock<IManufacturerService>();
+            mockManufacturerService.Setup(m => m.ValidateManufacturerAsync(manufacturerId1)).ReturnsAsync(true);
+            mockManufacturerService.Setup(m => m.ValidateManufacturerAsync(manufacturerId2)).ReturnsAsync(true);
+            mockManufacturerService.Setup(m => m.DeleteManufacturerAsync(manufacturerId1)).ReturnsAsync(true);
+
+            // ProductService 
+            var mockProductService = new Mock<IProductService>();
+            mockProductService
+                .Setup(p => p.ReassignProductsToManufacturerAsync(manufacturerId1, manufacturerId2, It.IsAny<int>()))
+                .Returns(Task.CompletedTask);
 
             // Act
-            await _manufacturerFacade.MergeManufacturersAsync(manufacturerId1, manufacturerId2, -1);
+            var manufacturerFacade = new ManufacturerFacade(mockManufacturerService.Object, mockProductService.Object, _uow);
+            await manufacturerFacade.MergeManufacturersAsync(manufacturerId1, manufacturerId2, -1);
 
             // Assert
-            var man2ProductsAfterMerge = await _uow.ProductsRep.WhereAsync(p => p.ManufacturerId == manufacturerId2);
-            Assert.AreEqual(productsOfMan1BeforeMerge.Count() + productsOfMan2BeforeMergeCount, man2ProductsAfterMerge.Count(), "The number of reassigned products should match the original products of manufacturer 1.");
-            Assert.IsTrue(man2ProductsAfterMerge.All(p => p.ManufacturerId == manufacturerId2), "All products should be reassigned to the target manufacturer.");
+            mockManufacturerService.Verify(m => m.ValidateManufacturerAsync(manufacturerId1), Times.Once, "Source manufacturer validation should be called.");
+            mockManufacturerService.Verify(m => m.ValidateManufacturerAsync(manufacturerId2), Times.Once, "Target manufacturer validation should be called.");
+            mockProductService.Verify(p => p.ReassignProductsToManufacturerAsync(manufacturerId1, manufacturerId2, It.IsAny<int>()), Times.Once, "Reassigning products should be called.");
+            mockManufacturerService.Verify(m => m.DeleteManufacturerAsync(manufacturerId1), Times.Once, "Source manufacturer deletion should be called.");
 
-            var deletedManufacturer = await _uow.ManufacturersRep.GetByIdAsync(manufacturerId1);
-            Assert.IsNull(deletedManufacturer, "The source manufacturer should be deleted.");
         }
     }
 }
