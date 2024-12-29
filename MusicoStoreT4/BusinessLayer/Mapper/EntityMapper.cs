@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BusinessLayer.DTOs.Category;
+using BusinessLayer.DTOs.Product;
 using BusinessLayer.DTOs.User.Admin;
 using BusinessLayer.DTOs.User.Customer;
 using DataAccessLayer.Models;
@@ -35,6 +36,26 @@ namespace BusinessLayer.Mapper
                 City = customerDto.City,
                 State = customerDto.State,
                 PostalCode = customerDto.PostalCode
+            };
+        }
+
+        public static Product MapToProduct(
+            this ProductCreateDTO productDto,
+            IEnumerable<Category> categories
+        )
+        {
+            return new Product
+            {
+                Name = productDto.Name,
+                Description = productDto.Description,
+                Price = productDto.Price,
+                QuantityInStock = productDto.QuantityInStock,
+                LastModifiedById = productDto.LastModifiedById,
+                PrimaryCategoryId = productDto.PrimaryCategoryId,
+                ManufacturerId = productDto.ManufacturerId,
+                SecondaryCategories = categories
+                    .Where(c => productDto.SecondaryCategoryIds.Contains(c.Id))
+                    .ToList()
             };
         }
     }

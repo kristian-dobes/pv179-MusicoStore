@@ -92,13 +92,23 @@ namespace BusinessLayer.Services
                 );
             product.Manufacturer = manufacturer;
 
-            // Validate Category
-            var category = await _uow.CategoriesRep.GetByIdAsync(productDto.CategoryId);
-            if (category == null)
+            // Validate Primary Category
+            var primaryCategory = await _uow.CategoriesRep.GetByIdAsync(
+                productDto.PrimaryCategoryId
+            );
+            if (primaryCategory == null)
                 throw new KeyNotFoundException(
-                    $"Category with ID {productDto.CategoryId} not found."
+                    $"Category with ID {productDto.PrimaryCategoryId} not found."
                 );
-            product.PrimaryCategory = category;
+
+            // Validate Secondary Categories
+            var secondaryCategories = await _uow.CategoriesRep.WhereAsync(c =>
+                productDto.SecondaryCategoryIds.Contains(c.Id)
+            );
+
+            if (secondaryCategories.Count() != productDto.SecondaryCategoryIds.Count)
+                throw new KeyNotFoundException("One or more secondary categories not found.");
+            product.PrimaryCategory = primaryCategory;
 
             // Update product fields
             product.Name = productDto.Name;
@@ -107,8 +117,10 @@ namespace BusinessLayer.Services
             product.QuantityInStock = productDto.QuantityInStock;
             product.LastModifiedById = productDto.LastModifiedById;
             product.EditCount++;
-            product.PrimaryCategoryId = productDto.CategoryId;
+            product.PrimaryCategoryId = productDto.PrimaryCategoryId;
             product.ManufacturerId = productDto.ManufacturerId;
+            product.SecondaryCategories?.Clear();
+            product.SecondaryCategories = secondaryCategories.ToList();
 
             // Log the update action and save changes
             await _auditLogService.LogAsync(
@@ -131,10 +143,19 @@ namespace BusinessLayer.Services
                     $"Product with name '{productDto.Name}' already exists"
                 );
 
-            if (!(await _uow.CategoriesRep.AnyAsync(c => c.Id == productDto.CategoryId)))
-                throw new ArgumentException($"Category with id {productDto.CategoryId} not found");
+            if (!await _uow.CategoriesRep.AnyAsync(c => c.Id == productDto.PrimaryCategoryId))
+                throw new ArgumentException(
+                    $"Category with id {productDto.PrimaryCategoryId} not found"
+                );
 
-            if (!(await _uow.ManufacturersRep.AnyAsync(m => m.Id == productDto.ManufacturerId)))
+            var secondaryCategories = await _uow.CategoriesRep.WhereAsync(c =>
+                productDto.SecondaryCategoryIds.Contains(c.Id)
+            );
+
+            if (secondaryCategories.Count() != productDto.SecondaryCategoryIds.Count)
+                throw new ArgumentException("One or more secondary categories not found.");
+
+            if (!await _uow.ManufacturersRep.AnyAsync(m => m.Id == productDto.ManufacturerId))
                 throw new ArgumentException(
                     $"Manufacturer with id {productDto.ManufacturerId} not found"
                 );
@@ -150,7 +171,7 @@ namespace BusinessLayer.Services
             //    EditCount = 0
             //};
 
-            var product = productDto.Adapt<Product>();
+            var product = productDto.MapToProduct(secondaryCategories);
 
             var added = await _uow.ProductsRep.AddAsync(product);
             try
