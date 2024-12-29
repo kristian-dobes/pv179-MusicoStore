@@ -44,7 +44,7 @@
                 <p><strong>Description:</strong> @item.Description</p>
                 <p><strong>Price:</strong> $@item.Price</p>
                 <p><strong>Stock:</strong> @item.QuantityInStock units available</p>
-                <p><strong>Category:</strong> @item.Category.Name</p>
+                <p><strong>Primary Category:</strong> @item.PrimaryCategory.Name</p>
                 <p><strong>Manufacturer:</strong> @item.Manufacturer.Name</p>
                 @* <button class="details-btn" onclick="location.href='@Url.Action("Details", "Product", new { id = item.Id })'">View Details</button> *@
             </div>

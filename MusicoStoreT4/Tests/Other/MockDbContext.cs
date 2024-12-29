@@ -77,7 +77,7 @@ namespace Tests.Other
                     Description = "Classic electric guitar with a bright tone",
                     Price = 699.99m,
                     QuantityInStock = 15,
-                    CategoryId = 1,
+                    PrimaryCategoryId = 1,
                     ManufacturerId = 1,
                     LastModifiedById = -1,
                     EditCount = 1
@@ -89,7 +89,7 @@ namespace Tests.Other
                     Description = "Iconic electric guitar known for its rich, warm sound",
                     Price = 1199.99m,
                     QuantityInStock = 10,
-                    CategoryId = 1,
+                    PrimaryCategoryId = 1,
                     ManufacturerId = 2,
                     LastModifiedById = -1,
                     EditCount = 1
@@ -101,7 +101,7 @@ namespace Tests.Other
                     Description = "Full set of acoustic drums with cymbals",
                     Price = 599.99m,
                     QuantityInStock = 8,
-                    CategoryId = 2,
+                    PrimaryCategoryId = 2,
                     ManufacturerId = 3,
                     LastModifiedById = -1,
                     EditCount = 1
@@ -113,7 +113,7 @@ namespace Tests.Other
                     Description = "High-quality digital piano with realistic feel",
                     Price = 799.99m,
                     QuantityInStock = 12,
-                    CategoryId = 3,
+                    PrimaryCategoryId = 3,
                     ManufacturerId = 5,
                     LastModifiedById = -1,
                     EditCount = 1
@@ -125,7 +125,7 @@ namespace Tests.Other
                     Description = "High-quality drumsticks for professional drummers",
                     Price = 14.99m,
                     QuantityInStock = 200,
-                    CategoryId = 4,
+                    PrimaryCategoryId = 4,
                     ManufacturerId = 4,
                     LastModifiedById = -1,
                     EditCount = 1

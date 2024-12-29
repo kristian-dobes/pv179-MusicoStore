@@ -58,7 +58,7 @@ namespace BusinessLayer.Services
                     ProductPrice = p.Price,
                     ProductQuantityInStock = p.QuantityInStock,
                     ProductManufacturer = p.ManufacturerId,
-                    ProductCategory = p.CategoryId,
+                    ProductCategory = p.PrimaryCategoryId,
                     OrderItems = p
                         .OrderItems.Select(oi => new OrderItemDto
                         {
@@ -67,7 +67,7 @@ namespace BusinessLayer.Services
                             Quantity = oi.Quantity,
                         })
                         .ToList(),
-                    Category = p.Category?.Adapt<CategorySummaryDTO>(),
+                    Category = p.PrimaryCategory?.Adapt<CategorySummaryDTO>(),
                     Manufacturer = p.Manufacturer?.Adapt<ManufacturerSummaryDTO>()
                 })
                 .ToList();
@@ -92,13 +92,23 @@ namespace BusinessLayer.Services
                 );
             product.Manufacturer = manufacturer;
 
-            // Validate Category
-            var category = await _uow.CategoriesRep.GetByIdAsync(productDto.CategoryId);
-            if (category == null)
+            // Validate Primary Category
+            var primaryCategory = await _uow.CategoriesRep.GetByIdAsync(
+                productDto.PrimaryCategoryId
+            );
+            if (primaryCategory == null)
                 throw new KeyNotFoundException(
-                    $"Category with ID {productDto.CategoryId} not found."
+                    $"Category with ID {productDto.PrimaryCategoryId} not found."
                 );
-            product.Category = category;
+
+            // Validate Secondary Categories
+            var secondaryCategories = await _uow.CategoriesRep.WhereAsync(c =>
+                productDto.SecondaryCategoryIds.Contains(c.Id)
+            );
+
+            if (secondaryCategories.Count() != productDto.SecondaryCategoryIds.Count)
+                throw new KeyNotFoundException("One or more secondary categories not found.");
+            product.PrimaryCategory = primaryCategory;
 
             // Update product fields
             product.Name = productDto.Name;
@@ -107,8 +117,10 @@ namespace BusinessLayer.Services
             product.QuantityInStock = productDto.QuantityInStock;
             product.LastModifiedById = productDto.LastModifiedById;
             product.EditCount++;
-            product.CategoryId = productDto.CategoryId;
+            product.PrimaryCategoryId = productDto.PrimaryCategoryId;
             product.ManufacturerId = productDto.ManufacturerId;
+            product.SecondaryCategories?.Clear();
+            product.SecondaryCategories = secondaryCategories.ToList();
 
             // Log the update action and save changes
             await _auditLogService.LogAsync(
@@ -131,10 +143,19 @@ namespace BusinessLayer.Services
                     $"Product with name '{productDto.Name}' already exists"
                 );
 
-            if (!(await _uow.CategoriesRep.AnyAsync(c => c.Id == productDto.CategoryId)))
-                throw new ArgumentException($"Category with id {productDto.CategoryId} not found");
+            if (!await _uow.CategoriesRep.AnyAsync(c => c.Id == productDto.PrimaryCategoryId))
+                throw new ArgumentException(
+                    $"Category with id {productDto.PrimaryCategoryId} not found"
+                );
 
-            if (!(await _uow.ManufacturersRep.AnyAsync(m => m.Id == productDto.ManufacturerId)))
+            var secondaryCategories = await _uow.CategoriesRep.WhereAsync(c =>
+                productDto.SecondaryCategoryIds.Contains(c.Id)
+            );
+
+            if (secondaryCategories.Count() != productDto.SecondaryCategoryIds.Count)
+                throw new ArgumentException("One or more secondary categories not found.");
+
+            if (!await _uow.ManufacturersRep.AnyAsync(m => m.Id == productDto.ManufacturerId))
                 throw new ArgumentException(
                     $"Manufacturer with id {productDto.ManufacturerId} not found"
                 );
@@ -150,7 +171,7 @@ namespace BusinessLayer.Services
             //    EditCount = 0
             //};
 
-            var product = productDto.Adapt<Product>();
+            var product = productDto.MapToProduct(secondaryCategories);
 
             var added = await _uow.ProductsRep.AddAsync(product);
             try
@@ -162,7 +183,7 @@ namespace BusinessLayer.Services
                 );
                 await _uow.SaveAsync();
 
-                return added.MapToProductDTO();
+                return added.Adapt<ProductDto>();
             }
             catch (Exception ex)
             {
@@ -197,9 +218,10 @@ namespace BusinessLayer.Services
             int manufacturerId
         )
         {
-            return (await _uow.ProductsRep.WhereAsync(p => p.ManufacturerId == manufacturerId))
-                .Select(p => p.MapToProductDTO())
-                .ToList();
+            var products = await _uow.ProductsRep.WhereAsync(p =>
+                p.ManufacturerId == manufacturerId
+            );
+            return products.Adapt<IEnumerable<ProductDto>>();
         }
 
         public async Task UpdateProductManufacturerAsync(
@@ -231,7 +253,11 @@ namespace BusinessLayer.Services
 
             // Perform the grouping and aggregation in-memory
             var query = orderItems
-                .GroupBy(oi => new { oi.Product.Category.Id, oi.Product.Category.Name })
+                .GroupBy(oi => new
+                {
+                    oi.Product.PrimaryCategory.Id,
+                    oi.Product.PrimaryCategory.Name
+                })
                 .Select(categoryGroup => new TopSellingProductDto
                 {
                     CategoryId = categoryGroup.Key.Id,
@@ -288,7 +314,7 @@ namespace BusinessLayer.Services
 
             if (filterProductDto.CategoryId.HasValue)
                 productsQuery = productsQuery.Where(p =>
-                    p.CategoryId == filterProductDto.CategoryId
+                    p.PrimaryCategoryId == filterProductDto.CategoryId
                 );
 
             if (filterProductDto.ManufacturerId.HasValue)
@@ -297,12 +323,12 @@ namespace BusinessLayer.Services
                 );
 
             var products = await productsQuery
-                .Include(p => p.Category)
+                .Include(p => p.PrimaryCategory)
+                .Include(p => p.SecondaryCategories)
                 .Include(p => p.Manufacturer)
-                .Select(p => p.MapToProductDTO())
                 .ToListAsync();
 
-            return products;
+            return products.Adapt<IEnumerable<ProductDto>>();
         }
 
         public async Task<(IEnumerable<ProductDto>, int totalCount)> GetProductsAsync(
@@ -312,7 +338,7 @@ namespace BusinessLayer.Services
         {
             IQueryable<Product> productQuery = _uow
                 .ProductsRep.GetAllQuery()
-                .Include(a => a.Category)
+                .Include(a => a.PrimaryCategory)
                 .Include(a => a.Manufacturer);
 
             // Get the total count of posts
@@ -337,8 +363,8 @@ namespace BusinessLayer.Services
         {
             IQueryable<Product> productQuery = _uow
                 .ProductsRep.GetAllQuery()
-                .Include(p => p.Category)
-                .Include(p => p.Manufacturer);
+                .Include(p => p.Manufacturer)
+                .Include(p => p.PrimaryCategory);
 
             string? searchQuery = query?.ToLower();
 
@@ -353,7 +379,8 @@ namespace BusinessLayer.Services
             if (!string.IsNullOrWhiteSpace(category))
             {
                 productQuery = productQuery.Where(p =>
-                    p.Category != null && p.Category.Name == category
+                    (p.PrimaryCategory != null && p.PrimaryCategory.Name == category)
+                    || p.SecondaryCategories.Select(c => c.Name).Contains(category)
                 );
             }
 
@@ -370,7 +397,11 @@ namespace BusinessLayer.Services
                             p.Manufacturer != null
                             && p.Manufacturer.Name.ToLower().Contains(searchQuery)
                         )
-                        || (p.Category != null && p.Category.Name.ToLower().Contains(searchQuery))
+                        || (
+                            p.PrimaryCategory != null
+                            && p.PrimaryCategory.Name.ToLower().Contains(searchQuery)
+                        )
+                        || p.SecondaryCategories.Any(c => searchQuery.Contains(c.Name.ToLower()))
                     )
                 );
 
@@ -389,6 +420,7 @@ namespace BusinessLayer.Services
 
             // Fetch paginated products
             int totalProductCount = await productQuery.CountAsync();
+
             var products = await productQuery
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)

@@ -1,4 +1,4 @@
-using BusinessLayer;
+﻿using BusinessLayer;
 using BusinessLayer.DTOs.Category;
 using BusinessLayer.DTOs.Manufacturer;
 using BusinessLayer.DTOs.Order;
@@ -22,8 +22,9 @@ namespace WebMVC
                 .Map(dest => dest.Id, src => src.ProductId)
                 .Map(dest => dest.Manufacturer.ManufacturerId, src => src.ManufacturerId)
                 .Map(dest => dest.Manufacturer.Name, src => src.ManufacturerName)
-                .Map(dest => dest.Category.CategoryId, src => src.CategoryId)
-                .Map(dest => dest.Category.Name, src => src.CategoryName);
+                .Map(dest => dest.PrimaryCategory.CategoryId, src => src.PrimaryCategoryId)
+                .Map(dest => dest.PrimaryCategory.Name, src => src.PrimaryCategoryName)
+                .Map(dest => dest.SecondaryCategories, src => src.SecondaryCategories);
             TypeAdapterConfig<ProductCompleteDTO, ProductSummaryViewModel>
                 .NewConfig()
                 .Map(dest => dest.Id, src => src.ProductId);
@@ -47,7 +48,13 @@ namespace WebMVC
                 .Map(dest => dest.Description, src => src.Description)
                 .Map(dest => dest.Price, src => src.Price)
                 .Map(dest => dest.Manufacturer.Name, src => src.ManufacturerName)
-                .Map(dest => dest.Category.Name, src => src.CategoryName);
+                .Map(dest => dest.PrimaryCategory.Name, src => src.PrimaryCategoryName)
+                .Map(
+                    dest => dest.SecondaryCategories,
+                    src => new List<CategoryBasicDto>(
+                        src.SecondaryCategories.Select(c => new CategoryBasicDto { Name = c })
+                    )
+                );
         }
     }
 }

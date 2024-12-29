@@ -14,11 +14,28 @@ public static class DataGenerator
         var manufacturers = GenerateManufacturers(5);
         var products = GenerateProducts(7, categories, manufacturers);
         var customers = GenerateCustomers(4);
+        var categoryProducts = GenerateCategoryProducts(products);
 
         modelBuilder.Entity<Category>().HasData(categories);
         modelBuilder.Entity<Manufacturer>().HasData(manufacturers);
-        modelBuilder.Entity<Product>().HasData(products);
+        modelBuilder
+            .Entity<Product>()
+            .HasData(
+                products.Select(p => new Product
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Price = p.Price,
+                    QuantityInStock = p.QuantityInStock,
+                    LastModifiedById = p.LastModifiedById,
+                    EditCount = p.EditCount,
+                    PrimaryCategoryId = p.PrimaryCategoryId,
+                    ManufacturerId = p.ManufacturerId
+                })
+            );
         modelBuilder.Entity<Customer>().HasData(customers);
+        modelBuilder.Entity("CategoryProduct").HasData(categoryProducts);
 
         // Manual Seeding for Orders and OrderItems
         var orders = PrepareOrderModels();
@@ -33,22 +50,44 @@ public static class DataGenerator
     }
 
     // Dictionary to store product for each category
-    private static readonly Dictionary<string, List<string>> CategoryProducts = new()
-    {
-        { "Instruments", new() { "Acoustic Guitar", "Digital Piano", "Drum Kit", "Violin", "Saxophone" } },
-        { "Accessories", new() { "Guitar Picks", "Instrument Cases", "Replacement Strings", "Tuners", "Microphone Stands" } },
-        { "Equipment", new() { "Amplifiers", "PA Systems", "Studio Monitors", "Karaoke Machines", "Stage Lighting Kits" } }
-    };
+    private static readonly Dictionary<string, List<string>> CategoryProducts =
+        new()
+        {
+            {
+                "Instruments",
+                new() { "Acoustic Guitar", "Digital Piano", "Drum Kit", "Violin", "Saxophone" }
+            },
+            {
+                "Accessories",
+                new()
+                {
+                    "Guitar Picks",
+                    "Instrument Cases",
+                    "Replacement Strings",
+                    "Tuners",
+                    "Microphone Stands"
+                }
+            },
+            {
+                "Equipment",
+                new()
+                {
+                    "Amplifiers",
+                    "PA Systems",
+                    "Studio Monitors",
+                    "Karaoke Machines",
+                    "Stage Lighting Kits"
+                }
+            }
+        };
 
     public static List<Category> GenerateCategories()
     {
         int id = 1;
 
-        return CategoryProducts.Keys.Select(categoryName => new Category
-        {
-            Id = id++,
-            Name = categoryName
-        }).ToList();
+        return CategoryProducts
+            .Keys.Select(categoryName => new Category { Id = id++, Name = categoryName })
+            .ToList();
     }
 
     public static List<Manufacturer> GenerateManufacturers(int count)
@@ -61,26 +100,52 @@ public static class DataGenerator
             .Generate(count);
     }
 
-    public static List<Product> GenerateProducts(int count, List<Category> categories, List<Manufacturer> manufacturers)
+    public static List<Product> GenerateProducts(
+        int count,
+        List<Category> categories,
+        List<Manufacturer> manufacturers
+    )
     {
         int id = 1;
 
         return new Faker<Product>()
             .RuleFor(p => p.Id, f => id++)
-            .RuleFor(p => p.Name, f =>
-            {
-                var category = f.PickRandom(categories);
-                var product = f.PickRandom(CategoryProducts[category.Name]);
-                return product;
-            })
+            .RuleFor(
+                p => p.Name,
+                f =>
+                {
+                    var category = f.PickRandom(categories);
+                    var product = f.PickRandom(CategoryProducts[category.Name]);
+                    return product;
+                }
+            )
             .RuleFor(p => p.Description, f => f.Commerce.ProductDescription())
-            .RuleFor(p => p.Price, f => f.Random.Decimal(10, 1000))
+            .RuleFor(p => p.Price, f => Math.Round(f.Random.Decimal(10, 1000), 2))
             .RuleFor(p => p.LastModifiedById, f => 1)
-            .RuleFor(p => p.CategoryId, f => f.PickRandom(categories).Id)
+            .RuleFor(p => p.PrimaryCategoryId, f => f.PickRandom(categories).Id)
             .RuleFor(p => p.EditCount, f => f.Random.Int(1, 10))
             .RuleFor(p => p.ManufacturerId, f => f.PickRandom(manufacturers).Id)
             .RuleFor(p => p.QuantityInStock, f => f.Random.Int(1, 100))
+            .RuleFor(
+                p => p.SecondaryCategories,
+                f => f.PickRandom(categories, f.Random.Int(1, 3)).ToList()
+            )
             .Generate(count);
+    }
+
+    public static List<Dictionary<string, object>> GenerateCategoryProducts(List<Product> products)
+    {
+        return products
+            .SelectMany(product =>
+                product
+                    .SecondaryCategories.Where(c => c.Id != product.PrimaryCategoryId)
+                    .Select(category => new Dictionary<string, object>
+                    {
+                        { "ProductId", product.Id },
+                        { "CategoryId", category.Id }
+                    })
+            )
+            .ToList();
     }
 
     public static List<Customer> GenerateCustomers(int count)

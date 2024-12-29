@@ -1,13 +1,13 @@
-﻿using BusinessLayer.DTOs.Category;
-using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Models;
-using Infrastructure.UnitOfWork;
-using Mapster;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BusinessLayer.DTOs.Category;
+using BusinessLayer.Services.Interfaces;
+using DataAccessLayer.Models;
+using Infrastructure.UnitOfWork;
+using Mapster;
 
 namespace BusinessLayer.Services
 {
@@ -15,7 +15,8 @@ namespace BusinessLayer.Services
     {
         private readonly IUnitOfWork _uow;
 
-        public CategoryService(IUnitOfWork unitOfWork) : base(unitOfWork)
+        public CategoryService(IUnitOfWork unitOfWork)
+            : base(unitOfWork)
         {
             _uow = unitOfWork;
         }
@@ -33,11 +34,19 @@ namespace BusinessLayer.Services
             return category.Adapt<CategorySummaryDTO>();
         }
 
-        public async Task<Category> MergeCategoriesAndCreateNewAsync(string newCategoryName, int sourceCategoryId1,
-                                                                     int sourceCategoryId2, bool save = true)
+        public async Task<Category> MergeCategoriesAndCreateNewAsync(
+            string newCategoryName,
+            int sourceCategoryId1,
+            int sourceCategoryId2,
+            bool save = true
+        )
         {
-            var sourceCategory1 = (await _uow.CategoriesRep.WhereAsync(c => c.Id == sourceCategoryId1)).FirstOrDefault();
-            var sourceCategory2 = (await _uow.CategoriesRep.WhereAsync(c => c.Id == sourceCategoryId2)).FirstOrDefault();
+            var sourceCategory1 = (
+                await _uow.CategoriesRep.WhereAsync(c => c.Id == sourceCategoryId1)
+            ).FirstOrDefault();
+            var sourceCategory2 = (
+                await _uow.CategoriesRep.WhereAsync(c => c.Id == sourceCategoryId2)
+            ).FirstOrDefault();
 
             if (sourceCategory1 == null || sourceCategory2 == null)
             {
@@ -47,12 +56,26 @@ namespace BusinessLayer.Services
             var newCategory = new Category { Name = newCategoryName };
             await _uow.CategoriesRep.AddAsync(newCategory);
 
-            var productsToMove = sourceCategory1.Products?.Concat(sourceCategory2.Products ?? Enumerable.Empty<Product>())
-                                 ?? Enumerable.Empty<Product>();
+            var primaryProductsToMove =
+                sourceCategory1.PrimaryProducts?.Concat(
+                    sourceCategory2.PrimaryProducts ?? Enumerable.Empty<Product>()
+                ) ?? Enumerable.Empty<Product>();
 
-            foreach (var product in productsToMove)
+            var secondaryProductsToMove =
+                sourceCategory1.SecondaryProducts?.Concat(
+                    sourceCategory2.SecondaryProducts ?? Enumerable.Empty<Product>()
+                ) ?? Enumerable.Empty<Product>();
+
+            foreach (var product in primaryProductsToMove)
             {
-                product.CategoryId = newCategory.Id;
+                product.PrimaryCategoryId = newCategory.Id;
+            }
+
+            foreach (var product in secondaryProductsToMove)
+            {
+                product.SecondaryCategories?.Remove(sourceCategory1);
+                product.SecondaryCategories?.Remove(sourceCategory2);
+                product.SecondaryCategories?.Add(newCategory);
             }
 
             await _uow.CategoriesRep.DeleteAsync(sourceCategory1.Id);
@@ -78,7 +101,10 @@ namespace BusinessLayer.Services
             var category = await _uow.CategoriesRep.AddAsync(categoryDto.Adapt<Category>());
         }
 
-        public async Task<CategoryDTO?> UpdateCategoryAsync(int categoryId, CategoryUpdateDTO updateCategoryDto)
+        public async Task<CategoryDTO?> UpdateCategoryAsync(
+            int categoryId,
+            CategoryUpdateDTO updateCategoryDto
+        )
         {
             if (await _uow.CategoriesRep.AnyAsync(c => c.Name == updateCategoryDto.Name))
             {
@@ -101,14 +127,21 @@ namespace BusinessLayer.Services
 
         public async Task<bool> DeleteCategoryAsync(int categoryId)
         {
-            var category = (await _uow.CategoriesRep.GetCategoriesWithProductsAsync()).FirstOrDefault(c => c.Id == categoryId);
+            var category = (
+                await _uow.CategoriesRep.GetCategoriesWithProductsAsync()
+            ).FirstOrDefault(c => c.Id == categoryId);
 
             if (category == null)
             {
                 return false; // Not found
             }
 
-            if (category.Products != null && category.Products.Any())
+            if (category.PrimaryProducts != null && category.PrimaryProducts.Any())
+            {
+                return false;
+            }
+
+            if (category.SecondaryProducts != null && category.SecondaryProducts.Any())
             {
                 return false;
             }

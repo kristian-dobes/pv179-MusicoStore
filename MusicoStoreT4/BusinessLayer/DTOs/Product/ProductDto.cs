@@ -7,7 +7,8 @@
         public string Description { get; set; }
         public decimal Price { get; set; }
         public int QuantityInStock { get; set; }
-        public string CategoryName { get; set; }
+        public string PrimaryCategoryName { get; set; }
+        public IEnumerable<string> SecondaryCategories { get; set; }
         public string ManufacturerName { get; set; }
         public DateTime DateCreated { get; set; }
     }
