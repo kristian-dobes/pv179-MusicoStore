@@ -10,6 +10,7 @@ using BusinessLayer.Services;
 using WebMVC.Models.Product;
 using Microsoft.AspNetCore.Identity;
 using BusinessLayer.DTOs.GiftCard;
+using BusinessLayer.DTOs.CouponCode;
 
 namespace WebMVC.Areas.Admin.Controllers
 {
@@ -29,7 +30,7 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/CouponCode/Details/id
         public async Task<IActionResult> Details(int id)
         {
-            var couponCode = await _giftCardService.GetGiftCardById(id);
+            var couponCode = await _giftCardService.GetCouponCodeByIdAsync(id);
 
             if (couponCode == null)
             {
@@ -62,24 +63,24 @@ namespace WebMVC.Areas.Admin.Controllers
             if (user == null)
                 return Unauthorized("User must be authenticated to create the product.");
 
-            var giftCard = model.Adapt<CreateGiftCardDto>();
+            var couponCode = model.Adapt<CreateCouponCodeDto>();
 
-            await _giftCardService.CreateGiftCardAsync(giftCard);
+            await _giftCardService.CreateCouponCodeAsync(couponCode);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index");  <- change to gift cards index
         }
 
         // GET: Admin/CouponCode/Edit/id
         public async Task<IActionResult> Edit(int id)
         {
-            var giftCard = await _giftCardService.GetGiftCardById(id);
+            var couponCode = await _giftCardService.GetCouponCodeByIdAsync(id);
 
-            if (giftCard == null)
+            if (couponCode == null)
             {
                 return NotFound();
             }
 
-            return View(giftCard.Adapt<CouponCodeViewModel>());
+            return View(couponCode.Adapt<CouponCodeViewModel>());
         }
 
         // POST: Admin/CouponCode/Edit/id
@@ -91,33 +92,30 @@ namespace WebMVC.Areas.Admin.Controllers
                 return View(model);
             }
 
-            var updateGiftCardDto = model.Adapt<UpdateGiftCardDto>();
-            var giftCardResult = await _giftCardService.UpdateGiftCardAsync(updateGiftCardDto);
+            var updateCouponCodeDto = model.Adapt<UpdateCouponCodeDto>();
+            var CouponCodeResult = await _giftCardService.UpdateCouponCodeAsync(updateCouponCodeDto);
 
-            return View(giftCardResult.Adapt<CouponCodeViewModel>());
+            return View(CouponCodeResult.Adapt<CouponCodeViewModel>());
         }
 
         // GET: Admin/CouponCode/Delete/id
         public async Task<IActionResult> Delete(int id)
         {
-            var giftCard = await _giftCardService.GetGiftCardById(id);
+            var couponCode = await _giftCardService.GetCouponCodeByIdAsync(id);
 
-            if (giftCard == null)
+            if (couponCode == null)
                 return NotFound();
 
-            if (giftCard.CouponCodes.Count() > 0)
-                return BadRequest("Gift card has coupon codes, cannot delete.");
-
-            return View(giftCard.Adapt<CouponCodeViewModel>());
+            return View(couponCode.Adapt<CouponCodeViewModel>());
         }
 
         // POST: Admin/CouponCode/Delete/id
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirm(int id)
         {
-            await _giftCardService.DeleteGiftCardAsync(id);
+            await _giftCardService.DeleteCouponCodeAsync(id);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index");  <- change to gift cards index
         }
     }
 }

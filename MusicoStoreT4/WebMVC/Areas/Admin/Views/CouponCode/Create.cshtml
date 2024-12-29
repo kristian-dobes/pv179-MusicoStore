@@ -1,0 +1,50 @@
+﻿@using WebMVC.Models.GiftCard
+@model GiftCardViewModel
+
+@{
+    ViewData["Title"] = "Create Gift Card";
+}
+
+<h1>Create Gift Card</h1>
+
+<h4>Gift Card</h4>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="DiscountAmount" class="control-label"></label>
+                <input asp-for="DiscountAmount" class="form-control" />
+                <span asp-validation-for="DiscountAmount" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ValidityStartDate" class="control-label"></label>
+                <input asp-for="ValidityStartDate" type="date" class="form-control" />
+                <span asp-validation-for="ValidityStartDate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ValidityEndDate" class="control-label"></label>
+                <input asp-for="ValidityEndDate" type="date" class="form-control" />
+                <span asp-validation-for="ValidityEndDate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

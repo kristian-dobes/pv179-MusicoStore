@@ -33,7 +33,7 @@ namespace BusinessLayer.Services
             return (await _uow.GiftCardsRep.GetAllAsync()).Select(gc => gc.Adapt<GiftCardDto>());
         }
 
-        public async Task<GiftCardDto> GetGiftCardById(int giftCardId)
+        public async Task<GiftCardDto> GetGiftCardByIdAsync(int giftCardId)
         {
             return (await _uow.GiftCardsRep.GetByIdAsync(giftCardId)).Adapt<GiftCardDto>();
         }
@@ -112,8 +112,9 @@ namespace BusinessLayer.Services
                 }
             }
 
-            // SKONTROLOVAT, CI SOM NEIMPLEMENTOVAL UPDATE ZNOVU AJ PRI GIFT CARDS AJ PRI COUPON CODES aj vo vsetkych servicoch
+            SKONTROLOVAT, CI SOM NEIMPLEMENTOVAL UPDATE ZNOVU AJ PRI GIFT CARDS AJ PRI COUPON CODES aj vo vsetkych servicoch
 
+            await _uow.GiftCardsRep.UpdateAsync(existingGiftCard);
             await _uow.SaveAsync();
             return existingGiftCard.Adapt<GiftCardDto>();
         }
@@ -135,7 +136,7 @@ namespace BusinessLayer.Services
             return (await _uow.CouponCodesRep.GetAllAsync()).Select(gc => gc.Adapt<CouponCodeDto>());
         }
 
-        public async Task<CouponCodeDto> GetCouponCodeById(int couponCodeId)
+        public async Task<CouponCodeDto> GetCouponCodeByIdAsync(int couponCodeId)
         {
             return (await _uow.CouponCodesRep.GetByIdAsync(couponCodeId)).Adapt<CouponCodeDto>();
         }
@@ -154,7 +155,6 @@ namespace BusinessLayer.Services
 
             var couponCode = createCouponCodeDto.Adapt<CouponCode>();
             var added = await _uow.CouponCodesRep.AddAsync(couponCode);
-
             await _uow.SaveAsync();
             return added.Adapt<CouponCodeDto>();
         }
@@ -198,6 +198,7 @@ namespace BusinessLayer.Services
                 }
             }
 
+            await _uow.CouponCodesRep.UpdateAsync(existingCouponCode);
             await _uow.SaveAsync();
             return existingCouponCode.Adapt<CouponCodeDto>();
         }

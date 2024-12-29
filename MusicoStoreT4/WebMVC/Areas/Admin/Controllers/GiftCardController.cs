@@ -44,7 +44,7 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/GiftCard/Details/id
         public async Task<IActionResult> Details(int id)
         {
-            var giftCard = await _giftCardService.GetGiftCardById(id);
+            var giftCard = await _giftCardService.GetGiftCardByIdAsync(id);
 
             if (giftCard == null)
             {
@@ -87,7 +87,7 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/GiftCard/Edit/id
         public async Task<IActionResult> Edit(int id)
         {
-            var giftCard = await _giftCardService.GetGiftCardById(id);
+            var giftCard = await _giftCardService.GetGiftCardByIdAsync(id);
 
             if (giftCard == null)
             {
@@ -115,7 +115,7 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/GiftCard/Delete/id
         public async Task<IActionResult> Delete(int id)
         {
-            var giftCard = await _giftCardService.GetGiftCardById(id);
+            var giftCard = await _giftCardService.GetGiftCardByIdAsync(id);
 
             if (giftCard == null)
                 return NotFound();
