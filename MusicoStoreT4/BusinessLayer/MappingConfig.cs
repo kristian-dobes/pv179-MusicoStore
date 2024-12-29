@@ -75,6 +75,10 @@ namespace BusinessLayer
                 .Map(
                     dest => dest.SecondaryCategories,
                     src => src.SecondaryCategories.Adapt<IEnumerable<CategoryBasicDto>>()
+                )
+                .Map(
+                    dest => dest.NumberOfSecondaryCategories,
+                    src => src.SecondaryCategories != null ? src.SecondaryCategories.Count() : 0
                 );
 
             TypeAdapterConfig<Manufacturer, ManufacturerSummaryDTO>
