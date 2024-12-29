@@ -206,8 +206,7 @@ namespace BusinessLayer.Services
             {
                 await _auditLogService.LogAsync(productId, AuditAction.Update, modifiedById);
             }
-<<<<<<< MusicoStoreT4/BusinessLayer/Services/ProductService.cs
-=======
+
             await _uow.SaveAsync();
         }
 
