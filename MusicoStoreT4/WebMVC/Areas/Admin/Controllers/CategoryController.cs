@@ -4,6 +4,8 @@ using BusinessLayer.Services.Interfaces;
 using Mapster;
 using BusinessLayer.DTOs.Category;
 using WebMVC.Models.Category;
+using BusinessLayer.Services;
+using Microsoft.AspNetCore.Identity;
 
 namespace WebMVC.Areas.Admin.Controllers
 {
@@ -115,6 +117,45 @@ namespace WebMVC.Areas.Admin.Controllers
         {
             await _categoryService.DeleteCategoryAsync(id);
 
+            return RedirectToAction("Index");
+        }
+
+        // GET: Admin/Category/Merge
+        public async Task<IActionResult> Merge()
+        {
+            var categories = await _categoryService.GetCategoriesAsync();
+
+            if (!categories.Any())
+                return NotFound();
+
+            var mergeViewModel = new CategoryMergeViewModel
+            {
+                Categories = categories
+            };
+
+            return View(mergeViewModel);
+        }
+
+        // POST: Admin/Category/Merge
+        [HttpPost]
+        public async Task<IActionResult> Merge(CategoryMergeViewModel model)
+        {
+            if (!ModelState.IsValid || model.SourceCategoryId1 == model.SourceCategoryId2)
+            {
+                var categories = await _categoryService.GetCategoriesAsync(); // reload categories for dropdown
+                model.Categories = categories;
+
+                return View(model);
+            }
+
+            //// Retrieve the userId of the currently logged-in user
+            //var user = await _userManager.GetUserAsync(User);
+            //if (user == null)
+            //    return Unauthorized("User must be authenticated to delete the product.");
+
+            await _categoryService.MergeCategoriesAndCreateNewAsync(model.NewCategoryName, model.SourceCategoryId1, model.SourceCategoryId2);
+           
+            //return RedirectToAction("Details", new { id = newCategory.Id });
             return RedirectToAction("Index");
         }
     }
