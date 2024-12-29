@@ -123,12 +123,12 @@ namespace BusinessLayer.Services
             if (string.IsNullOrWhiteSpace(updateCategoryDto.Name))
                 throw new ArgumentException("Category name cannot be empty");
 
-            var existingCategory = await _uow.CategoriesRep.GetByConditionAsync(c => c.Id == categoryId || c.Name == updateCategoryDto.Name);
-            
+            var existingCategory = await _uow.CategoriesRep.GetByIdAsync(categoryId);
             if (existingCategory == null)
                 throw new InvalidOperationException("Category not found");
 
-            if (existingCategory.Name == updateCategoryDto.Name && existingCategory.Id != categoryId)
+            var duplicateCategory = await _uow.CategoriesRep.GetByConditionAsync(c => c.Name == updateCategoryDto.Name && c.Id != categoryId);
+            if (duplicateCategory != null)
                 throw new ArgumentException("Category with this name already exists");
 
             existingCategory.Name = updateCategoryDto.Name;
