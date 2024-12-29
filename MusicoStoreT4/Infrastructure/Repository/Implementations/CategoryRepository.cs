@@ -61,9 +61,36 @@ namespace Infrastructure.Repository.Implementations
             return await _context.Categories.Include(c => c.SecondaryProducts).ToListAsync();
         }
 
+        public async Task<Category?> GetCategoryWithAllProductsAsync(int categoryId)
+        {
+            return await _context.Categories
+                .Include(c => c.PrimaryProducts)
+                .Include(c => c.SecondaryProducts)
+                .FirstOrDefaultAsync(c => c.Id == categoryId);
+        }
+
         public IQueryable<Category> GetAllQuery()
         {
             return _context.Categories.AsQueryable();
+        }
+
+        public async Task<bool> HasProductsAsync(int categoryId)
+        {
+            return await _context.Categories
+                .Where(c => c.Id == categoryId)
+                .AnyAsync(c => c.PrimaryProducts.Any() || c.SecondaryProducts.Any());
+        }
+
+        public async Task<Category?> GetByConditionAsync(Expression<Func<Category, bool>> predicate)
+        {
+            return await _context.Categories.FirstOrDefaultAsync(predicate);
+        }
+
+        public async Task DeleteCategoriesAsync(IEnumerable<int> categoryIds)
+        {
+            var categories = _context.Categories.Where(c => categoryIds.Contains(c.Id)).ToList();
+            _context.Categories.RemoveRange(categories);
+            await _context.SaveChangesAsync();
         }
     }
 }

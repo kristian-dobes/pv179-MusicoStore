@@ -37,54 +37,39 @@ namespace BusinessLayer.Services
         public async Task<Category> MergeCategoriesAndCreateNewAsync(
             string newCategoryName,
             int sourceCategoryId1,
-            int sourceCategoryId2,
-            bool save = true
+            int sourceCategoryId2
         )
         {
-            var sourceCategory1 = (
-                await _uow.CategoriesRep.WhereAsync(c => c.Id == sourceCategoryId1)
-            ).FirstOrDefault();
-            var sourceCategory2 = (
-                await _uow.CategoriesRep.WhereAsync(c => c.Id == sourceCategoryId2)
-            ).FirstOrDefault();
+            // fetch categories with products
+            var sourceCategory1 = await _uow.CategoriesRep.GetCategoryWithAllProductsAsync(sourceCategoryId1);
+            var sourceCategory2 = await _uow.CategoriesRep.GetCategoryWithAllProductsAsync(sourceCategoryId2);
 
             if (sourceCategory1 == null || sourceCategory2 == null)
-            {
                 throw new InvalidOperationException("One or both source categories not found.");
-            }
 
+            // new category
             var newCategory = new Category { Name = newCategoryName };
             await _uow.CategoriesRep.AddAsync(newCategory);
+            await _uow.SaveAsync(); // get new category ID
 
-            var primaryProductsToMove =
-                sourceCategory1.PrimaryProducts?.Concat(
-                    sourceCategory2.PrimaryProducts ?? Enumerable.Empty<Product>()
-                ) ?? Enumerable.Empty<Product>();
+            // get product IDs
+            var primaryProductIds = sourceCategory1.PrimaryProducts
+                .Concat(sourceCategory2.PrimaryProducts)
+                .Select(p => p.Id)
+                .ToList();
 
-            var secondaryProductsToMove =
-                sourceCategory1.SecondaryProducts?.Concat(
-                    sourceCategory2.SecondaryProducts ?? Enumerable.Empty<Product>()
-                ) ?? Enumerable.Empty<Product>();
+            var secondaryProductIds = sourceCategory1.SecondaryProducts
+                .Concat(sourceCategory2.SecondaryProducts)
+                .Select(p => p.Id)
+                .ToList();
 
-            foreach (var product in primaryProductsToMove)
-            {
-                product.PrimaryCategoryId = newCategory.Id;
-            }
+            // bulkp roduct update
+            await _uow.ProductsRep.UpdatePrimaryCategoryAsync(primaryProductIds, newCategory.Id);
+            await _uow.ProductsRep.UpdateSecondaryCategoriesAsync(secondaryProductIds, newCategory.Id, [sourceCategoryId1, sourceCategoryId2]);
 
-            foreach (var product in secondaryProductsToMove)
-            {
-                product.SecondaryCategories?.Remove(sourceCategory1);
-                product.SecondaryCategories?.Remove(sourceCategory2);
-                product.SecondaryCategories?.Add(newCategory);
-            }
+            await _uow.CategoriesRep.DeleteCategoriesAsync([sourceCategoryId1, sourceCategoryId2]);
 
-            await _uow.CategoriesRep.DeleteAsync(sourceCategory1.Id);
-            await _uow.CategoriesRep.DeleteAsync(sourceCategory2.Id);
-
-            if (save)
-            {
-                await _uow.SaveAsync();
-            }
+            await _uow.SaveAsync();
 
             return newCategory;
         }
@@ -106,45 +91,32 @@ namespace BusinessLayer.Services
             CategoryUpdateDTO updateCategoryDto
         )
         {
-            if (await _uow.CategoriesRep.AnyAsync(c => c.Name == updateCategoryDto.Name))
-            {
-                throw new ArgumentException("Category with this name already exists");
-            }
+            if (string.IsNullOrWhiteSpace(updateCategoryDto.Name))
+                throw new ArgumentException("Category name cannot be empty");
 
-            var category = await _uow.CategoriesRep.GetByIdAsync(categoryId);
-
-            if (category == null)
-            {
+            var existingCategory = await _uow.CategoriesRep.GetByConditionAsync(c => c.Id == categoryId || c.Name == updateCategoryDto.Name);
+            
+            if (existingCategory == null)
                 throw new InvalidOperationException("Category not found");
-            }
 
-            category.Name = updateCategoryDto.Name;
+            if (existingCategory.Name == updateCategoryDto.Name && existingCategory.Id != categoryId)
+                throw new ArgumentException("Category with this name already exists");
+
+            existingCategory.Name = updateCategoryDto.Name;
 
             await _uow.SaveAsync();
 
-            return category.Adapt<CategoryDTO>();
+            return existingCategory.Adapt<CategoryDTO>();
         }
 
         public async Task<bool> DeleteCategoryAsync(int categoryId)
         {
-            var category = (
-                await _uow.CategoriesRep.GetCategoriesWithProductsAsync()
-            ).FirstOrDefault(c => c.Id == categoryId);
+            if (await _uow.CategoriesRep.HasProductsAsync(categoryId))
+                return false; // Cannot delete if the category has products
 
+            var category = await _uow.CategoriesRep.GetByIdAsync(categoryId);
             if (category == null)
-            {
                 return false; // Not found
-            }
-
-            if (category.PrimaryProducts != null && category.PrimaryProducts.Any())
-            {
-                return false;
-            }
-
-            if (category.SecondaryProducts != null && category.SecondaryProducts.Any())
-            {
-                return false;
-            }
 
             await _uow.CategoriesRep.DeleteAsync(category.Id);
             return true;

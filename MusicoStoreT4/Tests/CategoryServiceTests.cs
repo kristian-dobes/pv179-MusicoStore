@@ -111,7 +111,7 @@ namespace Tests
         public async Task MergeCategoriesAndCreateNewAsync_ShouldThrowException_WhenOneSourceCategoryIsMissing()
         {
             var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await _service.MergeCategoriesAndCreateNewAsync("New Category", 1, 20, false));
+                await _service.MergeCategoriesAndCreateNewAsync("New Category", 1, 20));
 
             Assert.AreEqual("One or both source categories not found.", ex.Message);
         }
@@ -128,7 +128,7 @@ namespace Tests
             var newCategoryName = "New Category";
 
             // Act
-            var result = await _service.MergeCategoriesAndCreateNewAsync(newCategoryName, 1, 2, true);
+            var result = await _service.MergeCategoriesAndCreateNewAsync(newCategoryName, 1, 2);
 
             // Assert
             Assert.IsNotNull(result);
@@ -157,7 +157,7 @@ namespace Tests
             var newCategoryName = "Merged Empty Category";
 
             // Act
-            var result = await _service.MergeCategoriesAndCreateNewAsync(newCategoryName, 1, 2, true);
+            var result = await _service.MergeCategoriesAndCreateNewAsync(newCategoryName, 1, 2);
 
             // Assert
             Assert.IsNotNull(result);
@@ -195,7 +195,7 @@ namespace Tests
             var newCategoryName = "Merged Category";
 
             // Act
-            var result = await _service.MergeCategoriesAndCreateNewAsync(newCategoryName, 1, 2, true);
+            var result = await _service.MergeCategoriesAndCreateNewAsync(newCategoryName, 1, 2);
 
             // Assert
             Assert.IsNotNull(result);

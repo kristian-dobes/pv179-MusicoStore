@@ -74,5 +74,43 @@ namespace Infrastructure.Repository.Implementations
                     .SetProperty(p => p.LastModifiedById, modifiedById)
                 );
         }
+
+        public async Task UpdatePrimaryCategoryAsync(IEnumerable<int> productIds, int newCategoryId)
+        {
+            var products = _context.Products.Where(p => productIds.Contains(p.Id));
+            await products.ForEachAsync(p => p.PrimaryCategoryId = newCategoryId);
+        }
+
+        public async Task UpdateSecondaryCategoriesAsync(IEnumerable<int> productIds, int newCategoryId, IEnumerable<int> oldCategoryIds)
+        {
+            var products = await _context.Products
+                .Where(p => productIds.Contains(p.Id))
+                .Include(p => p.SecondaryCategories)
+                .ToListAsync();
+
+            var oldCategoryIdsSet = new HashSet<int>(oldCategoryIds);
+
+            var newCategory = await _context.Categories.FindAsync(newCategoryId);
+            if (newCategory == null)
+            {
+                throw new InvalidOperationException("New category not found");
+            }
+
+            foreach (var product in products)
+            {
+                var categoriesToRemove = product.SecondaryCategories
+                    .Where(c => oldCategoryIdsSet.Contains(c.Id))
+                    .ToList();
+
+                foreach (var category in categoriesToRemove)
+                {
+                    product.SecondaryCategories.Remove(category);
+                }
+
+                product.SecondaryCategories.Add(newCategory);
+            }
+
+            await _context.SaveChangesAsync();
+        }
     }
 }
