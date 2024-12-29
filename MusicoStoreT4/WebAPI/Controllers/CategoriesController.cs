@@ -119,7 +119,8 @@ namespace WebAPI.Controllers
                 var newCategory = await _categoryService.MergeCategoriesAndCreateNewAsync(
                     mergeCategoriesDTO.NewCategoryName,
                     mergeCategoriesDTO.SourceCategoryId1,
-                    mergeCategoriesDTO.SourceCategoryId2
+                    mergeCategoriesDTO.SourceCategoryId2,
+                    1
                 );
 
                 var result = CreatedAtAction("GetCategoryById", new { id = newCategory.Id }, new
