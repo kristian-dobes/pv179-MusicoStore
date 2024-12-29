@@ -363,9 +363,8 @@ namespace BusinessLayer.Services
         {
             IQueryable<Product> productQuery = _uow
                 .ProductsRep.GetAllQuery()
-                .Include(p => p.PrimaryCategory)
-                .Include(p => p.SecondaryCategories)
-                .Include(p => p.Manufacturer);
+                .Include(p => p.Manufacturer)
+                .Include(p => p.PrimaryCategory);
 
             string? searchQuery = query?.ToLower();
 
@@ -380,9 +379,8 @@ namespace BusinessLayer.Services
             if (!string.IsNullOrWhiteSpace(category))
             {
                 productQuery = productQuery.Where(p =>
-                    p.PrimaryCategory != null && p.PrimaryCategory.Name == category
-                    || p.SecondaryCategories != null
-                        && p.SecondaryCategories.Any(c => c.Name == category)
+                    (p.PrimaryCategory != null && p.PrimaryCategory.Name == category)
+                    || p.SecondaryCategories.Select(c => c.Name).Contains(category)
                 );
             }
 
@@ -403,12 +401,7 @@ namespace BusinessLayer.Services
                             p.PrimaryCategory != null
                             && p.PrimaryCategory.Name.ToLower().Contains(searchQuery)
                         )
-                        || (
-                            p.SecondaryCategories != null
-                            && p.SecondaryCategories.Any(c =>
-                                c.Name.ToLower().Contains(searchQuery)
-                            )
-                        )
+                        || p.SecondaryCategories.Any(c => searchQuery.Contains(c.Name.ToLower()))
                     )
                 );
 
@@ -427,6 +420,7 @@ namespace BusinessLayer.Services
 
             // Fetch paginated products
             int totalProductCount = await productQuery.CountAsync();
+
             var products = await productQuery
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
