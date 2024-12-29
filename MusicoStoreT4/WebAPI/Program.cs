@@ -92,6 +92,7 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ILogRepository, LogRepository>();
+builder.Services.AddScoped<ICouponCodeRepository, CouponCodeRepository>();
 builder.Services.AddScoped<IGiftCardRepository, GiftCardRepository>();
 
 // Register Unit of Work

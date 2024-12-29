@@ -15,55 +15,40 @@ namespace WebMVC.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = "Admin")]
-    public class GiftCardController : Controller
+    public class CouponCodeController : Controller
     {
         private readonly IGiftCardService _giftCardService;
         private readonly UserManager<LocalIdentityUser> _userManager;
 
-        public GiftCardController(IGiftCardService giftCardService, UserManager<LocalIdentityUser> userManager)
+        public CouponCodeController(IGiftCardService giftCardService, UserManager<LocalIdentityUser> userManager)
         {
             _giftCardService = giftCardService;
             _userManager = userManager;
         }
 
-        // GET: Admin/GiftCard
-        public async Task<IActionResult> Index()
-        {
-            var giftCards = await _giftCardService.GetGiftCardsAsync();
-
-            if (!giftCards.Any())
-            {
-                return NotFound();
-            }
-
-            List<GiftCardViewModel> a = giftCards.Select(gc => gc.Adapt<GiftCardViewModel>()).ToList();
-
-            return base.View(a);
-        }
-
-        // GET: Admin/GiftCard/Details/id
+        // GET: Admin/CouponCode/Details/id
         public async Task<IActionResult> Details(int id)
         {
-            var giftCard = await _giftCardService.GetGiftCardById(id);
+            var couponCode = await _giftCardService.GetGiftCardById(id);
 
-            if (giftCard == null)
+            if (couponCode == null)
             {
                 return NotFound();
             }
 
-            return View(giftCard.Adapt<GiftCardViewModel>());
+            return View(couponCode.Adapt<CouponCodeViewModel>());
         }
 
-        // GET: Admin/GiftCard/Create
+        // GET: Admin/CouponCode/Create
         public async Task<IActionResult> Create()
         {
-            var productCreateViewModel = new GiftCardViewModel();
+            var productCreateViewModel = new CouponCodeViewModel();
             return View(productCreateViewModel);
         }
 
         // POST: Admin/Product/Create
         [HttpPost]
-        public async Task<IActionResult> Create(GiftCardViewModel model)
+        public async Task<IActionResult> Create(CouponCodeViewModel model)
         {
             model.Created = DateTime.Now;
 
@@ -84,7 +69,7 @@ namespace WebMVC.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
-        // GET: Admin/GiftCard/Edit/id
+        // GET: Admin/CouponCode/Edit/id
         public async Task<IActionResult> Edit(int id)
         {
             var giftCard = await _giftCardService.GetGiftCardById(id);
@@ -94,12 +79,12 @@ namespace WebMVC.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            return View(giftCard.Adapt<GiftCardViewModel>());
+            return View(giftCard.Adapt<CouponCodeViewModel>());
         }
 
-        // POST: Admin/GiftCard/Edit/id
+        // POST: Admin/CouponCode/Edit/id
         [HttpPost]
-        public async Task<IActionResult> Edit(GiftCardViewModel model)
+        public async Task<IActionResult> Edit(CouponCodeViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -109,10 +94,10 @@ namespace WebMVC.Areas.Admin.Controllers
             var updateGiftCardDto = model.Adapt<UpdateGiftCardDto>();
             var giftCardResult = await _giftCardService.UpdateGiftCardAsync(updateGiftCardDto);
 
-            return View(giftCardResult.Adapt<GiftCardViewModel>());
+            return View(giftCardResult.Adapt<CouponCodeViewModel>());
         }
 
-        // GET: Admin/GiftCard/Delete/id
+        // GET: Admin/CouponCode/Delete/id
         public async Task<IActionResult> Delete(int id)
         {
             var giftCard = await _giftCardService.GetGiftCardById(id);
@@ -123,10 +108,10 @@ namespace WebMVC.Areas.Admin.Controllers
             if (giftCard.CouponCodes.Count() > 0)
                 return BadRequest("Gift card has coupon codes, cannot delete.");
 
-            return View(giftCard.Adapt<GiftCardViewModel>());
+            return View(giftCard.Adapt<CouponCodeViewModel>());
         }
 
-        // POST: Admin/GiftCard/Delete/id
+        // POST: Admin/CouponCode/Delete/id
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirm(int id)
         {

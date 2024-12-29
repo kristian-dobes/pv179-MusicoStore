@@ -25,6 +25,7 @@ namespace Infrastructure.UnitOfWork
         public IProductImageRepository ProductImagesRep { get; }
         public ILogRepository LogsRep { get; }
         public IGiftCardRepository GiftCardsRep{ get; }
+        public ICouponCodeRepository CouponCodesRep { get; }
 
         public UnitOfWork(MyDBContext context,
                           IUserRepository userRepository,
@@ -36,7 +37,8 @@ namespace Infrastructure.UnitOfWork
                           IProductImageRepository productImageRepository,
                           IAuditLogRepository auditLogRepository,
                           ILogRepository logsRepository,
-                          IGiftCardRepository giftCardRepository)
+                          IGiftCardRepository giftCardRepository,
+                          ICouponCodeRepository couponCodeRepository)
         {
             _context = context;
 
@@ -50,6 +52,7 @@ namespace Infrastructure.UnitOfWork
             ProductAuditsRep = auditLogRepository;
             LogsRep = logsRepository;
             GiftCardsRep = giftCardRepository;
+            CouponCodesRep = couponCodeRepository;
         }
 
         public async Task<int> SaveAsync()

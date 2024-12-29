@@ -10,7 +10,7 @@ namespace BusinessLayer.Services.Interfaces
     public interface IGiftCardService
     {
         Task<IEnumerable<GiftCardDto>> GetGiftCardsAsync();
-        Task<GiftCardDto> GetById(int giftCardId);
+        Task<GiftCardDto> GetGiftCardById(int giftCardId);
         Task<GiftCardDto> CreateGiftCardAsync(CreateGiftCardDto createGiftCardDto);
         Task<GiftCardDto?> UpdateGiftCardAsync(UpdateGiftCardDto updateGiftCardDto);
         Task<bool> DeleteGiftCardAsync(int giftCardId);
