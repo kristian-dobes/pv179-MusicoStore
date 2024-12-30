@@ -13,6 +13,9 @@ namespace WebMVC.Models.Product
         public required int ManufacturerId { get; set; }
         public IEnumerable<int> SecondaryCategoryIds { get; set; } = new List<int>();
 
+        public IFormFile? Image { get; set; }
+        public string? ImagePath { get; set; }
+
         public IEnumerable<CategorySummaryDTO> Categories { get; set; } = [];
         public IEnumerable<ManufacturerSummaryDTO> Manufacturers { get; set; } = [];
     }   

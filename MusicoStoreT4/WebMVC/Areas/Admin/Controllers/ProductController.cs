@@ -1,10 +1,12 @@
 ﻿using BusinessLayer.DTOs.Product;
+using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Models;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 using WebMVC.Models.Product;
 
 namespace WebMVC.Areas.Admin.Controllers
@@ -17,19 +19,22 @@ namespace WebMVC.Areas.Admin.Controllers
         private readonly IManufacturerService _manufacturerService;
         private readonly ICategoryService _categoryService;
         private readonly UserManager<LocalIdentityUser> _userManager;
+        private readonly IImageService _imageService;
 
         public ProductController
             (
             IProductService productService,
             IManufacturerService manufacturerService,
             ICategoryService categoryService,
-            UserManager<LocalIdentityUser> userManager
+            UserManager<LocalIdentityUser> userManager,
+            IImageService imageService
             )
         {
             _productService = productService;
             _manufacturerService = manufacturerService;
             _categoryService = categoryService;
             _userManager = userManager;
+            _imageService = imageService;
         }
 
         // GET: Admin/Product
@@ -157,6 +162,20 @@ namespace WebMVC.Areas.Admin.Controllers
             if (user == null)
                 return Unauthorized("User must be authenticated to edit the product.");
             product.LastModifiedById = user.UserId;
+
+            if (model.Image != null)
+            {
+                var imageRestult = await _imageService.ChangeOrAssignProductImageAsync(id, model.Image);
+
+                if (!imageRestult)
+                {
+                    // Reload categories and manufacturers for the view
+                    model.Categories = await _categoryService.GetCategoriesAsync();
+                    model.Manufacturers = await _manufacturerService.GetManufacturersAsync();
+                    ModelState.AddModelError("Image", "Failed to upload image.");
+                    return View(model);
+                }
+            }
 
             await _productService.UpdateProductAsync(id, product);
 

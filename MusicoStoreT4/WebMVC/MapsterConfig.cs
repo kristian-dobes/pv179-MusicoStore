@@ -28,7 +28,8 @@ namespace WebMVC
                 .Map(dest => dest.PrimaryCategory.CategoryId, src => src.PrimaryCategoryId)
                 .Map(dest => dest.PrimaryCategory.Name, src => src.PrimaryCategoryName)
                 .Map(dest => dest.SecondaryCategories, src => src.SecondaryCategories)
-                .Map(dest => dest.NumberOfSecondaryCategories, src => src.NumberOfSecondaryCategories);
+                .Map(dest => dest.NumberOfSecondaryCategories, src => src.NumberOfSecondaryCategories)
+                .Map(dest => dest.ImageFilePath, src => src.ImageFilePath);
 
             TypeAdapterConfig<ProductCompleteDTO, ProductSummaryViewModel>
                 .NewConfig()

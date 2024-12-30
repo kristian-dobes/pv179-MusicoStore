@@ -12,6 +12,7 @@ namespace WebMVC.Controllers
             _imageService = imageService;
         }
 
+        [HttpGet("GetImage")]
         public async Task<IActionResult> GetImage(int productId)
         {
             var imageDto = await _imageService.GetProductImageAsync(productId);

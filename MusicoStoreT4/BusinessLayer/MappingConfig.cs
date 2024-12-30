@@ -72,14 +72,9 @@ namespace BusinessLayer
                 .Map(dest => dest.PrimaryCategoryName, src => src.PrimaryCategory.Name)
                 .Map(dest => dest.ManufacturerId, src => src.ManufacturerId)
                 .Map(dest => dest.ManufacturerName, src => src.Manufacturer.Name)
-                .Map(
-                    dest => dest.SecondaryCategories,
-                    src => src.SecondaryCategories.Adapt<IEnumerable<CategoryBasicDto>>()
-                )
-                .Map(
-                    dest => dest.NumberOfSecondaryCategories,
-                    src => src.SecondaryCategories != null ? src.SecondaryCategories.Count() : 0
-                );
+                .Map(dest => dest.SecondaryCategories, src => src.SecondaryCategories.Adapt<IEnumerable<CategoryBasicDto>>())
+                .Map(dest => dest.NumberOfSecondaryCategories, src => src.SecondaryCategories != null ? src.SecondaryCategories.Count() : 0)
+                .Map(dest => dest.ImageFilePath, src => src.Image.FilePath);
 
             TypeAdapterConfig<Manufacturer, ManufacturerSummaryDTO>
                 .NewConfig()
@@ -140,6 +135,7 @@ namespace BusinessLayer
                 .Map(dest => dest.ProductName, src => src.Product.Name)
                 .Map(dest => dest.ProductDescription, src => src.Product.Description)
                 .Map(dest => dest.ProductQuantityInStock, src => src.Product.QuantityInStock)
+                .Map(dest => dest.ProductImageFilePath, src => src.Product != null && src.Product.Image != null ? src.Product.Image.FilePath : null)
                 .Map(dest => dest.CategoryId, src => src.Product.PrimaryCategoryId)
                 .Map(dest => dest.CategoryName, src => src.Product.PrimaryCategory.Name)
                 .Map(dest => dest.ManufacturerId, src => src.Product.ManufacturerId)

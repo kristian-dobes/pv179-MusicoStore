@@ -22,5 +22,6 @@ namespace BusinessLayer.DTOs.Product
         public required int NumberOfSecondaryCategories { get; set; }
         public required int ManufacturerId { get; set; }
         public required string ManufacturerName { get; set; }
+        public string? ImageFilePath { get; set; }
     }
 }

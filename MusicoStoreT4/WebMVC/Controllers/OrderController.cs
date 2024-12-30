@@ -37,18 +37,19 @@ namespace WebMVC.Controllers
 
             var ordersVM = orders.Adapt<IEnumerable<OrderDetailViewModel>>();
 
-            // access OrderItem and assign ProductImage
-            foreach (var order in ordersVM)
-            {
-                foreach (var orderItem in order.OrderItems)
-                {
-                    if (orderItem != null)
-                    {
-                        orderItem.ProductImage = await _imageService.GetImagePathByProductIdAsync(orderItem.ProductId); // TODO can improve this ?
-                    }
-                }
+            // should not be needed anymore
+            //// access OrderItem and assign ProductImage
+            //foreach (var order in ordersVM)
+            //{
+            //    foreach (var orderItem in order.OrderItems)
+            //    {
+            //        if (orderItem != null)
+            //        {
+            //            //orderItem.ProductImage = await _imageService.GetImagePathByProductIdAsync(orderItem.ProductId); // TODO shuold not be needed anymore
+            //        }
+            //    }
 
-            }
+            //}
 
             return View(ordersVM);
         }
