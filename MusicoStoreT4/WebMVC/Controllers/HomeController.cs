@@ -19,6 +19,7 @@ namespace WebMVC.Controllers
             _productService = productService;
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             int productId = 3; // Featured product is hardcoded for now
