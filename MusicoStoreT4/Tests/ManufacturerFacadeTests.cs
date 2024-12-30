@@ -1,13 +1,15 @@
+using BusinessLayer.Cache;
 using BusinessLayer.Facades;
 using BusinessLayer.Services;
-using Infrastructure.Repository.Implementations.Implementations;
+using BusinessLayer.Services.Interfaces;
+using DataAccessLayer.Models;
 using Infrastructure.Repository.Implementations;
+using Infrastructure.Repository.Implementations.Implementations;
 using Infrastructure.UnitOfWork;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using Tests.Other;
-using DataAccessLayer.Models;
-using Microsoft.AspNetCore.Identity;
-using BusinessLayer.Services.Interfaces;
 
 namespace Tests
 {
@@ -26,20 +28,37 @@ namespace Tests
             // Mock UserManager dependencies
             var store = new Mock<IUserStore<LocalIdentityUser>>();
             _mockUserManager = new Mock<UserManager<LocalIdentityUser>>(
-                store.Object, null, null, null, null, null, null, null, null
+                store.Object,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
             );
 
-            _uow = new UnitOfWork(context,
-                                  new UserRepository(context, _mockUserManager.Object),
-                                  new CategoryRepository(context),
-                                  new ManufacturerRepository(context),
-                                  new OrderRepository(context),
-                                  new OrderItemRepository(context),
-                                  new ProductRepository(context),
-                                  new ProductImageRepository(context),
-                                  new AuditLogRepository(context),
-                                  new LogRepository(context));
-            _manufacturerFacade = new ManufacturerFacade(new ManufacturerService(_uow), new ProductService(_uow, new AuditLogService(_uow)), _uow);
+            _uow = new UnitOfWork(
+                context,
+                new UserRepository(context, _mockUserManager.Object),
+                new CategoryRepository(context),
+                new ManufacturerRepository(context),
+                new OrderRepository(context),
+                new OrderItemRepository(context),
+                new ProductRepository(context),
+                new ProductImageRepository(context),
+                new AuditLogRepository(context),
+                new LogRepository(context)
+            );
+            _manufacturerFacade = new ManufacturerFacade(
+                new ManufacturerService(
+                    _uow,
+                    new MemoryCacheWrapper(new MemoryCache(new MemoryCacheOptions()))
+                ),
+                new ProductService(_uow, new AuditLogService(_uow)),
+                _uow
+            );
         }
 
         [Test]
@@ -49,8 +68,14 @@ namespace Tests
             var manufacturerId = 1; // Using a valid manufacturer ID from the mock data
 
             // Act & Assert
-            var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await _manufacturerFacade.MergeManufacturersAsync(manufacturerId, manufacturerId, -1));
+            var ex = Assert.ThrowsAsync<InvalidOperationException>(
+                async () =>
+                    await _manufacturerFacade.MergeManufacturersAsync(
+                        manufacturerId,
+                        manufacturerId,
+                        -1
+                    )
+            );
 
             Assert.AreEqual("Source and target manufacturers must be different.", ex.Message);
         }
@@ -69,10 +94,19 @@ namespace Tests
             Assert.IsNotNull(manufacturer1, "Manufacturer with id 1 should exist.");
 
             // Act and Assert
-            var ex = Assert.ThrowsAsync<KeyNotFoundException>(async () =>
-                await _manufacturerFacade.MergeManufacturersAsync(manufacturerId20, manufacturerId1, -1));
+            var ex = Assert.ThrowsAsync<KeyNotFoundException>(
+                async () =>
+                    await _manufacturerFacade.MergeManufacturersAsync(
+                        manufacturerId20,
+                        manufacturerId1,
+                        -1
+                    )
+            );
 
-            Assert.AreEqual($"Source manufacturer with ID {manufacturerId20} not found.", ex.Message);
+            Assert.AreEqual(
+                $"Source manufacturer with ID {manufacturerId20} not found.",
+                ex.Message
+            );
         }
 
         [Test]
@@ -89,10 +123,19 @@ namespace Tests
             Assert.IsNull(manufacturer20, "Manufacturer with id 20 should not exist.");
 
             // Act and Assert
-            var ex = Assert.ThrowsAsync<KeyNotFoundException>(async () =>
-                await _manufacturerFacade.MergeManufacturersAsync(sourceManufacturerId, targetManufacturerId, -1));
+            var ex = Assert.ThrowsAsync<KeyNotFoundException>(
+                async () =>
+                    await _manufacturerFacade.MergeManufacturersAsync(
+                        sourceManufacturerId,
+                        targetManufacturerId,
+                        -1
+                    )
+            );
 
-            Assert.AreEqual($"Target manufacturer with ID {targetManufacturerId} not found.", ex.Message);
+            Assert.AreEqual(
+                $"Target manufacturer with ID {targetManufacturerId} not found.",
+                ex.Message
+            );
         }
 
         [Test]
@@ -108,37 +151,88 @@ namespace Tests
 
             var productsOfMan1 = new List<Product>
             {
-                new Product { Id = 1, Name = "Product 1", ManufacturerId = manufacturerId1 },
-                new Product { Id = 2, Name = "Product 2", ManufacturerId = manufacturerId1 }
+                new Product
+                {
+                    Id = 1,
+                    Name = "Product 1",
+                    ManufacturerId = manufacturerId1
+                },
+                new Product
+                {
+                    Id = 2,
+                    Name = "Product 2",
+                    ManufacturerId = manufacturerId1
+                }
             };
 
-                    var productsOfMan2 = new List<Product>
+            var productsOfMan2 = new List<Product>
             {
-                new Product { Id = 3, Name = "Product 3", ManufacturerId = manufacturerId2 }
+                new Product
+                {
+                    Id = 3,
+                    Name = "Product 3",
+                    ManufacturerId = manufacturerId2
+                }
             };
 
-            // ManufacturerService 
+            // ManufacturerService
             var mockManufacturerService = new Mock<IManufacturerService>();
-            mockManufacturerService.Setup(m => m.ValidateManufacturerAsync(manufacturerId1)).ReturnsAsync(true);
-            mockManufacturerService.Setup(m => m.ValidateManufacturerAsync(manufacturerId2)).ReturnsAsync(true);
-            mockManufacturerService.Setup(m => m.DeleteManufacturerAsync(manufacturerId1)).ReturnsAsync(true);
+            mockManufacturerService
+                .Setup(m => m.ValidateManufacturerAsync(manufacturerId1))
+                .ReturnsAsync(true);
+            mockManufacturerService
+                .Setup(m => m.ValidateManufacturerAsync(manufacturerId2))
+                .ReturnsAsync(true);
+            mockManufacturerService
+                .Setup(m => m.DeleteManufacturerAsync(manufacturerId1))
+                .ReturnsAsync(true);
 
-            // ProductService 
+            // ProductService
             var mockProductService = new Mock<IProductService>();
             mockProductService
-                .Setup(p => p.ReassignProductsToManufacturerAsync(manufacturerId1, manufacturerId2, It.IsAny<int>()))
+                .Setup(p =>
+                    p.ReassignProductsToManufacturerAsync(
+                        manufacturerId1,
+                        manufacturerId2,
+                        It.IsAny<int>()
+                    )
+                )
                 .Returns(Task.CompletedTask);
 
             // Act
-            var manufacturerFacade = new ManufacturerFacade(mockManufacturerService.Object, mockProductService.Object, _uow);
+            var manufacturerFacade = new ManufacturerFacade(
+                mockManufacturerService.Object,
+                mockProductService.Object,
+                _uow
+            );
             await manufacturerFacade.MergeManufacturersAsync(manufacturerId1, manufacturerId2, -1);
 
             // Assert
-            mockManufacturerService.Verify(m => m.ValidateManufacturerAsync(manufacturerId1), Times.Once, "Source manufacturer validation should be called.");
-            mockManufacturerService.Verify(m => m.ValidateManufacturerAsync(manufacturerId2), Times.Once, "Target manufacturer validation should be called.");
-            mockProductService.Verify(p => p.ReassignProductsToManufacturerAsync(manufacturerId1, manufacturerId2, It.IsAny<int>()), Times.Once, "Reassigning products should be called.");
-            mockManufacturerService.Verify(m => m.DeleteManufacturerAsync(manufacturerId1), Times.Once, "Source manufacturer deletion should be called.");
-
+            mockManufacturerService.Verify(
+                m => m.ValidateManufacturerAsync(manufacturerId1),
+                Times.Once,
+                "Source manufacturer validation should be called."
+            );
+            mockManufacturerService.Verify(
+                m => m.ValidateManufacturerAsync(manufacturerId2),
+                Times.Once,
+                "Target manufacturer validation should be called."
+            );
+            mockProductService.Verify(
+                p =>
+                    p.ReassignProductsToManufacturerAsync(
+                        manufacturerId1,
+                        manufacturerId2,
+                        It.IsAny<int>()
+                    ),
+                Times.Once,
+                "Reassigning products should be called."
+            );
+            mockManufacturerService.Verify(
+                m => m.DeleteManufacturerAsync(manufacturerId1),
+                Times.Once,
+                "Source manufacturer deletion should be called."
+            );
         }
     }
 }

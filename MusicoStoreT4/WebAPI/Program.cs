@@ -1,4 +1,6 @@
 using BusinessLayer;
+using BusinessLayer.Cache;
+using BusinessLayer.Cache.Interfaces;
 using BusinessLayer.Facades;
 using BusinessLayer.Facades.Interfaces;
 using BusinessLayer.Services;
@@ -28,6 +30,7 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddMemoryCache();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
@@ -105,6 +108,7 @@ builder.Services.AddScoped<ILogRepository, LogRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Register Services
+builder.Services.AddScoped<IMemoryCacheWrapper, MemoryCacheWrapper>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IImageService>(provider =>
