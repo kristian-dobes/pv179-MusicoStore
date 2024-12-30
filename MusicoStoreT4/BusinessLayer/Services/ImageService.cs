@@ -144,7 +144,7 @@ namespace BusinessLayer.Services
 
         public async Task<bool> DeleteProductImageAsync(int productId)
         {
-            var product = (await _uow.ProductsRep.WhereAsync(p => p.Id == productId)).FirstOrDefault();
+            var product = await _uow.ProductsRep.FirstOrDefaultAsync(p => p.Id == productId);
 
             if (product == null || product.Image == null)
             {

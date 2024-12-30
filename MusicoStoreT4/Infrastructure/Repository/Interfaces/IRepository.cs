@@ -18,6 +18,7 @@ namespace Infrastructure.Repository.Interfaces
         Task<bool> DeleteByIdsAsync(IEnumerable<int> ids);
 
         Task<IEnumerable<T>> WhereAsync(Expression<Func<T, bool>> predicate);
+        Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
         Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
     }
 }

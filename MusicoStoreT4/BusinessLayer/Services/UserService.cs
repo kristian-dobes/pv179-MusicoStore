@@ -151,7 +151,7 @@ namespace BusinessLayer.Services
 
         public async Task UpdateCustomerAsync(int userId, CustomerDto customerDto)
         {
-            Customer? customer = (Customer?)(await _uow.UsersRep.WhereAsync(u => u is Customer && u.Id == userId)).FirstOrDefault();
+            Customer? customer = (Customer?)(await _uow.UsersRep.FirstOrDefaultAsync(u => u is Customer && u.Id == userId));
 
             if (customer == null || customer.Role != Role.Customer)
             {

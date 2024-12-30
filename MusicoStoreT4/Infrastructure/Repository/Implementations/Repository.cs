@@ -59,11 +59,16 @@ namespace Infrastructure.Repository.Implementations
             return await _context.Set<T>().AnyAsync(predicate);
         }
 
+        public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _context.Set<T>().FirstOrDefaultAsync(predicate);
+        }
+
         public async Task<bool> DeleteByIdsAsync(IEnumerable<int> ids)
         {
             var entities = await _context.Set<T>()
                 .Where(e => ids.Contains(e.Id))
-            .ToListAsync();
+                .ToListAsync();
 
             if (!entities.Any())
             {

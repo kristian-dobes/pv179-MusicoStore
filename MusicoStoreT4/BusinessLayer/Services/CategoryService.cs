@@ -36,8 +36,8 @@ namespace BusinessLayer.Services
         public async Task<Category> MergeCategoriesAndCreateNewAsync(string newCategoryName, int sourceCategoryId1,
                                                                      int sourceCategoryId2, bool save = true)
         {
-            var sourceCategory1 = (await _uow.CategoriesRep.WhereAsync(c => c.Id == sourceCategoryId1)).FirstOrDefault();
-            var sourceCategory2 = (await _uow.CategoriesRep.WhereAsync(c => c.Id == sourceCategoryId2)).FirstOrDefault();
+            var sourceCategory1 = await _uow.CategoriesRep.FirstOrDefaultAsync(c => c.Id == sourceCategoryId1);
+            var sourceCategory2 = await _uow.CategoriesRep.FirstOrDefaultAsync(c => c.Id == sourceCategoryId2);
 
             if (sourceCategory1 == null || sourceCategory2 == null)
             {

@@ -114,12 +114,12 @@ namespace BusinessLayer.Services
 
         public async Task<CouponCodeDto> CreateCouponCodeAsync(CreateCouponCodeDto createCouponCodeDto)
         {
-            if ((await _uow.CouponCodesRep.WhereAsync(cc => cc.Code == createCouponCodeDto.Code)).Any())
+            if ((await _uow.CouponCodesRep.AnyAsync(cc => cc.Code == createCouponCodeDto.Code)))
             {
                 throw new ArgumentException("A coupon code with this code already exists");
             }
 
-            if (!(await _uow.GiftCardsRep.WhereAsync(gc => gc.Id == createCouponCodeDto.GiftCardId)).Any())
+            if (!(await _uow.GiftCardsRep.AnyAsync(gc => gc.Id == createCouponCodeDto.GiftCardId)))
             {
                 throw new ArgumentException("There is no gift card with this id");
             }
@@ -132,8 +132,8 @@ namespace BusinessLayer.Services
 
         public async Task<CouponCodeDto?> UpdateCouponCodeAsync(UpdateCouponCodeDto updateCouponCodeDto)
         {
-            var existingCouponCode = (await _uow.CouponCodesRep
-                .WhereAsync(cc => cc.Id == updateCouponCodeDto.CouponCodeId)).FirstOrDefault();
+            var existingCouponCode = await _uow.CouponCodesRep
+                .FirstOrDefaultAsync(cc => cc.Id == updateCouponCodeDto.CouponCodeId);
 
             if (existingCouponCode == null)
             {
@@ -142,7 +142,7 @@ namespace BusinessLayer.Services
 
             if (updateCouponCodeDto.Code != null)
             {
-                if ((await _uow.CouponCodesRep.WhereAsync(cc => cc.Id != updateCouponCodeDto.CouponCodeId && cc.Code == updateCouponCodeDto.Code)).Any())
+                if (await _uow.CouponCodesRep.AnyAsync(cc => cc.Id != updateCouponCodeDto.CouponCodeId && cc.Code == updateCouponCodeDto.Code))
                 {
                     throw new ArgumentException("A coupon code with this code already exists");
                 }
@@ -155,7 +155,7 @@ namespace BusinessLayer.Services
 
             if (updateCouponCodeDto.GiftCardId.HasValue)
             {
-                if (!(await _uow.GiftCardsRep.WhereAsync(gc => gc.Id == updateCouponCodeDto.GiftCardId)).Any())
+                if (!(await _uow.GiftCardsRep.AnyAsync(gc => gc.Id == updateCouponCodeDto.GiftCardId)))
                 {
                     throw new ArgumentException("There is no gift card with this id");
                 }
@@ -163,7 +163,7 @@ namespace BusinessLayer.Services
 
             if (updateCouponCodeDto.OrderId.HasValue)
             {
-                if (!(await _uow.OrdersRep.WhereAsync(o => o.Id == updateCouponCodeDto.OrderId.Value)).Any())
+                if (!(await _uow.OrdersRep.AnyAsync(o => o.Id == updateCouponCodeDto.OrderId.Value)))
                 {
                     throw new ArgumentException("There is no order with this id");
                 }
@@ -184,6 +184,16 @@ namespace BusinessLayer.Services
             }
 
             return await _uow.CouponCodesRep.DeleteAsync(couponCodeId);
+        }
+
+        public async Task<GiftCardDto?> GetGiftCardByCouponCodeAsync(string code)
+        {
+            CouponCode? couponCode = await _uow.CouponCodesRep.FirstOrDefaultAsync(cc => cc.Code == code);
+
+            if (couponCode == null)
+                return null;
+
+            return couponCode.GiftCard.Adapt<GiftCardDto>();
         }
     }
 }

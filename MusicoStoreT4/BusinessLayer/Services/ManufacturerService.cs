@@ -76,7 +76,7 @@ namespace BusinessLayer.Services
                 throw new ArgumentException("Manufacturer name is required");
             }
 
-            var exists = (await _uow.ManufacturersRep.WhereAsync(m => m.Name == manufacturerDto.Name)).Any();
+            var exists = (await _uow.ManufacturersRep.AnyAsync(m => m.Name == manufacturerDto.Name));
 
             if (exists)
             {
