@@ -78,6 +78,17 @@ namespace WebMVC.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(OrderCreateViewModel model)
         {
+            // Check if any item is missing ProductId or Quantity
+            if (model.Items == null || model.Items.Any(item => item.ProductId <= 0 || item.Quantity <= 0))
+            {
+                ModelState.AddModelError("", "Each order item must have a valid product and quantity.");
+
+                // Reload Users and Products for the view
+                model.Users = await _userService.GetAllUsersAsync();
+                model.Products = await _productService.GetAllProductsAsync();
+                return View(model);
+            }
+            
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -121,6 +132,7 @@ namespace WebMVC.Areas.Admin.Controllers
             if (!ModelState.IsValid)
             {
                 // Invalid edit
+                ModelState.AddModelError("", "Each order must have a valid product and quantity.");
 
                 // Reload products for dropdown
                 model.Products = await _productService.GetAllProductsAsync(); 
