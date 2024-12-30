@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BusinessLayer.DTOs.Category;
+using BusinessLayer.DTOs.Product;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Models;
 using DataAccessLayer.Models.Enums;
@@ -52,6 +53,36 @@ namespace BusinessLayer.Services
 
             return category;
         }
+
+        public async Task<CategoryProductsDTO?> GetCategoryWithProductsAsync(int categoryId)
+        {
+            return await _uow.CategoriesRep.GetQueryById(categoryId)
+                .Select(c => new CategoryProductsDTO
+                {
+                    CategoryId = c.Id,
+                    Name = c.Name,
+                    PrimaryProducts = c.PrimaryProducts.Select(p => new ProductSummaryDTO
+                    {
+                        ProductId = p.Id,
+                        Name = p.Name,
+                        Description = p.Description,
+                        Price = p.Price,
+                        QuantityInStock = p.QuantityInStock
+                    }).ToList(),
+                    PrimaryProductCount = c.PrimaryProducts != null ? c.PrimaryProducts.Count : 0,
+                    SecondaryProducts = c.SecondaryProducts.Select(p => new ProductSummaryDTO
+                    {
+                        ProductId = p.Id,
+                        Name = p.Name,
+                        Description = p.Description,
+                        Price = p.Price,
+                        QuantityInStock = p.QuantityInStock
+                    }).ToList(),
+                    SecondaryProductCount = c.SecondaryProducts != null ? c.SecondaryProducts.Count : 0
+                })
+                .FirstOrDefaultAsync();
+        }
+
 
         public async Task<Category> MergeCategoriesAndCreateNewAsync(
             string newCategoryName,

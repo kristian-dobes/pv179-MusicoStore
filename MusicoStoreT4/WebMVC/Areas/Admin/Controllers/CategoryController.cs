@@ -39,14 +39,22 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/Category/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            var category = await _categoryService.GetByIdAsync(id);
+            //var category = await _categoryService.GetByIdAsync(id);
 
+            //if (category == null)
+            //{
+            //    return NotFound();
+            //}
+
+            //return View(category.Adapt<CategorySummaryViewModel>());
+
+            var category = await _categoryService.GetCategoryWithProductsAsync(id);
             if (category == null)
             {
                 return NotFound();
             }
 
-            return View(category.Adapt<CategorySummaryViewModel>());
+            return View(category.Adapt<CategoryProductsViewModel>());
         }
 
         // GET: Admin/Category/Create

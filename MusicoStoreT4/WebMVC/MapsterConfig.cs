@@ -66,9 +66,22 @@ namespace WebMVC
                 .NewConfig()
                 .Map(dest => dest.ManufacturerId, src => src.ManufacturerId);
 
+            TypeAdapterConfig<ManufacturerProductsDTO, ManufacturerProductsViewModel>
+                .NewConfig()
+                .Map(dest => dest.ManufacturerId, src => src.ManufacturerId)
+                .Map(dest => dest.Name, src => src.Name)
+                .Map(dest => dest.ProductCount, src => src.ProductCount);
+
             TypeAdapterConfig<CategorySummaryDTO, CategorySummaryViewModel>
                 .NewConfig()
                 .Map(dest => dest.CategoryId, src => src.CategoryId);
+
+            TypeAdapterConfig<CategoryProductsDTO, CategoryProductsViewModel>
+                .NewConfig()
+                .Map(dest => dest.CategoryId, src => src.CategoryId)
+                .Map(dest => dest.Name, src => src.Name)
+                .Map(dest => dest.PrimaryProductCount, src => src.PrimaryProductCount)
+                .Map(dest => dest.SecondaryProductCount, src => src.SecondaryProductCount);
 
             TypeAdapterConfig<OrderDetailDto, OrderDetailViewModel>
                 .NewConfig()

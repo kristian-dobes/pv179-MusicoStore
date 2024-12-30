@@ -163,7 +163,7 @@ namespace BusinessLayer.Services
                 //throw new ArgumentException("Price must be valid");
 
             // VALIDATION
-            var categoriesQuery = _uow.CategoriesRep.GetQuery()
+            var categoriesQuery = _uow.CategoriesRep.GetAllQuery()
                 .Where(c => c.Id == productDto.PrimaryCategoryId || productDto.SecondaryCategoryIds.Contains(c.Id));
             var manufacturerExistsQuery = _uow.ManufacturersRep.AnyAsync(m => m.Id == productDto.ManufacturerId);
             var productNameExistsQuery = _uow.ProductsRep.AnyAsync(p => p.Name == productDto.Name);
@@ -410,7 +410,7 @@ namespace BusinessLayer.Services
                     .ToListAsync();
 
                 categories = await _uow
-                    .CategoriesRep.GetQuery()
+                    .CategoriesRep.GetAllQuery()
                     .Where(c => c.Name.ToLower().Contains(searchQuery))
                     .Take(pageSize)
                     .ToListAsync();

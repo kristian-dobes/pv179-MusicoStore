@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using BusinessLayer.DTOs;
 using BusinessLayer.DTOs.Category;
 using BusinessLayer.DTOs.Manufacturer;
+using BusinessLayer.DTOs.Product;
 using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
@@ -27,14 +28,26 @@ namespace BusinessLayer.Services
 
         public async Task<IEnumerable<ManufacturerSummaryDTO>> GetManufacturersAsync()
         {
-            var manufacturers = await _uow.ManufacturersRep.GetAllAsync();
-            return manufacturers.Select(m => m.Adapt<ManufacturerSummaryDTO>()).ToList();
+            return await _uow.ManufacturersRep.GetAllQueryWithProducts()
+                .Select(m => new ManufacturerSummaryDTO
+                {
+                    ManufacturerId = m.Id,
+                    Name = m.Name,
+                    ProductCount = m.Products != null ? m.Products.Count : 0
+                })
+                .ToListAsync();
         }
+
         public async Task<ManufacturerSummaryDTO?> GetById(int id)
         {
-            var manufacturer = await _uow.ManufacturersRep.GetByIdAsync(id);
-
-            return manufacturer.Adapt<ManufacturerSummaryDTO>();
+            return await _uow.ManufacturersRep.GetQueryById(id)
+                .Select(m => new ManufacturerSummaryDTO
+                {
+                    ManufacturerId = m.Id,
+                    Name = m.Name,
+                    ProductCount = m.Products != null ? m.Products.Count : 0
+                })
+                .FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<ManufacturerDTO>> GetManufacturersWithProductsAsync()
@@ -42,6 +55,27 @@ namespace BusinessLayer.Services
             var manufacturers = await _uow.ManufacturersRep.GetManufacturersWithProductsAsync();
             return manufacturers.Select(m => m.Adapt<ManufacturerDTO>()).ToList();
         }
+
+        public async Task<ManufacturerProductsDTO?> GetManufacturerWithProductsAsync(int manufacturerId)
+        {
+            return await _uow.ManufacturersRep.GetQueryById(manufacturerId)
+                .Select(m => new ManufacturerProductsDTO
+                {
+                    ManufacturerId = m.Id,
+                    Name = m.Name,
+                    ProductCount = m.Products != null ? m.Products.Count : 0,
+                    Products = m.Products.Select(p => new ProductSummaryDTO
+                    {
+                        ProductId = p.Id,
+                        Name = p.Name,
+                        Description = p.Description,
+                        Price = p.Price,
+                        QuantityInStock = p.QuantityInStock
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
+        }
+
 
         public async Task<bool> ValidateManufacturerAsync(int manufacturerId)
         {

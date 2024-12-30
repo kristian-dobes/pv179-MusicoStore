@@ -14,7 +14,7 @@ namespace Infrastructure.Repository.Interfaces
         Task<List<Category>> GetCategoriesWithPrimaryProductsAsync();
         Task<List<Category>> GetCategoriesWithSecondaryProductsAsync();
         Task<Category?> GetCategoryWithAllProductsAsync(int categoryId);
-        IQueryable<Category> GetQuery();
+        IQueryable<Category> GetAllQuery();
         IQueryable<Category> GetQueryProducts();
         IQueryable<Category> GetQueryById(int id);
         Task<bool> HasProductsAsync(int categoryId);

@@ -14,6 +14,7 @@ namespace BusinessLayer.Services.Interfaces
         Task<IEnumerable<ManufacturerSummaryDTO>> GetManufacturersAsync();
         Task<ManufacturerSummaryDTO?> GetById(int id);
         Task<IEnumerable<ManufacturerDTO>> GetManufacturersWithProductsAsync();
+        Task<ManufacturerProductsDTO?> GetManufacturerWithProductsAsync(int manufacturerId);
         Task<bool> ValidateManufacturerAsync(int manufacturerId);
         Task<bool> DeleteManufacturerAsync(int manufacturerId);
         Task CreateManufacturerAsync(ManufacturerUpdateDTO manufacturerDto);

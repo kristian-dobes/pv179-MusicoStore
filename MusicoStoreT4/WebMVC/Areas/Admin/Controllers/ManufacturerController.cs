@@ -41,14 +41,22 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/Manufacturer/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            var manufacturer = await _manufacturerService.GetById(id);
+            //var manufacturer = await _manufacturerService.GetById(id);
 
+            //if (manufacturer == null)
+            //{
+            //    return NotFound();
+            //}
+
+            //return View(manufacturer.Adapt<ManufacturerSummaryViewModel>());
+
+            var manufacturer = await _manufacturerService.GetManufacturerWithProductsAsync(id);
             if (manufacturer == null)
             {
                 return NotFound();
             }
 
-            return View(manufacturer.Adapt<ManufacturerSummaryViewModel>());
+            return View(manufacturer.Adapt<ManufacturerProductsViewModel>());
         }
 
         // GET: Admin/Manufacturer/Create
