@@ -84,16 +84,26 @@ namespace BusinessLayer.Services
             var order = await _uow.OrdersRep.GetByIdAsync(orderId);
 
             if (order == null)
+            {
                 throw new ArgumentException($"Order with ID {orderId} not found.");
+            }
 
             if (updateOrderDto.OrderDate.HasValue)
                 order.Date = updateOrderDto.OrderDate.Value;
 
-            order.OrderItems.Clear();
+            if (updateOrderDto.OrderItems == null || !updateOrderDto.OrderItems.Any())
+            {
+                throw new ArgumentException("Order must contain at least one item.");
+            }
+
+            order.OrderItems?.Clear();
+
+            var productIds = updateOrderDto.OrderItems.Select(i => i.ProductId).ToList();
+            var products = await _uow.ProductsRep.WhereAsync(p => productIds.Contains(p.Id));
 
             foreach (var itemDto in updateOrderDto.OrderItems)
             {
-                var product = await _uow.ProductsRep.GetByIdAsync(itemDto.ProductId);
+                var product = products.FirstOrDefault(p => p.Id == itemDto.ProductId);
 
                 if (product != null)
                 {
@@ -104,6 +114,10 @@ namespace BusinessLayer.Services
                         Price = product.Price
                     });
                 }
+                else
+                {
+                    throw new ArgumentException($"Product with ID {itemDto.ProductId} not found.");
+                }
             }
 
             try
@@ -111,9 +125,9 @@ namespace BusinessLayer.Services
                 await _uow.SaveAsync();
                 return true;
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                throw new ArgumentException($"Failed to update order with ID {orderId} due to concurrency issues.");
+                throw new InvalidOperationException($"Failed to update order with ID {orderId}.", ex);
             }
         }
 

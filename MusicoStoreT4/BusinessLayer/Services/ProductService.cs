@@ -76,26 +76,27 @@ namespace BusinessLayer.Services
 
         public async Task<ProductCompleteDTO> UpdateProductAsync(int productId, ProductUpdateDTO productDto)
         {
-            // Fetch product by ID
             var product = await _uow.ProductsRep.GetByIdAsync(productId);
 
             if (product == null)
+            {
                 throw new KeyNotFoundException($"Product with ID {productId} not found.");
+            }
 
-            // Validate Manufacturer
             var manufacturer = await _uow.ManufacturersRep.GetByIdAsync(productDto.ManufacturerId);
-            if (manufacturer == null)
-                throw new KeyNotFoundException($"Manufacturer with ID {productDto.ManufacturerId} not found.");
-            product.Manufacturer = manufacturer;
-
-            // Validate Category
             var category = await _uow.CategoriesRep.GetByIdAsync(productDto.CategoryId);
-            if (category == null)
-                throw new KeyNotFoundException($"Category with ID {productDto.CategoryId} not found.");
-            product.Category = category;
 
-            // Update product fields
-            product.Name = productDto.Name;
+            if (manufacturer == null)
+            {
+                throw new KeyNotFoundException($"Manufacturer with ID {productDto.ManufacturerId} not found.");
+            }
+
+            if (category == null)
+            {
+                throw new KeyNotFoundException($"Category with ID {productDto.CategoryId} not found.");
+            }
+
+            product.Name = productDto.Name ?? throw new ArgumentNullException(nameof(productDto.Name));
             product.Description = productDto.Description;
             product.Price = productDto.Price;
             product.QuantityInStock = productDto.QuantityInStock;
@@ -104,10 +105,16 @@ namespace BusinessLayer.Services
             product.CategoryId = productDto.CategoryId;
             product.ManufacturerId = productDto.ManufacturerId;
 
-            // Log the update action and save changes
-            await _auditLogService.LogAsync(productId, AuditAction.Update, productDto.LastModifiedById);
-            await _uow.SaveAsync();
+            try
+            {
+                await _auditLogService.LogAsync(productId, AuditAction.Update, productDto.LastModifiedById);
+            }
+            catch
+            {
 
+            }
+
+            await _uow.SaveAsync();
             return product.Adapt<ProductCompleteDTO>();
         }
 

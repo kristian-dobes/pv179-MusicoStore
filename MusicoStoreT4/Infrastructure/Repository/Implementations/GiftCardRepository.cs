@@ -36,12 +36,16 @@ namespace Infrastructure.Repository.Implementations
             existingGiftCard.ValidityStartDate = entity.ValidityStartDate;
             existingGiftCard.ValidityEndDate = entity.ValidityEndDate;
 
-            _context.CouponCodes.RemoveRange(existingGiftCard.CouponCodes
-                .Where(cc => !entity.CouponCodes.Any(ecc => ecc.Id == cc.Id)));
+            var outdatedCoupons = existingGiftCard.CouponCodes
+                .Where(cc => !entity.CouponCodes.Any(ecc => ecc.Id == cc.Id))
+                .ToList();
+
+            _context.CouponCodes.RemoveRange(outdatedCoupons);
 
             foreach (var couponCode in entity.CouponCodes)
             {
-                var existingCoupon = existingGiftCard.CouponCodes.FirstOrDefault(cc => cc.Id == couponCode.Id);
+                var existingCoupon = existingGiftCard.CouponCodes
+                    .FirstOrDefault(cc => cc.Id == couponCode.Id);
 
                 if (existingCoupon == null)
                 {
@@ -51,6 +55,7 @@ namespace Infrastructure.Repository.Implementations
                 {
                     existingCoupon.Code = couponCode.Code;
                     existingCoupon.IsUsed = couponCode.IsUsed;
+                    existingCoupon.OrderId = couponCode.OrderId;
                 }
             }
 

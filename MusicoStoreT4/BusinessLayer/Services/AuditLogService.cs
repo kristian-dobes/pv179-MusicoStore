@@ -41,7 +41,7 @@ namespace BusinessLayer.Services
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException("Failed to log audit entry.", ex);
+                throw new InvalidOperationException("Failed to add audit log entry.", ex);
             }
         }
     }

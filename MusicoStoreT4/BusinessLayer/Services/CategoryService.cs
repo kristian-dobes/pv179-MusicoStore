@@ -80,7 +80,7 @@ namespace BusinessLayer.Services
 
         public async Task<CategoryDTO?> UpdateCategoryAsync(int categoryId, CategoryUpdateDTO updateCategoryDto)
         {
-            if (await _uow.CategoriesRep.AnyAsync(c => c.Name == updateCategoryDto.Name))
+            if (!await _uow.CategoriesRep.IsNameUniqueAsync(updateCategoryDto.Name, categoryId))
             {
                 throw new ArgumentException("Category with this name already exists");
             }
@@ -94,8 +94,14 @@ namespace BusinessLayer.Services
 
             category.Name = updateCategoryDto.Name;
 
-            await _uow.SaveAsync();
+            var success = await _uow.CategoriesRep.UpdateAsync(category);
 
+            if (!success)
+            {
+                throw new InvalidOperationException("Failed to update the category");
+            }
+
+            await _uow.SaveAsync();
             return category.Adapt<CategoryDTO>();
         }
 

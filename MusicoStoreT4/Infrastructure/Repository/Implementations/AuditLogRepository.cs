@@ -36,6 +36,7 @@ namespace Infrastructure.Repository.Implementations
 
             _context.AuditLogs.Update(existingAuditLog);
             await _context.SaveChangesAsync();
+
             return true;
         }
     }

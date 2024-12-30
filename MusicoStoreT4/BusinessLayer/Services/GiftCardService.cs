@@ -60,63 +60,34 @@ namespace BusinessLayer.Services
 
         public async Task<GiftCardDto?> UpdateGiftCardAsync(UpdateGiftCardDto updateGiftCardDto)
         {
-            var existingGiftCard = (await _uow.GiftCardsRep
-                .WhereAsync(gc => gc.Id == updateGiftCardDto.GiftCardId)).FirstOrDefault();
-
-            if (existingGiftCard == null)
-            {
-                throw new KeyNotFoundException("Gift card ID not found");
-            }
-
             if (updateGiftCardDto.DiscountAmount.HasValue && updateGiftCardDto.DiscountAmount <= 0)
             {
                 throw new ArgumentException("DiscountAmount must be larger than 0");
             }
 
-            if (updateGiftCardDto.DiscountAmount.HasValue)
+            var giftCardToUpdate = new GiftCard
             {
-                existingGiftCard.DiscountAmount = updateGiftCardDto.DiscountAmount.Value;
-            }
-
-            if (updateGiftCardDto.ValidityStartDate.HasValue)
-            {
-                existingGiftCard.ValidityStartDate = updateGiftCardDto.ValidityStartDate.Value;
-            }
-
-            if (updateGiftCardDto.ValidityEndDate.HasValue)
-            {
-                existingGiftCard.ValidityEndDate = updateGiftCardDto.ValidityEndDate.Value;
-            }
-
-            if (updateGiftCardDto.CouponCodes != null)
-            {
-                var existingCoupons = existingGiftCard.CouponCodes.ToList();
-                foreach (var coupon in updateGiftCardDto.CouponCodes)
+                Id = updateGiftCardDto.GiftCardId,
+                DiscountAmount = updateGiftCardDto.DiscountAmount ?? 0,
+                ValidityStartDate = updateGiftCardDto.ValidityStartDate ?? default,
+                ValidityEndDate = updateGiftCardDto.ValidityEndDate ?? default,
+                CouponCodes = updateGiftCardDto.CouponCodes?.Select(c => new CouponCode
                 {
-                    var existingCoupon = existingCoupons.FirstOrDefault(c => c.Id == coupon.CouponCodeId);
-                    if (existingCoupon != null)
-                    {
-                        existingCoupon.Code = coupon.Code;
-                        existingCoupon.IsUsed = coupon.IsUsed;
-                        existingCoupon.OrderId = coupon.OrderId;
-                    }
-                    else
-                    {
-                        existingGiftCard.CouponCodes.Add(new CouponCode
-                        {
-                            Code = coupon.Code,
-                            IsUsed = coupon.IsUsed,
-                            OrderId = coupon.OrderId
-                        });
-                    }
-                }
+                    Id = c.CouponCodeId,
+                    Code = c.Code,
+                    IsUsed = c.IsUsed,
+                    OrderId = c.OrderId
+                }).ToList() ?? new List<CouponCode>()
+            };
+
+            bool updated = await _uow.GiftCardsRep.UpdateAsync(giftCardToUpdate);
+
+            if (!updated)
+            {
+                throw new KeyNotFoundException("Gift card ID not found");
             }
 
-            SKONTROLOVAT, CI SOM NEIMPLEMENTOVAL UPDATE ZNOVU AJ PRI GIFT CARDS AJ PRI COUPON CODES aj vo vsetkych servicoch
-
-            await _uow.GiftCardsRep.UpdateAsync(existingGiftCard);
-            await _uow.SaveAsync();
-            return existingGiftCard.Adapt<GiftCardDto>();
+            return giftCardToUpdate.Adapt<GiftCardDto>();
         }
 
         public async Task<bool> DeleteGiftCardAsync(int giftCardId)

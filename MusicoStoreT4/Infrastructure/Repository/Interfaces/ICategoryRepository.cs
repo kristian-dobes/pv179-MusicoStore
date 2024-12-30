@@ -11,5 +11,6 @@ namespace Infrastructure.Repository.Interfaces
     public interface ICategoryRepository : IRepository<Category>
     {
         Task<List<Category>> GetCategoriesWithProductsAsync();
+        Task<bool> IsNameUniqueAsync(string name, int? excludeCategoryId = null);
     }
 }

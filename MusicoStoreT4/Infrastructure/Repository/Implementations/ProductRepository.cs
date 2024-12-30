@@ -18,14 +18,18 @@ namespace Infrastructure.Repository.Implementations
         public override async Task<bool> UpdateAsync(Product entity)
         {
             if (entity == null)
+            {
                 throw new ArgumentNullException(nameof(entity));
+            }
 
             var existingProduct = await _context.Products.FindAsync(entity.Id);
-
+            
             if (existingProduct == null)
+            {
                 return false;
+            }
 
-            existingProduct.Name = entity.Name;
+            existingProduct.Name = entity.Name ?? throw new ArgumentNullException(nameof(entity.Name));
             existingProduct.Description = entity.Description;
             existingProduct.Price = entity.Price;
             existingProduct.QuantityInStock = entity.QuantityInStock;
@@ -34,7 +38,6 @@ namespace Infrastructure.Repository.Implementations
             existingProduct.CategoryId = entity.CategoryId;
             existingProduct.ManufacturerId = entity.ManufacturerId;
 
-            _context.Products.Update(existingProduct);
             await _context.SaveChangesAsync();
             return true;
         }

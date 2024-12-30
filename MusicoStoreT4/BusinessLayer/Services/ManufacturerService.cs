@@ -92,23 +92,19 @@ namespace BusinessLayer.Services
         {
             if (string.IsNullOrWhiteSpace(updateManufacturerDto.Name))
             {
-                throw new ArgumentException("Manufacturer name is required");
+                throw new ArgumentException("Manufacturer name is required.");
             }
 
-            var existingManufacturer = (await _uow.ManufacturersRep
-                .WhereAsync(m => m.Id == id)).FirstOrDefault();
+            var existingManufacturer = await _uow.ManufacturersRep.GetByIdAsync(id);
 
             if (existingManufacturer == null)
             {
-                throw new KeyNotFoundException("Manufacturer ID not found");
+                throw new KeyNotFoundException("Manufacturer ID not found.");
             }
 
-            var nameExists = (await _uow.ManufacturersRep
-                .WhereAsync(m => m.Name == updateManufacturerDto.Name && m.Id != id)).Any();
-
-            if (nameExists)
+            if (await _uow.ManufacturersRep.AnyAsync(m => m.Name == updateManufacturerDto.Name && m.Id != id))
             {
-                throw new ArgumentException("Manufacturer with that name already exists");
+                throw new ArgumentException("Manufacturer with that name already exists.");
             }
 
             existingManufacturer.Name = updateManufacturerDto.Name;

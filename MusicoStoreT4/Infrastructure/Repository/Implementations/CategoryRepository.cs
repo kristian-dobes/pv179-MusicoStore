@@ -36,9 +36,7 @@ namespace Infrastructure.Repository.Implementations
 
             existingCategory.Name = entity.Name;
 
-            _context.Categories.Update(existingCategory);
             await _context.SaveChangesAsync();
-
             return true;
         }
 
@@ -47,6 +45,12 @@ namespace Infrastructure.Repository.Implementations
             return await _context.Categories
                 .Include(c => c.Products)
                 .ToListAsync();
+        }
+
+        public async Task<bool> IsNameUniqueAsync(string name, int? excludeCategoryId = null)
+        {
+            return !await _context.Categories
+                .AnyAsync(c => c.Name == name && (!excludeCategoryId.HasValue || c.Id != excludeCategoryId.Value));
         }
     }
 }
