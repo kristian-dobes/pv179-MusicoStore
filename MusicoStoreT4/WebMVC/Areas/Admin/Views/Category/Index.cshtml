@@ -23,7 +23,8 @@
                 <tr>
                     <th scope="col">Category ID</th>
                     <th scope="col">Name</th>
-                    <th scope="col">Product Count</th>
+                    <th scope="col">Primary Products</th>
+                    <th scope="col">Secondary Products</th>
                     <th scope="col" class="text-center">Actions</th>
                 </tr>
             </thead>
@@ -33,7 +34,8 @@
                     <tr>
                         <td>@item.CategoryId</td>
                         <td>@item.Name</td>
-                        <td>@item.ProductCount</td>
+                        <td>@item.PrimaryProductCount</td>
+                        <td>@item.SecondaryProductCount</td>
                         <td class="text-center">
                             <div class="btn-group" role="group">
                                 <a asp-area="Admin" asp-action="Edit" asp-route-id="@item.CategoryId" class="btn btn-warning btn-sm">Edit</a>

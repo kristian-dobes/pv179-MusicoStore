@@ -23,7 +23,7 @@
                         @foreach (var category in Model.Categories)
                         {
                             <option value="@category.CategoryId">
-                                @category.Name (@category.ProductCount products)
+                                @category.Name (@category.PrimaryProductCount primary products, @category.SecondaryProductCount secondary products)
                             </option>
                         }
                     </select>
@@ -39,7 +39,7 @@
                         @foreach (var category in Model.Categories)
                         {
                             <option value="@category.CategoryId">
-                                @category.Name (@category.ProductCount products)
+                                @category.Name (@category.PrimaryProductCount primary products, @category.SecondaryProductCount secondary products)
                             </option>
                         }
                     </select>

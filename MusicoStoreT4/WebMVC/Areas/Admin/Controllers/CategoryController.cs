@@ -108,7 +108,7 @@ namespace WebMVC.Areas.Admin.Controllers
             if (category == null)
                 return NotFound();
 
-            if (category.ProductCount > 0)
+            if (category.PrimaryProductCount > 0)
                 return BadRequest("Category has products, cannot delete.");
 
             return View(category.Adapt<CategorySummaryViewModel>());

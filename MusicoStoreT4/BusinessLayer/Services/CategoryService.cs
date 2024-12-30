@@ -9,6 +9,7 @@ using DataAccessLayer.Models;
 using DataAccessLayer.Models.Enums;
 using Infrastructure.UnitOfWork;
 using Mapster;
+using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Services
 {
@@ -26,15 +27,30 @@ namespace BusinessLayer.Services
 
         public async Task<IEnumerable<CategorySummaryDTO>> GetCategoriesAsync()
         {
-            var categoryEntities = await _uow.CategoriesRep.GetAllAsync();
-            return categoryEntities.Adapt<IEnumerable<CategorySummaryDTO>>();
+            return await _uow.CategoriesRep.GetQueryProducts()
+                .Select(c => new CategorySummaryDTO
+                {
+                    CategoryId = c.Id,
+                    Name = c.Name,
+                    PrimaryProductCount = c.PrimaryProducts != null ? c.PrimaryProducts.Count : 0,
+                    SecondaryProductCount = c.SecondaryProducts != null ? c.SecondaryProducts.Count : 0
+                })
+                .ToListAsync();
         }
 
         public async Task<CategorySummaryDTO?> GetByIdAsync(int id)
         {
-            var category = await _uow.CategoriesRep.GetByIdAsync(id);
+            var category = await _uow.CategoriesRep.GetQueryById(id)
+                .Select(c => new CategorySummaryDTO
+                {
+                    CategoryId = c.Id,
+                    Name = c.Name,
+                    PrimaryProductCount = c.PrimaryProducts != null ? c.PrimaryProducts.Count : 0,
+                    SecondaryProductCount = c.SecondaryProducts != null ? c.SecondaryProducts.Count : 0
+                })
+                .FirstOrDefaultAsync();
 
-            return category.Adapt<CategorySummaryDTO>();
+            return category;
         }
 
         public async Task<Category> MergeCategoriesAndCreateNewAsync(
@@ -143,12 +159,8 @@ namespace BusinessLayer.Services
             if (await _uow.CategoriesRep.HasProductsAsync(categoryId))
                 return false; // Cannot delete if the category has products
 
-            var category = await _uow.CategoriesRep.GetByIdAsync(categoryId);
-            if (category == null)
-                return false; // Not found
-
-            await _uow.CategoriesRep.DeleteAsync(category.Id);
-            return true;
+            var deleted = await _uow.CategoriesRep.DeleteAsync(categoryId);
+            return deleted;
         }
     }
 }

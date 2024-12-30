@@ -74,6 +74,21 @@ namespace Infrastructure.Repository.Implementations
             return _context.Categories.AsQueryable();
         }
 
+        public IQueryable<Category> GetQueryProducts()
+        {
+            return _context.Categories.
+                Include(c => c.PrimaryProducts).
+                Include(c => c.SecondaryProducts);
+        }
+
+        public IQueryable<Category> GetQueryById(int id)
+        {
+            return _context.Categories
+                .Where(c => c.Id == id)
+                .Include(c => c.PrimaryProducts)
+                .Include(c => c.SecondaryProducts);
+        }
+
         public async Task<bool> HasProductsAsync(int categoryId)
         {
             return await _context.Categories

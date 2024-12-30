@@ -102,7 +102,7 @@ namespace BusinessLayer
                 .Map(dest => dest.CategoryId, src => src.Id)
                 .Map(dest => dest.Name, src => src.Name)
                 .Map(
-                    dest => dest.ProductCount,
+                    dest => dest.PrimaryProductCount,
                     src => src.PrimaryProducts != null ? src.PrimaryProducts.Count() : 0
                 );
 
