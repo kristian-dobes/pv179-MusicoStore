@@ -47,7 +47,7 @@ namespace Infrastructure.Repository.Implementations
                 .ToListAsync();
         }
 
-        public IQueryable<Product> GetAllQuery()
+        public IQueryable<Product> GetQuery()
         {
             return _context.Products.AsQueryable();
         }

@@ -18,7 +18,7 @@ namespace BusinessLayer.DTOs.Product
         public required int EditCount { get; set; }
         public required int PrimaryCategoryId { get; set; }
         public required string PrimaryCategoryName { get; set; }
-        public IEnumerable<CategoryBasicDto> SecondaryCategories { get; set; }
+        public IEnumerable<CategoryBasicDto> SecondaryCategories { get; set; } = [];
         public required int NumberOfSecondaryCategories { get; set; }
         public required int ManufacturerId { get; set; }
         public required string ManufacturerName { get; set; }

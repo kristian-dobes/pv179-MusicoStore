@@ -91,15 +91,13 @@ namespace WebMVC.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ProductCreateViewModel model)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || (model.SecondaryCategoryIds != null && model.SecondaryCategoryIds.Contains(model.PrimaryCategoryId) || model.Price == 0))
             {
-                return BadRequest(ModelState);
-            }
+                if(model.Price == 0)
+                    ModelState.AddModelError("Price", "Price cannot be 0.");
 
-            // Check if the PrimaryCategoryId is also in SecondaryCategoryIds
-            if (model.SecondaryCategoryIds != null && model.SecondaryCategoryIds.Contains(model.PrimaryCategoryId))
-            {
-                ModelState.AddModelError("SecondaryCategoryIds", "The primary category cannot also be a secondary category.");
+                if (model.SecondaryCategoryIds != null && model.SecondaryCategoryIds.Contains(model.PrimaryCategoryId))
+                    ModelState.AddModelError("SecondaryCategoryIds", "The primary category cannot also be a secondary category.");
 
                 // Reload categories and manufacturers for the view
                 model.Categories = await _categoryService.GetCategoriesAsync();
@@ -115,7 +113,15 @@ namespace WebMVC.Areas.Admin.Controllers
             var product = model.Adapt<ProductCreateDTO>();
             product.LastModifiedById = user.UserId;
 
-            await _productService.CreateProductAsync(product);
+            var result = await _productService.CreateProductAsync(product);
+
+            if (!result)
+            {
+                ModelState.AddModelError("Name", "Failed to create product. Product name is already taken");
+                model.Categories = await _categoryService.GetCategoriesAsync();
+                model.Manufacturers = await _manufacturerService.GetManufacturersAsync();
+                return View(model);
+            }
 
             return RedirectToAction("Index", new { area = "Admin" });
         }
@@ -149,16 +155,18 @@ namespace WebMVC.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, ProductUpdateViewModel model)
         {
-            if (!ModelState.IsValid || model.SecondaryCategoryIds.Contains(model.PrimaryCategoryId))
+            if (!ModelState.IsValid || model.SecondaryCategoryIds.Contains(model.PrimaryCategoryId) || model.Price == 0)
             {
+                if (model.Price == 0)
+                    ModelState.AddModelError("Price", "Price cannot be 0.");
                 if (model.SecondaryCategoryIds.Contains(model.PrimaryCategoryId))
                     ModelState.AddModelError("SecondaryCategoryIds", "The primary category cannot also be a secondary category.");
-
+                
                 model.Categories = await _categoryService.GetCategoriesAsync();
                 model.Manufacturers = await _manufacturerService.GetManufacturersAsync();
                 return View(model);
             }
-
+            
             var product = model.Adapt<ProductUpdateDTO>();
             product.SecondaryCategoryIds = model.SecondaryCategoryIds;
 

@@ -69,7 +69,7 @@ namespace Infrastructure.Repository.Implementations
                 .FirstOrDefaultAsync(c => c.Id == categoryId);
         }
 
-        public IQueryable<Category> GetAllQuery()
+        public IQueryable<Category> GetQuery()
         {
             return _context.Categories.AsQueryable();
         }
