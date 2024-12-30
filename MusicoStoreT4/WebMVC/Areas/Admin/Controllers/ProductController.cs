@@ -52,7 +52,7 @@ namespace WebMVC.Areas.Admin.Controllers
         }
 
         // GET: Admin/Product/Details/5
-        [HttpGet("{id}")]
+        [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
             var product = await _productService.GetProductByIdAsync(id);
@@ -121,7 +121,7 @@ namespace WebMVC.Areas.Admin.Controllers
         }
 
         // GET: Admin/Product/Edit/5
-        [HttpGet("edit/{id}")]
+        [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
             var product = await _productService.GetProductByIdAsync(id);
@@ -145,7 +145,7 @@ namespace WebMVC.Areas.Admin.Controllers
         }
 
         // POST: Admin/Product/Edit/5
-        [HttpPost("edit/{id}")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, ProductUpdateViewModel model)
         {
@@ -200,7 +200,7 @@ namespace WebMVC.Areas.Admin.Controllers
         }
 
         // GET: Admin/Product/Delete/5
-        [HttpGet("delete/{id}")]
+        [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
             var product = await _productService.GetProductByIdAsync(id);
@@ -223,6 +223,7 @@ namespace WebMVC.Areas.Admin.Controllers
             if (user == null)
                 return Unauthorized("User must be authenticated to delete the product.");
 
+            await _imageService.DeleteProductImageAsync(id);
             await _productService.DeleteProductAsync(id, user.UserId);
 
             return RedirectToAction("Index", new { area = "Admin" });

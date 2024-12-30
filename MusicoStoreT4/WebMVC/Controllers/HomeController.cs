@@ -25,10 +25,11 @@ namespace WebMVC.Controllers
             var product = await _productService.GetProductByIdAsync(productId);
 
             if (product == null)
-                return NotFound();
+                return View(new ProductHomeViewModel { IsValid = false });
 
             var productHomeViewModel = new ProductHomeViewModel
             {
+                IsValid = true,
                 ProductId = product.ProductId,
                 ProductName = product.Name,
                 Description = product.Description,
