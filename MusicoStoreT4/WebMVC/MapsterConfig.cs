@@ -98,6 +98,14 @@ namespace WebMVC
                 .Map(dest => dest.Items, src => src.OrderItems.Adapt<IEnumerable<OrderItemDto>>()) // Map nested collection
                 .Map(dest => dest.PaymentStatus, src => src.PaymentStatus);
 
+            TypeAdapterConfig<OrderSummaryDTO, OrderSummaryViewModel>
+                .NewConfig()
+                .Map(dest => dest.OrderId, src => src.OrderId)
+                .Map(dest => dest.CustomerId, src => src.CustomerId)
+                .Map(dest => dest.Email, src => src.Email)
+                .Map(dest => dest.TotalOrderPrice, src => src.TotalOrderPrice)
+                .Map(dest => dest.PaymentStatus, src => src.PaymentStatus);
+
             TypeAdapterConfig<OrderUpdateViewModel, UpdateOrderDto>
                 .NewConfig()
                 .Map(dest => dest.OrderItems, src => src.Items);

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<WebMVC.Models.Order.OrderDetailViewModel>
+﻿@model IEnumerable<WebMVC.Models.Order.OrderSummaryViewModel>
 
 @{
     ViewData["Title"] = "Order List";
@@ -35,7 +35,7 @@
                     <tr>
                         <td>@item.OrderId</td>
                         <td>@item.Created.ToString("g")</td>
-                        <td>@item.User?.Email</td>
+                        <td>@item.Email</td>
                         <td>@item.OrderItemsCount</td>
                         <td>@item.TotalOrderPrice.ToString("C")</td>
                         <td>@item.PaymentStatus</td>

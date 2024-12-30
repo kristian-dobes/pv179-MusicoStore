@@ -38,7 +38,7 @@ namespace WebMVC.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            return View(orders.Adapt<IEnumerable<OrderDetailViewModel>>());
+            return View(orders.Adapt<IEnumerable<OrderSummaryViewModel>>());
         }
 
         // GET: Admin/Order/Details/5
