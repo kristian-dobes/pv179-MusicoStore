@@ -14,13 +14,11 @@ namespace WebMVC.Controllers
     public class OrderController : Controller
     {
         private readonly IOrderService _orderService;
-        private readonly IImageService _imageService;
         private readonly UserManager<LocalIdentityUser> _userManager;
 
-        public OrderController(IOrderService orderService, IImageService imageService, UserManager<LocalIdentityUser> userManager)
+        public OrderController(IOrderService orderService, UserManager<LocalIdentityUser> userManager)
         {
             _orderService = orderService;
-            _imageService = imageService;
             _userManager = userManager;
         }
 
@@ -35,23 +33,7 @@ namespace WebMVC.Controllers
             if (orders == null || !orders.Any())
                 return View("NoOrders");
 
-            var ordersVM = orders.Adapt<IEnumerable<OrderDetailViewModel>>();
-
-            // should not be needed anymore
-            //// access OrderItem and assign ProductImage
-            //foreach (var order in ordersVM)
-            //{
-            //    foreach (var orderItem in order.OrderItems)
-            //    {
-            //        if (orderItem != null)
-            //        {
-            //            //orderItem.ProductImage = await _imageService.GetImagePathByProductIdAsync(orderItem.ProductId); // TODO shuold not be needed anymore
-            //        }
-            //    }
-
-            //}
-
-            return View(ordersVM);
+            return View(orders.Adapt<IEnumerable<OrderDetailViewModel>>());
         }
 
         private async Task<int> GetCurrentUserId()
