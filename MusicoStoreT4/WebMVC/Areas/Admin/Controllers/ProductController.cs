@@ -138,9 +138,6 @@ namespace WebMVC.Areas.Admin.Controllers
                 return NotFound();
 
             var productUpdateViewModel = product.Adapt<ProductUpdateViewModel>();
-
-            productUpdateViewModel.SecondaryCategoryIds = product.SecondaryCategories.Select(c => c.CategoryId);
-
             productUpdateViewModel.Manufacturers = manufacturers;   // TODO sort values by name
             productUpdateViewModel.Categories = categories;
 
@@ -152,20 +149,11 @@ namespace WebMVC.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, ProductUpdateViewModel model)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || model.SecondaryCategoryIds.Contains(model.PrimaryCategoryId))
             {
-                model.Categories = await _categoryService.GetCategoriesAsync();
-                model.Manufacturers = await _manufacturerService.GetManufacturersAsync();
-                return View(model);
-                // return BadRequest(ModelState);
-            }
+                if (model.SecondaryCategoryIds.Contains(model.PrimaryCategoryId))
+                    ModelState.AddModelError("SecondaryCategoryIds", "The primary category cannot also be a secondary category.");
 
-            // Check if the PrimaryCategoryId is also in SecondaryCategoryIds
-            if (model.SecondaryCategoryIds.Contains(model.PrimaryCategoryId))
-            {
-                ModelState.AddModelError("SecondaryCategoryIds", "The primary category cannot also be a secondary category.");
-
-                // Reload categories and manufacturers for the view
                 model.Categories = await _categoryService.GetCategoriesAsync();
                 model.Manufacturers = await _manufacturerService.GetManufacturersAsync();
                 return View(model);
@@ -180,16 +168,28 @@ namespace WebMVC.Areas.Admin.Controllers
                 return Unauthorized("User must be authenticated to edit the product.");
             product.LastModifiedById = user.UserId;
 
-            if (model.Image != null)
+            // Image handling
+            if (model.DeleteImage)
+            {
+                var deleteResult = await _imageService.DeleteProductImageAsync(id);
+
+                if (!deleteResult)
+                {
+                    ModelState.AddModelError("Image", "Failed to delete image.");
+                    model.Categories = await _categoryService.GetCategoriesAsync();
+                    model.Manufacturers = await _manufacturerService.GetManufacturersAsync();
+                    return View(model);
+                }
+            }
+            else if (model.Image != null)
             {
                 var imageRestult = await _imageService.ChangeOrAssignProductImageAsync(id, model.Image);
 
                 if (!imageRestult)
                 {
-                    // Reload categories and manufacturers for the view
+                    ModelState.AddModelError("Image", "Failed to upload image.");
                     model.Categories = await _categoryService.GetCategoriesAsync();
                     model.Manufacturers = await _manufacturerService.GetManufacturersAsync();
-                    ModelState.AddModelError("Image", "Failed to upload image.");
                     return View(model);
                 }
             }

@@ -9,6 +9,24 @@
 <h4>Product Details</h4>
 <hr />
 <div class="row">
+    <!-- Image Section -->
+    <div class="col-md-4">
+        <div class="image-container p-3 text-center">
+            @if (!string.IsNullOrEmpty(Model.ImagePath))
+            {
+                <img src="@Url.Action("GetImage", "Image", new { productId = Model.Id })"
+                     alt="@Model.Name"
+                     class="product-image img-fluid rounded" />
+            }
+            else
+            {
+                <div class="no-image-message d-flex justify-content-center align-items-center text-muted border rounded" style="height: 200px;">
+                    <p>No image available for this product.</p>
+                </div>
+            }
+        </div>
+    </div>
+    
     <div class="col-md-6">
         <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
@@ -102,12 +120,12 @@
                 <label class="control-label">Product Image:</label>
                 @if (!string.IsNullOrEmpty(Model.ImagePath))
                 {
-                    <div class="mb-3">
-                        <p>Current Image:</p>
-                        <img src="@Model.ImagePath" alt="Product Image" style="max-width: 200px;" />
+                    <div class="form-check mt-3">
+                        <input asp-for="DeleteImage" class="form-check-input" type="checkbox" id="delete-image" />
+                        <label class="form-check-label" for="delete-image">Delete Current Image</label>
                     </div>
                 }
-                <input asp-for="Image" type="file" class="form-control" />
+                <input asp-for="Image" type="file" class="form-control mt-2" />
                 <span asp-validation-for="Image" class="text-danger"></span>
             </div>
 
@@ -115,6 +133,9 @@
                 <input type="submit" value="Save" class="btn btn-primary" />
                 <a asp-area="Admin" asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
             </div>
+
+            <!-- Preserve ImagePath in a Hidden Input -->
+            <input type="hidden" asp-for="ImagePath" />
         </form>
     </div>
 </div>
