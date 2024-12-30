@@ -17,7 +17,6 @@ using Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Mapster;
 
-
 namespace BusinessLayer.Services
 {
     public class UserService : BaseService, IUserService
@@ -115,7 +114,9 @@ namespace BusinessLayer.Services
             var user = await _uow.UsersRep.GetByIdAsync(userId);
 
             if (user == null)
+            {
                 return null;
+            }
 
             return user.Adapt<UserSummaryDTO>();
         }
@@ -139,7 +140,9 @@ namespace BusinessLayer.Services
             var user = await _uow.UsersRep.GetByIdAsync(userId);
 
             if (user == null || user.Role != Role.Admin)
+            {
                 throw new KeyNotFoundException("Admin not found");
+            }
 
             user.Username = adminDto.Username;
             user.Email = adminDto.Email;
@@ -151,7 +154,9 @@ namespace BusinessLayer.Services
             Customer? customer = (Customer?)(await _uow.UsersRep.WhereAsync(u => u is Customer && u.Id == userId)).FirstOrDefault();
 
             if (customer == null || customer.Role != Role.Customer)
+            {
                 throw new KeyNotFoundException("Customer not found");
+            }
 
             customer.Username = customerDto.Username;
             customer.Email = customerDto.Email;
@@ -169,7 +174,9 @@ namespace BusinessLayer.Services
             var user = await _uow.UsersRep.GetByIdAsync(userId);
 
             if (user == null)
+            {
                 throw new KeyNotFoundException("User not found");
+            }
 
             await _uow.UsersRep.DeleteAsync(user.Id);
             await _uow.SaveAsync();

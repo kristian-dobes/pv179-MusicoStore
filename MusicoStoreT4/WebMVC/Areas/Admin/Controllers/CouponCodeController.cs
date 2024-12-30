@@ -41,15 +41,15 @@ namespace WebMVC.Areas.Admin.Controllers
         }
 
         // GET: Admin/CouponCode/Create
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(int giftCardId)
         {
-            var productCreateViewModel = new CouponCodeViewModel();
-            return View(productCreateViewModel);
+            var couponCodeViewModel = new CouponCodeViewModel();
+            ViewBag.GiftCardId = giftCardId;
+            return View(couponCodeViewModel);
         }
 
-        // POST: Admin/Product/Create
         [HttpPost]
-        public async Task<IActionResult> Create(CouponCodeViewModel model)
+        public async Task<IActionResult> Create(CouponCodeViewModel model, int giftCardId)
         {
             model.Created = DateTime.Now;
 
@@ -61,13 +61,18 @@ namespace WebMVC.Areas.Admin.Controllers
             var user = await _userManager.GetUserAsync(User);
 
             if (user == null)
-                return Unauthorized("User must be authenticated to create the product.");
+            {
+                return Unauthorized("User must be authenticated to create the coupon code.");
+            }
 
-            var couponCode = model.Adapt<CreateCouponCodeDto>();
+            CreateCouponCodeDto createCouponCodeDto = new()
+            {
+                Code = model.Code,
+                GiftCardId = giftCardId,
+            };
 
-            await _giftCardService.CreateCouponCodeAsync(couponCode);
-
-            return RedirectToAction("Index");  <- change to gift cards index
+            await _giftCardService.CreateCouponCodeAsync(createCouponCodeDto);
+            return RedirectToAction("Index", "GiftCard");
         }
 
         // GET: Admin/CouponCode/Edit/id
@@ -115,7 +120,7 @@ namespace WebMVC.Areas.Admin.Controllers
         {
             await _giftCardService.DeleteCouponCodeAsync(id);
 
-            return RedirectToAction("Index");  <- change to gift cards index
+            return RedirectToAction("Index", "GiftCard");
         }
     }
 }

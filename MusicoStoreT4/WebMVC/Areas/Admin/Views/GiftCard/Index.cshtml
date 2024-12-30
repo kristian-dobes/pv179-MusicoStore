@@ -30,7 +30,8 @@
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.GiftCardId">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.GiftCardId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.GiftCardId">Delete</a>
+                    <a asp-action="Delete" asp-route-id="@item.GiftCardId">Delete</a> |
+                    <a asp-controller="CouponCode" asp-action="Create" asp-route-giftCardId="@item.GiftCardId" class="btn btn-success">Add Coupon Code</a>
                 </td>
             </tr>
 
@@ -40,9 +41,9 @@
                     <td style="padding-left: 50px;">@coupon.Code</td>
                     <td style="padding-left: 50px;">Used: @coupon.IsUsed</td>
                     <td style="padding-left: 50px;">
-                        <a asp-action="CouponDetails" asp-route-id="@coupon.CouponCodeId">Details</a> |
-                        <a asp-action="EditCoupon" asp-route-id="@coupon.CouponCodeId">Edit</a> |
-                        <a asp-action="DeleteCoupon" asp-route-id="@coupon.CouponCodeId">Delete</a>
+                        <a asp-controller="CouponCode" asp-action="Details" asp-route-id="@coupon.CouponCodeId">Details</a> |
+                        <a asp-controller="CouponCode" asp-action="Edit" asp-route-id="@coupon.CouponCodeId">Edit</a> |
+                        <a asp-controller="CouponCode" asp-action="Delete" asp-route-id="@coupon.CouponCodeId">Delete</a>
                     </td>
                 </tr>
             }

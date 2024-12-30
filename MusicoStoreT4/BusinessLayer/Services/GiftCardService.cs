@@ -142,7 +142,7 @@ namespace BusinessLayer.Services
 
             if (updateCouponCodeDto.Code != null)
             {
-                if ((await _uow.CouponCodesRep.WhereAsync(cc => cc.Code == updateCouponCodeDto.Code)).Any())
+                if ((await _uow.CouponCodesRep.WhereAsync(cc => cc.Id != updateCouponCodeDto.CouponCodeId && cc.Code == updateCouponCodeDto.Code)).Any())
                 {
                     throw new ArgumentException("A coupon code with this code already exists");
                 }
