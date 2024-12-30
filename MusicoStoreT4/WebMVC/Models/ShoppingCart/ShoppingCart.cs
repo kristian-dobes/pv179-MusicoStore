@@ -15,17 +15,16 @@ namespace WebMVC.Models.ShoppingCart
             _giftCardService = giftCardService;
         }
 
-        public void CalculateTotalPrice()
+        public async Task CalculateTotalPrice()
         {
             decimal subtotal = CartItems.Sum(item => item.Price * item.Quantity);
 
             if (!string.IsNullOrEmpty(CouponCode))
             {
-                var giftCard = _giftCardService.GetGiftCardByCouponCode(CouponCode);
+                var giftCard = await _giftCardService.GetGiftCardByCouponCodeAsync(CouponCode);
 
                 if (giftCard != null && giftCard.ValidityStartDate <= DateTime.Now && giftCard.ValidityEndDate >= DateTime.Now)
                 {
-                    // Apply gift card discount
                     subtotal -= giftCard.DiscountAmount;
                 }
             }

@@ -1,0 +1,103 @@
+﻿using WebMVC.Models.ShoppingCart
+@model 
+
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+<h1>Shopping Cart</h1>
+
+<form method="post" asp-action="ApplyCoupon">
+    <div class="cart-items">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.CartItems)
+                {
+                    <tr>
+                        <td>@item.ProductName</td>
+                        <td>@item.Price.ToString("C")</td>
+                        <td>
+                            <button type="button" class="btn btn-secondary" data-action="decrease" data-id="@item.ProductId">-</button>
+                            <span>@item.Quantity</span>
+                            <button type="button" class="btn btn-secondary" data-action="increase" data-id="@item.ProductId">+</button>
+                        </td>
+                        <td>@(item.Quantity * item.Price).ToString("C")</td>
+                        <td>
+                            <!-- Optionally add a button to remove item -->
+                            <button type="button" class="btn btn-danger" data-action="remove" data-id="@item.ProductId">Remove</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Apply coupon code section -->
+        <div class="apply-coupon">
+            <div class="form-group">
+                <label for="couponCode">Coupon Code</label>
+                <input type="text" class="form-control" id="couponCode" name="couponCode" placeholder="Enter coupon code" />
+            </div>
+            <button type="submit" class="btn btn-primary">Apply Coupon</button>
+        </div>
+
+        <!-- Total Price and Place Order -->
+        <div class="cart-total">
+            <h4>Total Price: @Model.TotalPrice.ToString("C")</h4>
+            <button type="submit" class="btn btn-success">Place Order</button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        // Handle increase and decrease button actions
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('click', function (event) {
+                let action = event.target.dataset.action;
+                let productId = event.target.dataset.id;
+
+                if (action === 'increase') {
+                    // Logic to increase quantity
+                    updateCart(productId, 1);
+                } else if (action === 'decrease') {
+                    // Logic to decrease quantity
+                    updateCart(productId, -1);
+                } else if (action === 'remove') {
+                    // Logic to remove item from cart
+                    removeFromCart(productId);
+                }
+            });
+        });
+
+        // Function to update the cart by sending a request to the controller
+        function updateCart(productId, quantityChange) {
+            fetch(`/ShoppingCart/UpdateQuantity?productId=${productId}&quantityChange=${quantityChange}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => response.json())
+              .then(data => location.reload());
+        }
+
+        // Function to remove item from cart
+        function removeFromCart(productId) {
+            fetch(`/ShoppingCart/RemoveItem?productId=${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => response.json())
+              .then(data => location.reload());
+        }
+    </script>
+}

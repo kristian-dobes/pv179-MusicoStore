@@ -21,5 +21,7 @@ namespace BusinessLayer.Services.Interfaces
         Task<CouponCodeDto> CreateCouponCodeAsync(CreateCouponCodeDto createCouponCodeDto);
         Task<CouponCodeDto?> UpdateCouponCodeAsync(UpdateCouponCodeDto updateCouponCodeDto);
         Task<bool> DeleteCouponCodeAsync(int couponCodeId);
+
+        Task<GiftCardDto?> GetGiftCardByCouponCodeAsync(string code);
     }
 }
