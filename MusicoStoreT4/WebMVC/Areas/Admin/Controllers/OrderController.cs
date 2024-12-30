@@ -92,7 +92,7 @@ namespace WebMVC.Areas.Admin.Controllers
 
             await _orderService.CreateOrderAsync(order);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { area = "Admin" });
         }
 
         // GET: Admin/Order/Edit/5
@@ -130,7 +130,7 @@ namespace WebMVC.Areas.Admin.Controllers
             var UpdateOrderDto = model.Adapt<UpdateOrderDto>();
             await _orderService.UpdateOrderAsync(id, UpdateOrderDto);
 
-            return RedirectToAction("Details", new { id });
+            return RedirectToAction("Details", "Order", new { area = "Admin", id });
         }
 
         // GET: Admin/Order/Delete/5
@@ -152,7 +152,7 @@ namespace WebMVC.Areas.Admin.Controllers
         {
             await _orderService.DeleteOrderAsync(id);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { area = "Admin" });
         }
     }
 }

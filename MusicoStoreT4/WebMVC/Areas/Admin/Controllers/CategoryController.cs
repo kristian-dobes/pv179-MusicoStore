@@ -68,7 +68,7 @@ namespace WebMVC.Areas.Admin.Controllers
 
             await _categoryService.CreateCategory(category);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { area = "Admin" });
         }
 
         // GET: Admin/Category/Edit/5
@@ -97,7 +97,7 @@ namespace WebMVC.Areas.Admin.Controllers
             var category = model.Adapt<CategoryUpdateDTO>();
             await _categoryService.UpdateCategoryAsync(id, category);
 
-            return RedirectToAction("Details", new { id });
+            return RedirectToAction("Details", "Category", new { area = "Admin", id });
         }
 
         // GET: Admin/Category/Delete/5
@@ -120,7 +120,7 @@ namespace WebMVC.Areas.Admin.Controllers
         {
             await _categoryService.DeleteCategoryAsync(id);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { area = "Admin" });
         }
 
         // GET: Admin/Category/Merge
@@ -159,7 +159,7 @@ namespace WebMVC.Areas.Admin.Controllers
             await _categoryService.MergeCategoriesAndCreateNewAsync(model.NewCategoryName, model.SourceCategoryId1, model.SourceCategoryId2, user.UserId);
            
             //return RedirectToAction("Details", new { id = newCategory.Id });
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { area = "Admin" });
         }
     }
 }

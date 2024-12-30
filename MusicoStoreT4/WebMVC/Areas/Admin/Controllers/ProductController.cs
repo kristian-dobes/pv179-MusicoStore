@@ -96,6 +96,17 @@ namespace WebMVC.Areas.Admin.Controllers
                 return BadRequest(ModelState);
             }
 
+            // Check if the PrimaryCategoryId is also in SecondaryCategoryIds
+            if (model.SecondaryCategoryIds != null && model.SecondaryCategoryIds.Contains(model.PrimaryCategoryId))
+            {
+                ModelState.AddModelError("SecondaryCategoryIds", "The primary category cannot also be a secondary category.");
+
+                // Reload categories and manufacturers for the view
+                model.Categories = await _categoryService.GetCategoriesAsync();
+                model.Manufacturers = await _manufacturerService.GetManufacturersAsync();
+                return View(model);
+            }
+
             // Retrieve the userId of the currently logged-in user
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -106,7 +117,7 @@ namespace WebMVC.Areas.Admin.Controllers
 
             await _productService.CreateProductAsync(product);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { area = "Admin" });
         }
 
         // GET: Admin/Product/Edit/5
@@ -185,7 +196,7 @@ namespace WebMVC.Areas.Admin.Controllers
 
             await _productService.UpdateProductAsync(id, product);
 
-            return RedirectToAction("Details", new { id });
+            return RedirectToAction("Details", "Product", new { area = "Admin", id });
         }
 
         // GET: Admin/Product/Delete/5
@@ -214,7 +225,7 @@ namespace WebMVC.Areas.Admin.Controllers
 
             await _productService.DeleteProductAsync(id, user.UserId);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { area = "Admin" });
         }
     }
 }
