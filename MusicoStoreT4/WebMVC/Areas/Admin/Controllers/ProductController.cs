@@ -38,6 +38,7 @@ namespace WebMVC.Areas.Admin.Controllers
         }
 
         // GET: Admin/Product
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var products = await _productService.GetAllProductsAsync();
@@ -51,6 +52,7 @@ namespace WebMVC.Areas.Admin.Controllers
         }
 
         // GET: Admin/Product/Details/5
+        [HttpGet("{id}")]
         public async Task<IActionResult> Details(int id)
         {
             var product = await _productService.GetProductByIdAsync(id);
@@ -64,6 +66,7 @@ namespace WebMVC.Areas.Admin.Controllers
         }
 
         // GET: Admin/Product/Create
+        [HttpGet]
         public async Task<IActionResult> Create()
         {
             var manufacturers = await _manufacturerService.GetManufacturersAsync();
@@ -85,6 +88,7 @@ namespace WebMVC.Areas.Admin.Controllers
 
         // POST: Admin/Product/Create
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ProductCreateViewModel model)
         {
             if (!ModelState.IsValid)
@@ -106,6 +110,7 @@ namespace WebMVC.Areas.Admin.Controllers
         }
 
         // GET: Admin/Product/Edit/5
+        [HttpGet("edit/{id}")]
         public async Task<IActionResult> Edit(int id)
         {
             var product = await _productService.GetProductByIdAsync(id);
@@ -132,7 +137,8 @@ namespace WebMVC.Areas.Admin.Controllers
         }
 
         // POST: Admin/Product/Edit/5
-        [HttpPost]
+        [HttpPost("edit/{id}")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, ProductUpdateViewModel model)
         {
             if (!ModelState.IsValid)
@@ -183,6 +189,7 @@ namespace WebMVC.Areas.Admin.Controllers
         }
 
         // GET: Admin/Product/Delete/5
+        [HttpGet("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var product = await _productService.GetProductByIdAsync(id);
@@ -197,6 +204,7 @@ namespace WebMVC.Areas.Admin.Controllers
 
         // POST: Admin/Product/Delete/5
         [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirm(int id)
         {
             // Retrieve the userId of the currently logged-in user

@@ -14,8 +14,8 @@
 
     <div class="row mb-4">
         <div class="col d-flex gap-2">
-            <a asp-action="Create" class="btn btn-success">Create New</a>
-            <a asp-action="Merge" class="btn btn-primary">Merge Categories into new</a>
+            <a asp-area="Admin" asp-action="Create" class="btn btn-success">Create New</a>
+            <a asp-area="Admin" asp-action="Merge" class="btn btn-primary">Merge Categories into new</a>
         </div>
     </div>
 
@@ -37,9 +37,9 @@
                     <td>@Html.DisplayFor(modelItem => item.ProductCount)</td>
                     <td class="text-center">
                         <div class="d-flex justify-content-center gap-2">
-                            <a asp-action="Edit" asp-route-id="@item.CategoryId" class="btn btn-warning btn-sm">Edit</a>
-                            <a asp-action="Details" asp-route-id="@item.CategoryId" class="btn btn-info btn-sm">Details</a>
-                            <a asp-action="Delete" asp-route-id="@item.CategoryId" class="btn btn-danger btn-sm">Delete</a>
+                            <a asp-area="Admin" asp-action="Edit" asp-route-id="@item.CategoryId" class="btn btn-warning btn-sm">Edit</a>
+                            <a asp-area="Admin" asp-action="Details" asp-route-id="@item.CategoryId" class="btn btn-info btn-sm">Details</a>
+                            <a asp-area="Admin" asp-action="Delete" asp-route-id="@item.CategoryId" class="btn btn-danger btn-sm">Delete</a>
                         </div>
                     </td>
                 </tr>
