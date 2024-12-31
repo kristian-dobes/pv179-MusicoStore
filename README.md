@@ -67,11 +67,11 @@ We added CI/CD pipeline to our workflow which runs all our tests on our MRs in D
 
 ## Entity Relationship Diagram
 <p align="center">
-    <img src="doc/ERD.png" alt="ERD" width="800"/>
+    <img src="doc/ERD.png" alt="ERD" width="1000"/>
 </p>
 
 ## Use Case Diagram
 
 <p align="center">
-    <img src="doc/UseCaseDiagram.png" alt="UseCaseDiagram" width="500"/>
+    <img src="doc/UseCaseDiagram.png" alt="UseCaseDiagram" width="400"/>
 </p>
