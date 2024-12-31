@@ -59,13 +59,10 @@ namespace WebMVC.Controllers
         [HttpPost]
         public IActionResult RemoveItem(int productId)
         {
-            // Retrieve the shopping cart from session
             var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
 
-            // Find the item in the cart
             var itemToRemove = cart.CartItems.FirstOrDefault(i => i.ProductId == productId);
 
-            // Remove the item if it exists
             if (itemToRemove != null)
             {
                 cart.CartItems.Remove(itemToRemove);
@@ -75,26 +72,44 @@ namespace WebMVC.Controllers
             return Json(new { success = true, cartTotal = cart.TotalAmount });
         }
 
+        [HttpPost]
+        public IActionResult UpdateQuantity(int productId, int quantityChange)
+        {
+            var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
+
+            var itemToUpdate = cart.CartItems.FirstOrDefault(i => i.ProductId == productId);
+
+            if (itemToUpdate != null)
+            {
+                itemToUpdate.Quantity += quantityChange;
+
+                if (itemToUpdate.Quantity <= 0)
+                {
+                    cart.CartItems.Remove(itemToUpdate);
+                }
+
+                HttpContext.Session.SetObjectAsJson("Cart", cart);
+            }
+
+            return Json(new { success = true, cartTotal = cart.TotalAmount, finalAmount = cart.FinalAmount });
+        }
 
         [HttpPost]
         public async Task<IActionResult> Checkout()
         {
             var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart");
 
-            // Check if the cart is null or empty
             if (cart == null || !cart.CartItems.Any())
             {
-                return View("Cart", new ShoppingCart()); // Reload the cart view
+                return View("Cart", new ShoppingCart());
             }
 
-            // Retrieve the userId of the currently logged-in user
             var user = await _userManager.GetUserAsync(User);
             if (user == null || user.User == null)
             {
                 return RedirectToAction("Login", "Account");
             }
 
-            // Create the CreateOrderDto from the cart
             var createOrderDto = new CreateOrderDto
             {
                 CustomerId = user.User.Id,
@@ -111,7 +126,7 @@ namespace WebMVC.Controllers
 
             if (!orderCreated)
             {
-                return View("Cart", cart); // Reload the cart view
+                return View("Cart", cart); 
             }
 
             // Clear the cart
@@ -123,10 +138,9 @@ namespace WebMVC.Controllers
         [HttpPost]
         public async Task<IActionResult> ApplyGiftCard(string giftCardCode)
         {
-            // Check if cart exists
             var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
 
-            // Validate the gift card code
+            // Validate gift code
             var couponCode = await _giftCardService.GetGiftCardByCouponCodeAsync(giftCardCode);
 
             if (couponCode == null ||
@@ -142,11 +156,11 @@ namespace WebMVC.Controllers
                 return Json(new { success = false, message = "This coupon was already used." });
             }
 
-            // Apply the discount
+            // discount
             cart.DiscountAmount = couponCode.DiscountAmount;
-            cart.AppliedGiftCardCode = giftCardCode; // Set the applied gift card code
+            cart.AppliedGiftCardCode = giftCardCode; // applied gift card code
 
-            // Save the cart back to session
+            // Save cart to session
             HttpContext.Session.SetObjectAsJson("Cart", cart);
 
             return Json(new { success = true, discountAmount = cart.DiscountAmount, finalAmount = cart.FinalAmount });
