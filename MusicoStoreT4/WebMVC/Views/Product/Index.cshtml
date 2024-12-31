@@ -11,51 +11,56 @@
 </head>
 <body>
     <div class="container my-5">
-        <h1 class="mb-4 text-center">Product List</h1>
+        <div class="text-center mb-4">
+            <h1 class="display-4">Product List</h1>
+            <p class="text-muted">Browse and add your favorite products to the cart!</p>
+        </div>
 
-        <table class="table table-bordered table-hover">
-            <thead class="table-dark">
-                <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Description</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">Quantity in Stock</th>
-                    <th scope="col">Category</th>
-                    <th scope="col">Manufacturer</th>
-                    <th scope="col">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model != null && Model.Any())
-                {
-                    foreach (var product in Model)
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Quantity in Stock</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Manufacturer</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var product in Model)
+                        {
+                            <tr>
+                                <td>@product.Name</td>
+                                <td class="text-truncate" style="max-width: 250px;">@product.Description</td>
+                                <td>@product.Price.ToString("C")</td>
+                                <td>@product.QuantityInStock</td>
+                                <td>@product.PrimaryCategory.Name (@product.PrimaryCategory.PrimaryProductCount products)</td>
+                                <td>@product.Manufacturer.Name (@product.Manufacturer.ProductCount products)</td>
+                                <td class="text-center">
+                                    <div class="d-flex align-items-center justify-content-center">
+                                        <input type="number" id="quantity-@product.Id" value="1" min="1" class="form-control form-control-sm me-2" style="width: 70px;" />
+                                        <button class="btn btn-primary btn-sm" onclick="addToCart(@product.Id, '@product.Name', @product.Price)">
+                                            <i class="bi bi-cart-plus"></i> Add to Cart
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
                     {
                         <tr>
-                            <td>@product.Name</td>
-                            <td>@product.Description</td>
-                            <td>@product.Price.ToString("C")</td>
-                            <td>@product.QuantityInStock</td>
-                            <td>@product.PrimaryCategory.Name (@product.PrimaryCategory.PrimaryProductCount products)</td>
-                            <td>@product.Manufacturer.Name (@product.Manufacturer.ProductCount products)</td>
-                            <td class="text-center">
-                                <div class="d-flex align-items-center justify-content-center">
-                                    <input type="number" id="quantity-@product.Id" value="1" min="1" class="form-control form-control-sm me-2" style="width: 70px;" />
-                                    <button class="btn btn-primary btn-sm" onclick="addToCart(@product.Id, '@product.Name', @product.Price)">
-                                        Add to Cart
-                                    </button>
-                                </div>
-                            </td>
+                            <td colspan="7" class="text-center">No products available.</td>
                         </tr>
                     }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="8" class="text-center">No products available.</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>

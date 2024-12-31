@@ -2,10 +2,6 @@
 @using WebMVC.Models.Product;
 @model SearchProductListViewModel
 
-@* @{
-    await Html.RenderPartialAsync("_SearchBox", new WebMVC.Models.Shared.SearchViewModel());
-} *@
-
 <div class="filters">
     @if (Model.Manufacturers.Any())
     {
@@ -47,7 +43,16 @@
                 <p><strong>Stock:</strong> @item.QuantityInStock units available</p>
                 <p><strong>Primary Category:</strong> @item.PrimaryCategory.Name</p>
                 <p><strong>Manufacturer:</strong> @item.Manufacturer.Name</p>
-                <a asp-action="Details" asp-controller="Product" asp-route-id="@item.Id" class="btn details-btn">Show product</a>
+
+                <div class="d-flex flex-column align-items-center mt-3">
+                    <div class="d-flex align-items-center justify-content-center w-100 mb-2">
+                        <input type="number" id="quantity-@item.Id" value="1" min="1" class="form-control form-control-sm me-2" style="width: 80px;" />
+                        <button class="btn btn-primary btn-sm" onclick="addToCart(@item.Id, '@item.Name', @item.Price)">
+                            <i class="bi bi-cart-plus"></i> Add to Cart
+                        </button>
+                    </div>
+                    <a asp-action="Details" asp-controller="Product" asp-route-id="@item.Id" class="btn details-btn w-100">Show Product</a>
+                </div>
             </div>
         }
     </div>
@@ -71,6 +76,33 @@ else
     }
 </div>
 
+<script>
+    function addToCart(productId, productName, price) {
+        const quantity = document.getElementById(`quantity-${productId}`).value;
+
+        $.ajax({
+            url: '/ShoppingCart/AddToCart',
+            type: 'POST',
+            data: {
+                productId: productId,
+                productName: productName,
+                price: price,
+                quantity: quantity
+            },
+            success: function (response) {
+                if (response.success) {
+                    alert(`Added to cart! Total: $${response.cartTotal}`);
+                } else {
+                    alert('Failed to add to cart.');
+                }
+            },
+            error: function () {
+                alert('An error occurred while adding to the cart.');
+            }
+        });
+    }
+</script>
+
 <style>
     .filters {
         margin-bottom: 20px;
@@ -91,9 +123,9 @@ else
         cursor: pointer;
     }
 
-    .filter-btn:hover {
-        background-color: #0056b3;
-    }
+        .filter-btn:hover {
+            background-color: #0056b3;
+        }
 
     .product-grid {
         display: grid;
@@ -107,11 +139,12 @@ else
         border-radius: 8px;
         background-color: #f9f9f9;
         text-align: left;
+        position: relative;
     }
 
-    .product-tile h3 {
-        margin-top: 0;
-    }
+        .product-tile h3 {
+            margin-top: 0;
+        }
 
     .details-btn {
         margin-top: 10px;
@@ -123,9 +156,9 @@ else
         cursor: pointer;
     }
 
-    .details-btn:hover {
-        background-color: #218838;
-    }
+        .details-btn:hover {
+            background-color: #218838;
+        }
 
     .pagination {
         margin-top: 20px;
@@ -141,13 +174,13 @@ else
         border-radius: 4px;
     }
 
-    .pagination-link.active {
-        background-color: #007bff;
-        color: white;
-    }
+        .pagination-link.active {
+            background-color: #007bff;
+            color: white;
+        }
 
-    .pagination-link:hover {
-        background-color: #0056b3;
-        color: white;
-    }
+        .pagination-link:hover {
+            background-color: #0056b3;
+            color: white;
+        }
 </style>
