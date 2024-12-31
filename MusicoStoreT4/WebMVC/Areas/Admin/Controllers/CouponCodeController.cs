@@ -32,9 +32,6 @@ namespace WebMVC.Areas.Admin.Controllers
         {
             var couponCode = await _giftCardService.GetCouponCodeByIdAsync(id);
 
-            
-            Console.WriteLine("ORDERRRRRR"+couponCode.OrderId);
-
             if (couponCode == null)
             {
                 return NotFound();
@@ -58,7 +55,7 @@ namespace WebMVC.Areas.Admin.Controllers
 
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return View(model);
             }
 
             var user = await _userManager.GetUserAsync(User);
@@ -74,7 +71,14 @@ namespace WebMVC.Areas.Admin.Controllers
                 GiftCardId = giftCardId,
             };
 
-            await _giftCardService.CreateCouponCodeAsync(createCouponCodeDto);
+            var result = await _giftCardService.CreateCouponCodeAsync(createCouponCodeDto);
+
+            if (!result)
+            {
+                ModelState.AddModelError("Code", "Cannot create. The code is already in use.");
+                return View(model);
+            }
+
             return RedirectToAction("Index", "GiftCard");
         }
 
@@ -100,12 +104,14 @@ namespace WebMVC.Areas.Admin.Controllers
                 return View(model);
             }
 
-            Console.WriteLine("New Code: " + model.Code);
-
             var updateCouponCodeDto = model.Adapt<UpdateCouponCodeDto>();
-
-            Console.WriteLine("New Code DTO: " + updateCouponCodeDto.Code);
             var CouponCodeResult = await _giftCardService.UpdateCouponCodeAsync(updateCouponCodeDto);
+
+            if (!CouponCodeResult)
+            {
+                ModelState.AddModelError("Code", "Cannot update. The code is already in use.");
+                return View(model);
+            }
 
             return View(CouponCodeResult.Adapt<CouponCodeViewModel>());
         }

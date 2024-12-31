@@ -112,73 +112,82 @@ namespace BusinessLayer.Services
             return (await _uow.CouponCodesRep.GetByIdAsync(couponCodeId)).Adapt<CouponCodeDto>();
         }
 
-        public async Task<CouponCodeDto> CreateCouponCodeAsync(CreateCouponCodeDto createCouponCodeDto)
+        public async Task<bool> CreateCouponCodeAsync(CreateCouponCodeDto createCouponCodeDto)
         {
             if ((await _uow.CouponCodesRep.AnyAsync(cc => cc.Code == createCouponCodeDto.Code)))
             {
-                throw new ArgumentException("A coupon code with this code already exists");
+                return false; // Duplicate code exists
             }
 
             if (!(await _uow.GiftCardsRep.AnyAsync(gc => gc.Id == createCouponCodeDto.GiftCardId)))
             {
-                throw new ArgumentException("There is no gift card with this id");
+                return false; // Invalid Gift Card ID
             }
 
             var couponCode = createCouponCodeDto.Adapt<CouponCode>();
             var added = await _uow.CouponCodesRep.AddAsync(couponCode);
             await _uow.SaveAsync();
-            return added.Adapt<CouponCodeDto>();
+            return true;
         }
 
-        public async Task<CouponCodeDto?> UpdateCouponCodeAsync(UpdateCouponCodeDto updateCouponCodeDto)
+        public async Task<bool> UpdateCouponCodeAsync(UpdateCouponCodeDto updateCouponCodeDto)
         {
-            Console.WriteLine("CouponCodeId: " + updateCouponCodeDto.CouponCodeId);
-            Console.WriteLine("CouponCodeText: " + updateCouponCodeDto.Code);
-
-            var existingCouponCode = await _uow.CouponCodesRep
-                .FirstOrDefaultAsync(cc => cc.Id == updateCouponCodeDto.CouponCodeId);
-
-            if (existingCouponCode == null)
+            try
             {
-                throw new KeyNotFoundException("Coupon code ID not found");
-            }
+                var existingCouponCode = await _uow.CouponCodesRep
+                    .FirstOrDefaultAsync(cc => cc.Id == updateCouponCodeDto.CouponCodeId);
 
-            if (updateCouponCodeDto.Code != null)
-            {
-                if (await _uow.CouponCodesRep.AnyAsync(cc => cc.Id != updateCouponCodeDto.CouponCodeId && cc.Code == updateCouponCodeDto.Code))
+                if (existingCouponCode == null)
                 {
-                    throw new ArgumentException("A coupon code with this code already exists");
+                    return false; // Coupon code not found
                 }
-                
-                // Assign the new Code
-                existingCouponCode.Code = updateCouponCodeDto.Code;
-            }
 
-            if (updateCouponCodeDto.IsUsed.HasValue)
-            {
-                existingCouponCode.IsUsed = updateCouponCodeDto.IsUsed.Value;
-            }
-
-            if (updateCouponCodeDto.GiftCardId.HasValue)
-            {
-                if (!(await _uow.GiftCardsRep.AnyAsync(gc => gc.Id == updateCouponCodeDto.GiftCardId)))
+                if (updateCouponCodeDto.Code != null)
                 {
-                    throw new ArgumentException("There is no gift card with this id");
-                }
-            }
+                    if (await _uow.CouponCodesRep.AnyAsync(cc => cc.Id != updateCouponCodeDto.CouponCodeId && cc.Code == updateCouponCodeDto.Code))
+                    {
+                        return false; // Duplicate code exists
+                    }
 
-            if (updateCouponCodeDto.OrderId.HasValue)
-            {
-                if (!(await _uow.OrdersRep.AnyAsync(o => o.Id == updateCouponCodeDto.OrderId.Value)))
+                    // Assign the new code
+                    existingCouponCode.Code = updateCouponCodeDto.Code;
+                }
+
+                if (updateCouponCodeDto.IsUsed.HasValue)
                 {
-                    throw new ArgumentException("There is no order with this id");
+                    existingCouponCode.IsUsed = updateCouponCodeDto.IsUsed.Value;
                 }
-            }
 
-            await _uow.CouponCodesRep.UpdateAsync(existingCouponCode);
-            await _uow.SaveAsync();
-            return existingCouponCode.Adapt<CouponCodeDto>();
+                if (updateCouponCodeDto.GiftCardId.HasValue)
+                {
+                    // Validate Gift Card ID
+                    if (!(await _uow.GiftCardsRep.AnyAsync(gc => gc.Id == updateCouponCodeDto.GiftCardId)))
+                    {
+                        return false; // Invalid Gift Card ID
+                    }
+                }
+
+                if (updateCouponCodeDto.OrderId.HasValue)
+                {
+                    // Validate Order ID
+                    if (!(await _uow.OrdersRep.AnyAsync(o => o.Id == updateCouponCodeDto.OrderId.Value)))
+                    {
+                        return false; // Invalid Order ID
+                    }
+                }
+
+                // Update and save changes
+                await _uow.CouponCodesRep.UpdateAsync(existingCouponCode);
+                await _uow.SaveAsync();
+
+                return true; // Update successful
+            }
+            catch
+            {
+                return false; //unexpected errors
+            }
         }
+
 
         public async Task<bool> DeleteCouponCodeAsync(int couponCodeId)
         {

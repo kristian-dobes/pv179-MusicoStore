@@ -18,8 +18,8 @@ namespace BusinessLayer.Services.Interfaces
 
         Task<IEnumerable<CouponCodeDto>> GetCouponCodesAsync();
         Task<CouponCodeDto> GetCouponCodeByIdAsync(int couponCodeId);
-        Task<CouponCodeDto> CreateCouponCodeAsync(CreateCouponCodeDto createCouponCodeDto);
-        Task<CouponCodeDto?> UpdateCouponCodeAsync(UpdateCouponCodeDto updateCouponCodeDto);
+        Task<bool> CreateCouponCodeAsync(CreateCouponCodeDto createCouponCodeDto);
+        Task<bool> UpdateCouponCodeAsync(UpdateCouponCodeDto updateCouponCodeDto);
         Task<bool> DeleteCouponCodeAsync(int couponCodeId);
         Task<bool> SetCouponCodeAsUsed(string code);
 
