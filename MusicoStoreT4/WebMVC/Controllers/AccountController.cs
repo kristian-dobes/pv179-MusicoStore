@@ -99,6 +99,9 @@ namespace WebMVC.Controllers
         [Route("/Account/LogOut")] // Shared route (Can logout from other Areas, eg. Admin)
         public async Task<IActionResult> Logout()
         {
+            // Clear the shopping cart
+            HttpContext.Session.Remove("Cart");
+
             await _signInManager.SignOutAsync();
             return RedirectToAction(
                 nameof(LogoutSuccess),

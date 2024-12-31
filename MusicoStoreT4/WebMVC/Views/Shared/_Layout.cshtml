@@ -33,13 +33,14 @@
                         </li>
 
                         @{await Html.RenderPartialAsync("_SearchBox", new WebMVC.Models.Shared.SearchViewModel());}
-                            
-                        <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="ShoppingCart" asp-action="Cart">Cart</a>
-                        </li>
                     </ul>
-                    <!-- User-specific menu handled by UserMenuViewComponent -->
+
+                    <!-- User-specific menu handled by UserMenuViewComponent + Shoppping Cart -->
                     <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="ShoppingCart" asp-action="Cart">Shopping Cart</a>
+                        </li>
+
                         @await Component.InvokeAsync("UserMenu")
                     </ul>
                 </div>
