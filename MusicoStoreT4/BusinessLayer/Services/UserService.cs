@@ -201,13 +201,21 @@ namespace BusinessLayer.Services
 
         public async Task<IEnumerable<UserDetailDto>> GetAllUserDetailsAsync()
         {
-            var users = await _uow.UsersRep.GetAllAsync();
+            var users = await _cacheWrapper.GetOrCreateAsync(
+                USER_LIST_CACHE_KEY,
+                async () => await _uow.UsersRep.GetAllAsync(),
+                CacheOptions
+            );
             return users.Select(u => u.MapToUserDetailDto());
         }
 
         public async Task<IEnumerable<UserSummaryDTO>> GetAllUserSummariesAsync()
         {
-            var users = await _uow.UsersRep.GetAllAsync();
+            var users = await _cacheWrapper.GetOrCreateAsync(
+                USER_LIST_CACHE_KEY,
+                async () => await _uow.UsersRep.GetAllAsync(),
+                CacheOptions
+            );
             return users.Select(u => u.Adapt<UserSummaryDTO>());
         }
     }
