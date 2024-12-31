@@ -1,0 +1,87 @@
+﻿@model IEnumerable<WebMVC.Models.Product.ProductDetailViewModel>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Add jQuery for AJAX -->
+</head>
+<body>
+    <h1>Product List</h1>
+
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Quantity in Stock</th>
+                <th>Category</th>
+                <th>Manufacturer</th>
+                <th>Action</th> <!-- Add a column for "Add to Cart" -->
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var product in Model)
+                {
+                    <tr>
+                        <td>@product.Id</td>
+                        <td>@product.Name</td>
+                        <td>@product.Description</td>
+                        <td>@product.Price.ToString("C")</td>
+                        <td>@product.QuantityInStock</td>
+                        <td>@product.Category.Name (@product.Category.ProductCount products)</td>
+                        <td>@product.Manufacturer.Name (@product.Manufacturer.ProductCount products)</td>
+                        <td>
+                            <!-- AJAX-based Add to Cart button -->
+                            <input type="number" id="quantity-@product.Id" value="1" min="1" style="width: 50px;" />
+                            <button class="btn btn-primary" onclick="addToCart(@product.Id, '@product.Name', @product.Price)">
+                                Add to Cart
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="10">No products available.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <script>
+        // JavaScript function for Add to Cart functionality
+        function addToCart(productId, productName, price) {
+            const quantity = document.getElementById(`quantity-${productId}`).value;
+
+            $.ajax({
+                url: '/ShoppingCart/AddToCart', // URL to your controller action
+                type: 'POST',
+                data: {
+                    productId: productId,
+                    productName: productName,
+                    price: price,
+                    quantity: quantity
+                },
+                success: function (response) {
+                    if (response.success) {
+                        alert(`Added to cart! Total: $${response.cartTotal}`);
+                    } else {
+                        alert('Failed to add to cart.');
+                    }
+                },
+                error: function () {
+                    alert('An error occurred while adding to the cart.');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

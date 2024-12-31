@@ -1,64 +1,116 @@
-﻿using BusinessLayer.Services;
-using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Models;
-using Mapster;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+﻿using BusinessLayer.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
-using WebMVC.Models.Product;
+using WebMVC.Helpers;
+using WebMVC.Models.ShoppingCart;
 
 namespace WebMVC.Controllers
 {
-    [Route("products")]
     public class ShoppingCartController : Controller
     {
-        private readonly UserManager<LocalIdentityUser> _userManager;
-        private readonly IShoppingCartService _shoppingCartService;
+        private readonly IGiftCardService _giftCardService;
 
-        public ShoppingCartController(UserManager<LocalIdentityUser> userManager)
+        public ShoppingCartController(IGiftCardService giftCardService)
         {
-            _userManager = userManager;
+            _giftCardService = giftCardService;
         }
 
-        public ShoppingCartController(IShoppingCartService shoppingCartService)
+        [HttpGet("Cart")]
+        public IActionResult Cart()
         {
-            _shoppingCartService = shoppingCartService;
-        }
-
-        public IActionResult Index()
-        {
-            var cart = _shoppingCartService.GetCartItems();
+            var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
             return View(cart);
         }
 
         [HttpPost]
-        public IActionResult ApplyCoupon(string couponCode)
+        public IActionResult AddToCart(int productId, string productName, decimal price, int quantity = 1)
         {
-            var result = _shoppingCartService.ApplyCoupon(couponCode);
-            return RedirectToAction("Index");
+            var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
+
+            var existingItem = cart.CartItems.FirstOrDefault(i => i.ProductId == productId);
+            if (existingItem != null)
+            {
+                existingItem.Quantity += quantity;
+            }
+            else
+            {
+                cart.CartItems.Add(new CartItem
+                {
+                    ProductId = productId,
+                    ProductName = productName,
+                    Price = price,
+                    Quantity = quantity
+                });
+            }
+
+            HttpContext.Session.SetObjectAsJson("Cart", cart);
+
+            return Json(new { success = true, cartTotal = cart.TotalAmount });
         }
 
         [HttpPost]
-        public IActionResult UpdateQuantity(int productId, int quantityChange)
+        public async Task<IActionResult> Checkout()
         {
-            _shoppingCartService.UpdateQuantity(productId, quantityChange);
-            return Json(new { success = true });
+            // Process the order...
+
+            var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart");
+
+            // Check if the cart is null or empty
+            if (cart == null || !cart.CartItems.Any())
+            {
+                return View("Cart", new ShoppingCart()); // Reload the cart view
+            }
+
+            //// If a gift card is applied, mark it as used
+            //if (!string.IsNullOrEmpty(cart.AppliedGiftCardCode))
+            //{
+            //    var couponCode = await _giftCardService.SetCouponCodeAsUsed(cart.AppliedGiftCardCode);
+            //    if (!couponCode)
+            //    {
+            //        // Coupon was already used
+
+            //    }
+            //}
+
+            // Process the order...
+            // Save the order and other details to the database
+
+            // Clear the cart
+            HttpContext.Session.Remove("Cart");
+
+            //return RedirectToAction("OrderConfirmation");
+            return View("Cart");
         }
 
         [HttpPost]
-        public IActionResult RemoveItem(int productId)
+        public async Task<IActionResult> ApplyGiftCard(string giftCardCode)
         {
-            _shoppingCartService.RemoveItem(productId);
-            return Json(new { success = true });
-        }
+            // Check if cart exists
+            var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
 
-        [HttpPost]
-        public IActionResult PlaceOrder()
-        {
-            _shoppingCartService.PlaceOrder();
-            return RedirectToAction("OrderConfirmation");
+            // Validate the gift card code
+            var couponCode = await _giftCardService.GetGiftCardByCouponCodeAsync(giftCardCode);
+
+            if (couponCode == null ||
+                couponCode.ValidityStartDate > DateTime.Now ||
+                couponCode.ValidityEndDate < DateTime.Now)
+            {
+                return Json(new { success = false, message = "Invalid or expired gift card." });
+            }
+
+            var wasUsed = await _giftCardService.SetCouponCodeAsUsed(giftCardCode);
+            if (!wasUsed)
+            {
+                return Json(new { success = false, message = "This coupon was already used." });
+            }
+
+            // Apply the discount
+            cart.DiscountAmount = couponCode.DiscountAmount;
+
+            // Save the cart back to session
+            HttpContext.Session.SetObjectAsJson("Cart", cart);
+
+            return Json(new { success = true, discountAmount = cart.DiscountAmount, finalAmount = cart.FinalAmount });
+            //return View("Cart");
         }
     }
 }

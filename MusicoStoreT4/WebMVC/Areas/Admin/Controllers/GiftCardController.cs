@@ -57,7 +57,12 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/GiftCard/Create
         public async Task<IActionResult> Create()
         {
-            var productCreateViewModel = new GiftCardViewModel();
+            var productCreateViewModel = new GiftCardViewModel
+            {
+                ValidityStartDate = DateTime.Now,
+                ValidityEndDate = DateTime.Now.AddYears(1),
+                DiscountAmount = 100
+            };
             return View(productCreateViewModel);
         }
 
@@ -71,11 +76,6 @@ namespace WebMVC.Areas.Admin.Controllers
             {
                 return BadRequest(ModelState);
             }
-
-            var user = await _userManager.GetUserAsync(User);
-
-            if (user == null)
-                return Unauthorized("User must be authenticated to create the product.");
 
             var giftCard = model.Adapt<CreateGiftCardDto>();
 

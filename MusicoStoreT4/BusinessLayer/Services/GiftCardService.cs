@@ -195,5 +195,26 @@ namespace BusinessLayer.Services
 
             return couponCode.GiftCard.Adapt<GiftCardDto>();
         }
+
+        public async Task<bool> SetCouponCodeAsUsed(string code)
+        {
+            if (string.IsNullOrEmpty(code))
+            {
+                throw new ArgumentException("Coupon code cannot be null or empty", nameof(code));
+            }
+
+            // Fetch the CouponCode using the repository
+            var couponCode = await _uow.CouponCodesRep.GetCouponCodeByCodeAsync(code);
+
+            if (couponCode == null || couponCode.IsUsed)
+            {
+                return false; // Invalid or already used
+            }
+
+            // Mark the coupon as used
+            await _uow.CouponCodesRep.MarkCouponCodeAsUsedAsync(couponCode);
+
+            return true;
+        }
     }
 }

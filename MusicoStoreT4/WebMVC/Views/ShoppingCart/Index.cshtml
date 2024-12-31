@@ -1,5 +1,4 @@
-﻿using WebMVC.Models.ShoppingCart
-@model 
+﻿@model WebMVC.Models.ShoppingCart.ShoppingCart
 
 @{
     ViewData["Title"] = "Shopping Cart";
@@ -51,7 +50,7 @@
 
         <!-- Total Price and Place Order -->
         <div class="cart-total">
-            <h4>Total Price: @Model.TotalPrice.ToString("C")</h4>
+            <h4>Total Price: @Model.TotalAmount.ToString("C")</h4>
             <button type="submit" class="btn btn-success">Place Order</button>
         </div>
     </div>

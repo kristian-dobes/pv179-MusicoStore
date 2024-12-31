@@ -1,0 +1,83 @@
+﻿@model WebMVC.Models.ShoppingCart.ShoppingCart
+
+<h2>Shopping Cart</h2>
+
+@if (Model == null || Model.CartItems == null || !Model.CartItems.Any())
+{
+    <p>Your shopping cart is empty.</p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.CartItems)
+            {
+                <tr>
+                    <td>@item.ProductName</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Price.ToString("C")</td>
+                    <td>@(item.Price * item.Quantity).ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h3>Subtotal: @Model.TotalAmount.ToString("C")</h3>
+
+    @if (!string.IsNullOrEmpty(Model.AppliedGiftCardCode))
+    {
+        <p>Gift Card (@Model.AppliedGiftCardCode): -@Model.DiscountAmount.ToString("C")</p>
+    }
+
+    <h3>Total: @Model.FinalAmount.ToString("C")</h3>
+
+    <form id="applyGiftCardForm">
+        <input type="text" id="giftCardCode" name="giftCardCode" placeholder="Enter Gift Card Code" required />
+        <button type="button" id="applyGiftCardButton" class="btn btn-primary">Apply Gift Card</button>
+    </form>
+
+    <p id="giftCardMessage"></p>
+
+    <form asp-controller="ShoppingCart" asp-action="Checkout" method="post">
+        <button type="submit" class="btn btn-primary">Checkout</button>
+    </form>
+}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#applyGiftCardButton').on('click', function () {
+            const giftCardCode = $('#giftCardCode').val();
+
+            if (!giftCardCode) {
+                alert('Please enter a gift card code.');
+                return;
+            }
+
+            $.ajax({
+                url: '/ShoppingCart/ApplyGiftCard',
+                type: 'POST',
+                data: { giftCardCode: giftCardCode },
+                success: function (response) {
+                    if (response.success) {
+                        $('#giftCardMessage').text('Gift card applied: -$' + response.discountAmount);
+                        $('h3:last').text('Total: $' + response.finalAmount);
+                    } else {
+                        $('#giftCardMessage').text(response.message);
+                    }
+                },
+                error: function () {
+                    $('#giftCardMessage').text('An error occurred while applying the gift card.');
+                }
+            });
+        });
+    });
+</script>

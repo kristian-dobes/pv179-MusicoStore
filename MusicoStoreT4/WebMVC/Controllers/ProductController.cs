@@ -29,14 +29,16 @@ namespace WebMVC.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Show(int id)
+        public async Task<IActionResult> Index()
         {
-            var product = await _productService.GetProductByIdAsync(id);
+            var products = await _productService.GetAllProductsAsync();
 
-            if (product == null)
+            if (!products.Any())
+            {
                 return NotFound();
+            }
 
-            return View(product);
+            return View(products.Adapt<IEnumerable<ProductDetailViewModel>>());
         }
 
 

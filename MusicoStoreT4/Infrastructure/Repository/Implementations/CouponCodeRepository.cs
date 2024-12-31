@@ -47,5 +47,18 @@ namespace Infrastructure.Repository.Implementations
 
             return true;
         }
+        public async Task<CouponCode?> GetCouponCodeByCodeAsync(string code)
+        {
+            return await _context.Set<CouponCode>()
+                //.Include(cc => cc.GiftCard)
+                .FirstOrDefaultAsync(cc => cc.Code == code);
+        }
+
+        public async Task MarkCouponCodeAsUsedAsync(CouponCode couponCode)
+        {
+            couponCode.IsUsed = true;
+            _context.Set<CouponCode>().Update(couponCode);
+            await _context.SaveChangesAsync();
+        }
     }
 }

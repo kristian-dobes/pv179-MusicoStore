@@ -8,8 +8,14 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessLayer", "DataAccessLayer\DataAccessLayer.csproj", "{840E273C-372C-4DDF-A610-776F15963152}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAPI", "WebAPI\WebAPI.csproj", "{D69DD44F-3261-4FA6-858A-527D92BA6853}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B99DD3F3-0F38-4F67-BC05-811D7CF9F026} = {B99DD3F3-0F38-4F67-BC05-811D7CF9F026}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebMVC", "WebMVC\WebMVC.csproj", "{A9101A83-491B-4AF2-8347-C7A4B46CDE75}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B99DD3F3-0F38-4F67-BC05-811D7CF9F026} = {B99DD3F3-0F38-4F67-BC05-811D7CF9F026}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessLayer", "BusinessLayer\BusinessLayer.csproj", "{25FCCE59-D72E-4785-9706-8220ADC27DA1}"
 EndProject

@@ -46,6 +46,15 @@ builder.Services.AddIdentity<LocalIdentityUser, IdentityRole>()
 
 builder.Services.AddSingleton(imagesFolder);
 
+// Add session services
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Adjust as needed
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 // Register Repositories
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
@@ -110,6 +119,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+// Add session middleware
+app.UseSession();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
