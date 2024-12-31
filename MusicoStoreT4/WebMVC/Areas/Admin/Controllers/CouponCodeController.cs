@@ -100,7 +100,11 @@ namespace WebMVC.Areas.Admin.Controllers
                 return View(model);
             }
 
+            Console.WriteLine("New Code: " + model.Code);
+
             var updateCouponCodeDto = model.Adapt<UpdateCouponCodeDto>();
+
+            Console.WriteLine("New Code DTO: " + updateCouponCodeDto.Code);
             var CouponCodeResult = await _giftCardService.UpdateCouponCodeAsync(updateCouponCodeDto);
 
             return View(CouponCodeResult.Adapt<CouponCodeViewModel>());

@@ -72,9 +72,14 @@ namespace WebMVC.Areas.Admin.Controllers
         {
             model.Created = DateTime.Now;
 
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || model.ValidityStartDate > model.ValidityEndDate || model.ValidityEndDate < DateTime.Now)
             {
-                return BadRequest(ModelState);
+                if (model.ValidityStartDate > model.ValidityEndDate)
+                    ModelState.AddModelError("ValidityStartDate", "Start date must be before end date.");
+                if (model.ValidityEndDate < DateTime.Now)
+                    ModelState.AddModelError("ValidityEndDate", "End date must be in the future.");
+
+                return View(model);
             }
 
             var giftCard = model.Adapt<CreateGiftCardDto>();
@@ -101,8 +106,13 @@ namespace WebMVC.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(GiftCardViewModel model)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || model.ValidityStartDate > model.ValidityEndDate || model.ValidityEndDate < DateTime.Now)
             {
+                if (model.ValidityStartDate > model.ValidityEndDate)
+                    ModelState.AddModelError("ValidityStartDate", "Start date must be before end date.");
+                if (model.ValidityEndDate < DateTime.Now)
+                    ModelState.AddModelError("ValidityEndDate", "End date must be in the future.");
+
                 return View(model);
             }
 

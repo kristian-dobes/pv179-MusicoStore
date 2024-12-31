@@ -132,6 +132,9 @@ namespace BusinessLayer.Services
 
         public async Task<CouponCodeDto?> UpdateCouponCodeAsync(UpdateCouponCodeDto updateCouponCodeDto)
         {
+            Console.WriteLine("CouponCodeId: " + updateCouponCodeDto.CouponCodeId);
+            Console.WriteLine("CouponCodeText: " + updateCouponCodeDto.Code);
+
             var existingCouponCode = await _uow.CouponCodesRep
                 .FirstOrDefaultAsync(cc => cc.Id == updateCouponCodeDto.CouponCodeId);
 
@@ -146,6 +149,9 @@ namespace BusinessLayer.Services
                 {
                     throw new ArgumentException("A coupon code with this code already exists");
                 }
+                
+                // Assign the new Code
+                existingCouponCode.Code = updateCouponCodeDto.Code;
             }
 
             if (updateCouponCodeDto.IsUsed.HasValue)
