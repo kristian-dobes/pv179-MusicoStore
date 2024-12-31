@@ -1,21 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BusinessLayer.DTOs;
-using BusinessLayer.DTOs.CouponCode;
+﻿using BusinessLayer.DTOs.CouponCode;
 using BusinessLayer.DTOs.GiftCard;
-using BusinessLayer.DTOs.Manufacturer;
-using BusinessLayer.DTOs.Product;
-using BusinessLayer.Enums;
-using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Infrastructure.UnitOfWork;
 using Mapster;
-using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Services
 {

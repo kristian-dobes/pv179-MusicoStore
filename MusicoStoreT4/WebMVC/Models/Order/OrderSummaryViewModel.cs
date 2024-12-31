@@ -1,7 +1,4 @@
-﻿using BusinessLayer.DTOs.OrderItem;
-using BusinessLayer.DTOs.User;
-
-namespace WebMVC.Models.Order
+﻿namespace WebMVC.Models.Order
 {
     public class OrderSummaryViewModel
     {

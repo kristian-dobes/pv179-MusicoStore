@@ -1,12 +1,5 @@
 ﻿using BusinessLayer.Cache;
-using BusinessLayer.DTOs;
-using BusinessLayer.DTOs.User;
-using BusinessLayer.DTOs.User.Customer;
-using BusinessLayer.Facades;
-using BusinessLayer.Mapper;
 using BusinessLayer.Services;
-using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Infrastructure.Repository.Implementations;
 using Infrastructure.Repository.Implementations.Implementations;

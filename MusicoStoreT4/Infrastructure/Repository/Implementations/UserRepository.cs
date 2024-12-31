@@ -1,10 +1,8 @@
 ﻿using DataAccessLayer.Data;
 using DataAccessLayer.Models;
-using DataAccessLayer.Models.Enums;
 using Infrastructure.Repository.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace Infrastructure.Repository.Implementations
 {

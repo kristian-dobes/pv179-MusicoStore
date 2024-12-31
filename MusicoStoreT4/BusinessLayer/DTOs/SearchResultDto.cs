@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using BusinessLayer.DTOs.Category;
 using BusinessLayer.DTOs.Manufacturer;
 using BusinessLayer.DTOs.Product;

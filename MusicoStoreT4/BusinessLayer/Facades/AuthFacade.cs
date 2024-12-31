@@ -4,7 +4,6 @@ using DataAccessLayer.Models;
 using Infrastructure.Repository.Interfaces;
 using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 
 namespace BusinessLayer.Facades
 {

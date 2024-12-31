@@ -2,12 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using BusinessLayer.Services.Interfaces;
 using Mapster;
-using WebMVC.Models.Manufacturer;
-using BusinessLayer.DTOs.Manufacturer;
 using DataAccessLayer.Models;
 using WebMVC.Models.GiftCard;
-using BusinessLayer.Services;
-using WebMVC.Models.Product;
 using Microsoft.AspNetCore.Identity;
 using BusinessLayer.DTOs.GiftCard;
 

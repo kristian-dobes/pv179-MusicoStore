@@ -1,11 +1,6 @@
 using BusinessLayer.DTOs.Order;
-using BusinessLayer.DTOs.OrderItem;
 using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
-using DataAccessLayer.Models;
-using DataAccessLayer.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace WebAPI.Controllers
 {

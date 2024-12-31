@@ -1,5 +1,4 @@
 ﻿using BusinessLayer.DTOs.GiftCard;
-using BusinessLayer.DTOs.Order;
 using BusinessLayer.DTOs.OrderItem;
 using BusinessLayer.DTOs.User;
 

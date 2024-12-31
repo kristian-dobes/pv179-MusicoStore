@@ -1,6 +1,4 @@
-﻿using BusinessLayer.Services.Interfaces;
-
-namespace WebMVC.Models.ShoppingCart
+﻿namespace WebMVC.Models.ShoppingCart
 {
     public class ShoppingCart
     {

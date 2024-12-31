@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BusinessLayer.DTOs.OrderItem;
-using BusinessLayer.DTOs.Product;
+﻿using BusinessLayer.DTOs.Product;
 using BusinessLayer.DTOs.User;
 using BusinessLayer.DTOs.User.Admin;
 using BusinessLayer.DTOs.User.Customer;

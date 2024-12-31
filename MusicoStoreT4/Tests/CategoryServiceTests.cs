@@ -1,23 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BusinessLayer;
+﻿using BusinessLayer;
 using BusinessLayer.Cache;
-using BusinessLayer.DTOs;
 using BusinessLayer.Services;
-using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Infrastructure.Repository.Implementations;
 using Infrastructure.Repository.Implementations.Implementations;
-using Infrastructure.Repository.Interfaces;
 using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
-using NUnit.Framework;
 using Tests.Other;
 
 namespace Tests

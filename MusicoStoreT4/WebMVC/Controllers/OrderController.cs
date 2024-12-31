@@ -1,12 +1,8 @@
 ﻿using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
-using WebMVC.Models;
 using WebMVC.Models.Order;
 
 namespace WebMVC.Controllers

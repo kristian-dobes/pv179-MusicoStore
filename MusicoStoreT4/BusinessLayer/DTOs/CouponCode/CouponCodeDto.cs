@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BusinessLayer.DTOs.Product;
-using DataAccessLayer.Models;
-
-namespace BusinessLayer.DTOs.CouponCode
+﻿namespace BusinessLayer.DTOs.CouponCode
 {
     public class CouponCodeDto
     {

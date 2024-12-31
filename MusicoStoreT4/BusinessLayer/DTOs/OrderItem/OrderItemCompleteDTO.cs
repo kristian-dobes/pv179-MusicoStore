@@ -1,11 +1,4 @@
-﻿using BusinessLayer.DTOs.Product;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BusinessLayer.DTOs.OrderItem
+﻿namespace BusinessLayer.DTOs.OrderItem
 {
     public class OrderItemCompleteDTO
     {

@@ -1,7 +1,6 @@
 using BusinessLayer.DTOs;
 using BusinessLayer.DTOs.Category;
 using BusinessLayer.DTOs.Manufacturer;
-using BusinessLayer.DTOs.OrderItem;
 using BusinessLayer.DTOs.Product;
 using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
@@ -10,7 +9,6 @@ using DataAccessLayer.Models.Enums;
 using Infrastructure.UnitOfWork;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 
 namespace BusinessLayer.Services
 {
