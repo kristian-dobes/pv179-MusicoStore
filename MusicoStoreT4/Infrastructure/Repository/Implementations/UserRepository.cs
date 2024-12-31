@@ -38,12 +38,11 @@ namespace Infrastructure.Repository.Implementations
             return true;
         }
 
-        public async Task<User?> GetUserWithOrdersAsync(int userId)
+        public IQueryable<OrderItem> GetUserOrderItemsQuery(int userId)
         {
-            return await _context.Users
-                .Include(u => u.Orders)
-                .ThenInclude(o => o.OrderItems)
-                .FirstOrDefaultAsync(u => u.Id == userId);
+            return _context.OrderItems
+                .Where(oi => oi.Order.UserId == userId)
+                .Include(oi => oi.Product);
         }
 
         public async Task<string?> GetIdentityUserIdByUserIdAsync(int userId)

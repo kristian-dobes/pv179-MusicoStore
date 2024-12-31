@@ -13,8 +13,8 @@ namespace BusinessLayer.Services.Interfaces
 {
     public interface IUserService : IBaseService
     {
-        Task<CustomerSegmentsDto> GetCustomerSegmentsAsync();
-        Task<OrderItemDto?> GetMostFrequentBoughtItemAsync(int userId);
+        //Task<CustomerSegmentsDto> GetCustomerSegmentsAsync();
+        Task<ProductMostBoughtDTO?> GetMostFrequentBoughtItemAsync(int userId);
         Task<bool> ValidateUserAsync(int userId);
         Task<IEnumerable<UserDto>> GetAllUsersAsync();
         Task<IEnumerable<UserDetailDto>> GetAllUserDetailsAsync();

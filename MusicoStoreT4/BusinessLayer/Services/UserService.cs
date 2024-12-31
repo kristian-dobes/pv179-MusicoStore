@@ -39,75 +39,30 @@ namespace BusinessLayer.Services
             _cacheWrapper = memoryCacheWrapper;
         }
 
-        public async Task<CustomerSegmentsDto> GetCustomerSegmentsAsync()
+        public async Task<ProductMostBoughtDTO?> GetMostFrequentBoughtItemAsync(int userId)
         {
-            var currentDate = DateTime.UtcNow;
+            var mostFrequentItem = await _uow.UsersRep.GetUserOrderItemsQuery(userId)
+                .GroupBy(oi => new { oi.ProductId, oi.Product.Name, oi.Product.Description, oi.Product.Price })
+                .Select(g => new
+                {
+                    ProductId = g.Key.ProductId,
+                    Name = g.Key.Name,
+                    Description = g.Key.Description,
+                    Price = g.Key.Price,
+                    TotalQuantity = g.Sum(oi => oi.Quantity)
+                })
+                .OrderByDescending(g => g.TotalQuantity)
+                .FirstOrDefaultAsync();
 
-            var customers = await _uow.UsersRep.WhereAsync(u => u.Role == Role.Customer);
-
-            var customersWithStats = new List<CustomerSegmentStatsDto>();
-
-            foreach (var customer in customers)
-            {
-                var orders = await _uow.OrdersRep.WhereAsync(o => o.UserId == customer.Id);
-                var orderItems = orders.SelectMany(o => o.OrderItems).ToList();
-
-                var totalExpenditure = orderItems.Sum(oi => oi.Price * oi.Quantity);
-                var isInfrequent =
-                    orders.Any() && orders.All(o => (currentDate - o.Date).Days > 180);
-
-                customersWithStats.Add(
-                    new CustomerSegmentStatsDto
-                    {
-                        CustomerDTO = (customer as Customer)?.MapToCustomerDto(),
-                        TotalExpenditure = totalExpenditure,
-                        IsInfrequent = isInfrequent
-                    }
-                );
-            }
-
-            var highValueCustomers = customersWithStats
-                .Where(c => c.TotalExpenditure > 1000)
-                .Select(c => c.CustomerDTO)
-                .ToList();
-
-            var infrequentCustomers = customersWithStats
-                .Where(c => c.IsInfrequent)
-                .Select(c => c.CustomerDTO)
-                .ToList();
-
-            return new CustomerSegmentsDto
-            {
-                HighValueCustomers = highValueCustomers,
-                InfrequentCustomers = infrequentCustomers
-            };
-        }
-
-        public async Task<OrderItemDto?> GetMostFrequentBoughtItemAsync(int userId)
-        {
-            var user = await _uow.UsersRep.GetUserWithOrdersAsync(userId);
-
-            if (user == null || !user.Orders.Any())
-            {
+            if (mostFrequentItem == null || !mostFrequentItem.ProductId.HasValue)
                 return null;
-            }
 
-            var mostFrequentItem = user
-                .Orders.SelectMany(o => o.OrderItems)
-                .GroupBy(oi => oi.ProductId)
-                .Select(g => new { ProductId = g.Key, Quantity = g.Sum(oi => oi.Quantity) })
-                .OrderByDescending(g => g.Quantity)
-                .FirstOrDefault();
-
-            if (mostFrequentItem == null)
-            {
-                return null;
-            }
-
-            return new OrderItemDto
+            return new ProductMostBoughtDTO
             {
                 ProductId = mostFrequentItem.ProductId.Value,
-                Quantity = mostFrequentItem.Quantity
+                Name = mostFrequentItem.Name,
+                Description = mostFrequentItem.Description,
+                NumberOfBuys = mostFrequentItem.TotalQuantity
             };
         }
 

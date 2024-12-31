@@ -87,34 +87,6 @@ namespace BusinessLayer.Services
             return productDtos;
         }
 
-        //public async Task<IEnumerable<ProductWithDetailsDto>> GetAllProductsWithDetailsAsync()
-        //{
-        //    var products = await _uow.ProductsRep.GetAllWithDetailsAsync();
-
-        //    return products
-        //        .Select(p => new ProductWithDetailsDto
-        //        {
-        //            ProductId = p.Id,
-        //            ProductName = p.Name,
-        //            ProductDateOfCreation = p.Created,
-        //            ProductDescription = p.Description,
-        //            ProductPrice = p.Price,
-        //            ProductQuantityInStock = p.QuantityInStock,
-        //            ProductManufacturer = p.ManufacturerId,
-        //            ProductCategory = p.PrimaryCategoryId,
-        //            OrderItems = p
-        //                .OrderItems.Select(oi => new OrderItemDto
-        //                {
-        //                    ProductId = p.Id,
-        //                    Quantity = oi.Quantity,
-        //                })
-        //                .ToList(),
-        //            Category = p.PrimaryCategory?.Adapt<CategorySummaryDTO>(),
-        //            Manufacturer = p.Manufacturer?.Adapt<ManufacturerSummaryDTO>()
-        //        })
-        //        .ToList();
-        //}
-
         public async Task<ProductCompleteDTO> UpdateProductAsync(int productId, ProductUpdateDTO productDto)
         {
             var product = await _uow.ProductsRep.GetByIdAsync(productId);
@@ -240,44 +212,6 @@ namespace BusinessLayer.Services
             await _auditLogService.LogAsync(auditLogs);
 
             await _uow.SaveAsync();
-        }
-
-        public async Task<IEnumerable<TopSellingProductDto>> GetTopSellingProductsByCategoryAsync(
-            DateTime startDate,
-            DateTime endDate,
-            int topN = 5
-        )
-        {
-            // Fetch order items within the date range using the repository
-            var orderItems = await _uow.OrderItemsRep.GetByDateRangeAsync(startDate, endDate);
-
-            // Perform the grouping and aggregation in-memory
-            var query = orderItems
-                .GroupBy(oi => new
-                {
-                    oi.Product.PrimaryCategory.Id,
-                    oi.Product.PrimaryCategory.Name
-                })
-                .Select(categoryGroup => new TopSellingProductDto
-                {
-                    CategoryId = categoryGroup.Key.Id,
-                    CategoryName = categoryGroup.Key.Name,
-                    Products = categoryGroup
-                        .GroupBy(oi => new { oi.Product.Id, oi.Product.Name })
-                        .Select(productGroup => new ProductSalesDto
-                        {
-                            ProductId = productGroup.Key.Id,
-                            ProductName = productGroup.Key.Name,
-                            TotalUnitsSold = productGroup.Sum(x => x.Quantity),
-                            Revenue = productGroup.Sum(x => x.Quantity * x.Price)
-                        })
-                        .OrderByDescending(p => p.TotalUnitsSold)
-                        .Take(topN)
-                        .ToList()
-                })
-                .ToList();
-
-            return query;
         }
 
         public async Task DeleteProductAsync(int productId, int deletedBy)
