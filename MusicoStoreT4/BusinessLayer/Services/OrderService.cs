@@ -96,8 +96,13 @@ namespace BusinessLayer.Services
 
             // Fetch gift card
             GiftCard? appliedGiftCard = null;
+            CouponCode? appliedCouponCode = null;
             if (!string.IsNullOrEmpty(createOrderDto.AppliedGiftCardCode))
             {
+                appliedCouponCode = await _uow.CouponCodesRep.GetCouponCodeByCodeAsync(createOrderDto.AppliedGiftCardCode);
+                if (appliedCouponCode == null)
+                    throw new ArgumentException($"Invalid coupon code: {createOrderDto.AppliedGiftCardCode}", nameof(createOrderDto.AppliedGiftCardCode));
+
                 appliedGiftCard = await _uow.GiftCardsRep.GetGiftCardByCodeAsync(createOrderDto.AppliedGiftCardCode);
                 if (appliedGiftCard == null)
                     throw new ArgumentException($"Invalid gift card code: {createOrderDto.AppliedGiftCardCode}", nameof(createOrderDto.AppliedGiftCardCode));
@@ -113,6 +118,7 @@ namespace BusinessLayer.Services
                 UsedCouponCode = createOrderDto.AppliedGiftCardCode
             };
 
+            
             // discount
             if (appliedGiftCard != null)
             {
@@ -136,6 +142,13 @@ namespace BusinessLayer.Services
             }
 
             await _uow.OrdersRep.AddAsync(order);
+
+            if (appliedCouponCode != null)
+            {
+                appliedCouponCode.IsUsed = true;
+                appliedCouponCode.OrderId = order.Id; // assign order's ID to coupon code
+                _uow.CouponCodesRep.UpdateAsync(appliedCouponCode); // Track the change
+            }
 
             try
             {

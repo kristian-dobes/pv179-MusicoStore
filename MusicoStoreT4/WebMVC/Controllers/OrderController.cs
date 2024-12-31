@@ -25,9 +25,9 @@ namespace WebMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> UserOrders()
         {
-            //var userId = await GetCurrentUserId();
-            var userId = 3; // for testing
-            
+            var userId = await GetCurrentUserId();
+            //var userId = 3; // for testing
+
             var orders = await _orderService.GetOrdersByUserAsync(userId);
 
             if (orders == null || !orders.Any())

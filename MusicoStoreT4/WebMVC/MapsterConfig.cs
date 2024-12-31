@@ -1,5 +1,6 @@
 using BusinessLayer;
 using BusinessLayer.DTOs.Category;
+using BusinessLayer.DTOs.CouponCode;
 using BusinessLayer.DTOs.Manufacturer;
 using BusinessLayer.DTOs.Order;
 using BusinessLayer.DTOs.OrderItem;
@@ -7,6 +8,7 @@ using BusinessLayer.DTOs.Product;
 using BusinessLayer.DTOs.User;
 using Mapster;
 using WebMVC.Models.Category;
+using WebMVC.Models.GiftCard;
 using WebMVC.Models.Manufacturer;
 using WebMVC.Models.Order;
 using WebMVC.Models.Product;
@@ -122,6 +124,14 @@ namespace WebMVC
                 .Map(dest => dest.UserId, src => src.UserId)
                 .Map(dest => dest.Email, src => src.Email)
                 .Map(dest => dest.Username, src => src.Username);
+
+            TypeAdapterConfig<CouponCodeDto, CouponCodeViewModel>
+                .NewConfig()
+                .Map(dest => dest.CouponCodeId, src => src.CouponCodeId)
+                .Map(dest => dest.Created, src => src.Created)
+                .Map(dest => dest.Code, src => src.Code)
+                .Map(dest => dest.IsUsed, src => src.IsUsed)
+                .Map(dest => dest.OrderId, src => src.OrderId);
         }
     }
 }

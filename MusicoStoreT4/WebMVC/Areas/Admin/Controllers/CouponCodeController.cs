@@ -32,6 +32,9 @@ namespace WebMVC.Areas.Admin.Controllers
         {
             var couponCode = await _giftCardService.GetCouponCodeByIdAsync(id);
 
+            
+            Console.WriteLine("ORDERRRRRR"+couponCode.OrderId);
+
             if (couponCode == null)
             {
                 return NotFound();
