@@ -39,12 +39,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             CategoryId = 2,
-                            ProductId = 1
-                        },
-                        new
-                        {
-                            CategoryId = 1,
-                            ProductId = 1
+                            ProductId = 2
                         },
                         new
                         {
@@ -53,12 +48,17 @@ namespace DAL.SQLite.Migrations.Migrations
                         },
                         new
                         {
-                            CategoryId = 1,
+                            CategoryId = 5,
                             ProductId = 3
                         },
                         new
                         {
-                            CategoryId = 3,
+                            CategoryId = 1,
+                            ProductId = 4
+                        },
+                        new
+                        {
+                            CategoryId = 5,
                             ProductId = 4
                         },
                         new
@@ -68,23 +68,18 @@ namespace DAL.SQLite.Migrations.Migrations
                         },
                         new
                         {
-                            CategoryId = 2,
+                            CategoryId = 4,
                             ProductId = 5
-                        },
-                        new
-                        {
-                            CategoryId = 3,
-                            ProductId = 5
-                        },
-                        new
-                        {
-                            CategoryId = 3,
-                            ProductId = 6
                         },
                         new
                         {
                             CategoryId = 1,
-                            ProductId = 6
+                            ProductId = 5
+                        },
+                        new
+                        {
+                            CategoryId = 5,
+                            ProductId = 5
                         },
                         new
                         {
@@ -95,6 +90,126 @@ namespace DAL.SQLite.Migrations.Migrations
                         {
                             CategoryId = 3,
                             ProductId = 7
+                        },
+                        new
+                        {
+                            CategoryId = 5,
+                            ProductId = 7
+                        },
+                        new
+                        {
+                            CategoryId = 5,
+                            ProductId = 8
+                        },
+                        new
+                        {
+                            CategoryId = 4,
+                            ProductId = 9
+                        },
+                        new
+                        {
+                            CategoryId = 2,
+                            ProductId = 10
+                        },
+                        new
+                        {
+                            CategoryId = 4,
+                            ProductId = 10
+                        },
+                        new
+                        {
+                            CategoryId = 3,
+                            ProductId = 10
+                        },
+                        new
+                        {
+                            CategoryId = 2,
+                            ProductId = 11
+                        },
+                        new
+                        {
+                            CategoryId = 3,
+                            ProductId = 11
+                        },
+                        new
+                        {
+                            CategoryId = 2,
+                            ProductId = 12
+                        },
+                        new
+                        {
+                            CategoryId = 1,
+                            ProductId = 12
+                        },
+                        new
+                        {
+                            CategoryId = 3,
+                            ProductId = 13
+                        },
+                        new
+                        {
+                            CategoryId = 5,
+                            ProductId = 13
+                        },
+                        new
+                        {
+                            CategoryId = 1,
+                            ProductId = 13
+                        },
+                        new
+                        {
+                            CategoryId = 4,
+                            ProductId = 15
+                        },
+                        new
+                        {
+                            CategoryId = 3,
+                            ProductId = 16
+                        },
+                        new
+                        {
+                            CategoryId = 2,
+                            ProductId = 17
+                        },
+                        new
+                        {
+                            CategoryId = 5,
+                            ProductId = 17
+                        },
+                        new
+                        {
+                            CategoryId = 4,
+                            ProductId = 17
+                        },
+                        new
+                        {
+                            CategoryId = 1,
+                            ProductId = 18
+                        },
+                        new
+                        {
+                            CategoryId = 2,
+                            ProductId = 18
+                        },
+                        new
+                        {
+                            CategoryId = 5,
+                            ProductId = 18
+                        },
+                        new
+                        {
+                            CategoryId = 4,
+                            ProductId = 19
+                        },
+                        new
+                        {
+                            CategoryId = 5,
+                            ProductId = 19
+                        },
+                        new
+                        {
+                            CategoryId = 2,
+                            ProductId = 19
                         });
                 });
 
@@ -142,20 +257,32 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 569, DateTimeKind.Local).AddTicks(8799),
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 907, DateTimeKind.Local).AddTicks(1684),
                             Name = "Instruments"
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 569, DateTimeKind.Local).AddTicks(8830),
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 907, DateTimeKind.Local).AddTicks(1717),
                             Name = "Accessories"
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 569, DateTimeKind.Local).AddTicks(8834),
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 907, DateTimeKind.Local).AddTicks(1721),
                             Name = "Equipment"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 907, DateTimeKind.Local).AddTicks(1725),
+                            Name = "Software"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 907, DateTimeKind.Local).AddTicks(1729),
+                            Name = "Learning"
                         });
                 });
 
@@ -194,7 +321,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         {
                             Id = 1,
                             Code = "GIFT200-1",
-                            Created = new DateTime(2024, 11, 30, 4, 52, 55, 579, DateTimeKind.Local).AddTicks(23),
+                            Created = new DateTime(2024, 11, 30, 6, 3, 48, 939, DateTimeKind.Local).AddTicks(1889),
                             GiftCardId = 1,
                             IsUsed = false
                         },
@@ -202,7 +329,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         {
                             Id = 2,
                             Code = "GIFT200-2",
-                            Created = new DateTime(2024, 11, 30, 4, 52, 55, 579, DateTimeKind.Local).AddTicks(34),
+                            Created = new DateTime(2024, 11, 30, 6, 3, 48, 939, DateTimeKind.Local).AddTicks(1903),
                             GiftCardId = 1,
                             IsUsed = false
                         },
@@ -210,7 +337,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         {
                             Id = 3,
                             Code = "GIFT100-1",
-                            Created = new DateTime(2024, 10, 31, 4, 52, 55, 579, DateTimeKind.Local).AddTicks(41),
+                            Created = new DateTime(2024, 10, 31, 6, 3, 48, 939, DateTimeKind.Local).AddTicks(1911),
                             GiftCardId = 2,
                             IsUsed = false
                         },
@@ -218,7 +345,7 @@ namespace DAL.SQLite.Migrations.Migrations
                         {
                             Id = 4,
                             Code = "GIFT100-2",
-                            Created = new DateTime(2024, 10, 31, 4, 52, 55, 579, DateTimeKind.Local).AddTicks(48),
+                            Created = new DateTime(2024, 10, 31, 6, 3, 48, 939, DateTimeKind.Local).AddTicks(1919),
                             GiftCardId = 2,
                             IsUsed = false
                         });
@@ -250,18 +377,18 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 11, 30, 4, 52, 55, 579, DateTimeKind.Local).AddTicks(93),
+                            Created = new DateTime(2024, 11, 30, 6, 3, 48, 939, DateTimeKind.Local).AddTicks(1960),
                             DiscountAmount = 200.00m,
-                            ValidityEndDate = new DateTime(2025, 6, 30, 4, 52, 55, 579, DateTimeKind.Local).AddTicks(100),
-                            ValidityStartDate = new DateTime(2024, 11, 30, 4, 52, 55, 579, DateTimeKind.Local).AddTicks(97)
+                            ValidityEndDate = new DateTime(2025, 6, 30, 6, 3, 48, 939, DateTimeKind.Local).AddTicks(1969),
+                            ValidityStartDate = new DateTime(2024, 11, 30, 6, 3, 48, 939, DateTimeKind.Local).AddTicks(1965)
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 10, 31, 4, 52, 55, 579, DateTimeKind.Local).AddTicks(109),
+                            Created = new DateTime(2024, 10, 31, 6, 3, 48, 939, DateTimeKind.Local).AddTicks(1980),
                             DiscountAmount = 100.00m,
-                            ValidityEndDate = new DateTime(2025, 4, 30, 4, 52, 55, 579, DateTimeKind.Local).AddTicks(116),
-                            ValidityStartDate = new DateTime(2024, 10, 31, 4, 52, 55, 579, DateTimeKind.Local).AddTicks(113)
+                            ValidityEndDate = new DateTime(2025, 4, 30, 6, 3, 48, 939, DateTimeKind.Local).AddTicks(1987),
+                            ValidityStartDate = new DateTime(2024, 10, 31, 6, 3, 48, 939, DateTimeKind.Local).AddTicks(1983)
                         });
                 });
 
@@ -380,32 +507,44 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 572, DateTimeKind.Local).AddTicks(4931),
-                            Name = "Cremin - O'Hara"
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 908, DateTimeKind.Local).AddTicks(8654),
+                            Name = "Kreiger and Sons"
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 572, DateTimeKind.Local).AddTicks(7454),
-                            Name = "O'Keefe, Sporer and O'Hara"
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 909, DateTimeKind.Local).AddTicks(1769),
+                            Name = "Zemlak, West and Schiller"
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 572, DateTimeKind.Local).AddTicks(7776),
-                            Name = "Dickens Group"
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 909, DateTimeKind.Local).AddTicks(2204),
+                            Name = "Schuster and Sons"
                         },
                         new
                         {
                             Id = 4,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 572, DateTimeKind.Local).AddTicks(7917),
-                            Name = "Harber, Turcotte and Towne"
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 909, DateTimeKind.Local).AddTicks(2338),
+                            Name = "Doyle - Effertz"
                         },
                         new
                         {
                             Id = 5,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 572, DateTimeKind.Local).AddTicks(8070),
-                            Name = "Conroy - Jakubowski"
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 909, DateTimeKind.Local).AddTicks(2466),
+                            Name = "Kessler - Kemmer"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 909, DateTimeKind.Local).AddTicks(2569),
+                            Name = "Bechtelar Group"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 909, DateTimeKind.Local).AddTicks(2680),
+                            Name = "Kuhn - Predovic"
                         });
                 });
 
@@ -444,43 +583,123 @@ namespace DAL.SQLite.Migrations.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(9867),
-                            Date = new DateTime(2024, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            OrderStatus = 0,
-                            UserId = 2
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(9879),
-                            Date = new DateTime(2024, 11, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Id = 100,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 915, DateTimeKind.Local).AddTicks(9432),
+                            Date = new DateTime(2024, 4, 23, 5, 28, 4, 266, DateTimeKind.Local).AddTicks(9903),
                             OrderStatus = 0,
                             UserId = 3
                         },
                         new
                         {
-                            Id = 3,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(9886),
-                            Date = new DateTime(2024, 12, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Id = 101,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 916, DateTimeKind.Local).AddTicks(3822),
+                            Date = new DateTime(2024, 6, 25, 14, 45, 55, 277, DateTimeKind.Local).AddTicks(3208),
+                            OrderStatus = 3,
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 102,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 916, DateTimeKind.Local).AddTicks(3908),
+                            Date = new DateTime(2024, 2, 16, 22, 21, 43, 530, DateTimeKind.Local).AddTicks(9238),
+                            OrderStatus = 0,
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 103,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 916, DateTimeKind.Local).AddTicks(3937),
+                            Date = new DateTime(2024, 12, 20, 4, 15, 55, 272, DateTimeKind.Local).AddTicks(3948),
+                            OrderStatus = 3,
+                            UserId = 8
+                        },
+                        new
+                        {
+                            Id = 104,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 916, DateTimeKind.Local).AddTicks(3966),
+                            Date = new DateTime(2023, 4, 23, 3, 59, 19, 681, DateTimeKind.Local).AddTicks(7457),
+                            OrderStatus = 1,
+                            UserId = 5
+                        },
+                        new
+                        {
+                            Id = 105,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 916, DateTimeKind.Local).AddTicks(3994),
+                            Date = new DateTime(2023, 8, 19, 21, 13, 48, 911, DateTimeKind.Local).AddTicks(5009),
+                            OrderStatus = 0,
+                            UserId = 7
+                        },
+                        new
+                        {
+                            Id = 106,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 916, DateTimeKind.Local).AddTicks(4025),
+                            Date = new DateTime(2024, 3, 8, 14, 53, 44, 594, DateTimeKind.Local).AddTicks(2250),
+                            OrderStatus = 1,
+                            UserId = 6
+                        },
+                        new
+                        {
+                            Id = 107,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 916, DateTimeKind.Local).AddTicks(4054),
+                            Date = new DateTime(2023, 10, 28, 9, 49, 59, 148, DateTimeKind.Local).AddTicks(1261),
+                            OrderStatus = 1,
+                            UserId = 6
+                        },
+                        new
+                        {
+                            Id = 108,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 916, DateTimeKind.Local).AddTicks(4081),
+                            Date = new DateTime(2023, 12, 14, 2, 56, 17, 458, DateTimeKind.Local).AddTicks(9103),
+                            OrderStatus = 0,
+                            UserId = 8
+                        },
+                        new
+                        {
+                            Id = 109,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 916, DateTimeKind.Local).AddTicks(4109),
+                            Date = new DateTime(2023, 7, 19, 1, 7, 26, 738, DateTimeKind.Local).AddTicks(6718),
+                            OrderStatus = 3,
+                            UserId = 8
+                        },
+                        new
+                        {
+                            Id = 110,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 916, DateTimeKind.Local).AddTicks(4138),
+                            Date = new DateTime(2024, 11, 14, 9, 12, 32, 438, DateTimeKind.Local).AddTicks(6500),
                             OrderStatus = 0,
                             UserId = 3
                         },
                         new
                         {
-                            Id = 4,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(9893),
-                            Date = new DateTime(2025, 1, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            OrderStatus = 0,
-                            UserId = 2
+                            Id = 111,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 916, DateTimeKind.Local).AddTicks(4166),
+                            Date = new DateTime(2023, 6, 3, 3, 13, 19, 96, DateTimeKind.Local).AddTicks(4373),
+                            OrderStatus = 3,
+                            UserId = 4
                         },
                         new
                         {
-                            Id = 5,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(9900),
-                            Date = new DateTime(2025, 2, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            OrderStatus = 0,
-                            UserId = 2
+                            Id = 112,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 916, DateTimeKind.Local).AddTicks(4195),
+                            Date = new DateTime(2023, 12, 30, 10, 41, 14, 887, DateTimeKind.Local).AddTicks(1922),
+                            OrderStatus = 3,
+                            UserId = 5
+                        },
+                        new
+                        {
+                            Id = 113,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 916, DateTimeKind.Local).AddTicks(4223),
+                            Date = new DateTime(2023, 5, 12, 9, 5, 4, 932, DateTimeKind.Local).AddTicks(332),
+                            OrderStatus = 1,
+                            UserId = 6
+                        },
+                        new
+                        {
+                            Id = 114,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 916, DateTimeKind.Local).AddTicks(4253),
+                            Date = new DateTime(2023, 9, 14, 19, 40, 15, 900, DateTimeKind.Local).AddTicks(5832),
+                            OrderStatus = 2,
+                            UserId = 6
                         });
                 });
 
@@ -517,65 +736,317 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(9939),
-                            OrderId = 1,
-                            Price = 99.99m,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 918, DateTimeKind.Local).AddTicks(4331),
+                            OrderId = 100,
+                            Price = 2892.28m,
+                            ProductId = 18,
+                            Quantity = 4
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 919, DateTimeKind.Local).AddTicks(9379),
+                            OrderId = 101,
+                            Price = 1680.77m,
+                            ProductId = 6,
+                            Quantity = 7
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 919, DateTimeKind.Local).AddTicks(9602),
+                            OrderId = 101,
+                            Price = 2816.37m,
+                            ProductId = 11,
+                            Quantity = 9
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 921, DateTimeKind.Local).AddTicks(3875),
+                            OrderId = 102,
+                            Price = 1680.77m,
+                            ProductId = 6,
+                            Quantity = 7
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 922, DateTimeKind.Local).AddTicks(8333),
+                            OrderId = 103,
+                            Price = 2401.10m,
+                            ProductId = 6,
+                            Quantity = 10
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 922, DateTimeKind.Local).AddTicks(8634),
+                            OrderId = 103,
+                            Price = 726.80m,
                             ProductId = 1,
                             Quantity = 1
                         },
                         new
                         {
-                            Id = 2,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(9947),
-                            OrderId = 1,
-                            Price = 21.99m,
+                            Id = 7,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 922, DateTimeKind.Local).AddTicks(8660),
+                            OrderId = 103,
+                            Price = 3129.30m,
+                            ProductId = 11,
+                            Quantity = 10
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 924, DateTimeKind.Local).AddTicks(3775),
+                            OrderId = 104,
+                            Price = 316.40m,
+                            ProductId = 12,
+                            Quantity = 4
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 924, DateTimeKind.Local).AddTicks(4135),
+                            OrderId = 104,
+                            Price = 3036.40m,
                             ProductId = 2,
+                            Quantity = 8
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 924, DateTimeKind.Local).AddTicks(4155),
+                            OrderId = 104,
+                            Price = 1954.28m,
+                            ProductId = 16,
                             Quantity = 2
                         },
                         new
                         {
-                            Id = 3,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(9951),
-                            OrderId = 2,
-                            Price = 280m,
-                            ProductId = 3,
-                            Quantity = 100
+                            Id = 11,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 924, DateTimeKind.Local).AddTicks(4174),
+                            OrderId = 104,
+                            Price = 138.28m,
+                            ProductId = 14,
+                            Quantity = 2
                         },
                         new
                         {
-                            Id = 4,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(9957),
-                            OrderId = 3,
-                            Price = 499.99m,
-                            ProductId = 4,
-                            Quantity = 5
+                            Id = 12,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 926, DateTimeKind.Local).AddTicks(239),
+                            OrderId = 105,
+                            Price = 222.62m,
+                            ProductId = 7,
+                            Quantity = 2
                         },
                         new
                         {
-                            Id = 5,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(9960),
-                            OrderId = 3,
-                            Price = 720.05m,
-                            ProductId = 5,
+                            Id = 13,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 926, DateTimeKind.Local).AddTicks(576),
+                            OrderId = 105,
+                            Price = 414.84m,
+                            ProductId = 14,
+                            Quantity = 6
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 927, DateTimeKind.Local).AddTicks(4961),
+                            OrderId = 106,
+                            Price = 791.00m,
+                            ProductId = 12,
+                            Quantity = 10
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 927, DateTimeKind.Local).AddTicks(5201),
+                            OrderId = 106,
+                            Price = 316.40m,
+                            ProductId = 12,
+                            Quantity = 4
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 928, DateTimeKind.Local).AddTicks(9323),
+                            OrderId = 107,
+                            Price = 1800.24m,
+                            ProductId = 9,
+                            Quantity = 6
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 928, DateTimeKind.Local).AddTicks(9549),
+                            OrderId = 107,
+                            Price = 69.14m,
+                            ProductId = 14,
                             Quantity = 1
                         },
                         new
                         {
-                            Id = 6,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(9965),
-                            OrderId = 4,
-                            Price = 29.99m,
+                            Id = 18,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 928, DateTimeKind.Local).AddTicks(9571),
+                            OrderId = 107,
+                            Price = 333.93m,
+                            ProductId = 7,
+                            Quantity = 3
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 930, DateTimeKind.Local).AddTicks(3675),
+                            OrderId = 108,
+                            Price = 779.17m,
+                            ProductId = 7,
+                            Quantity = 7
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 930, DateTimeKind.Local).AddTicks(3894),
+                            OrderId = 108,
+                            Price = 436.86m,
+                            ProductId = 19,
+                            Quantity = 1
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 931, DateTimeKind.Local).AddTicks(8775),
+                            OrderId = 109,
+                            Price = 1256.80m,
+                            ProductId = 5,
+                            Quantity = 5
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 931, DateTimeKind.Local).AddTicks(9078),
+                            OrderId = 109,
+                            Price = 960.44m,
+                            ProductId = 6,
+                            Quantity = 4
+                        },
+                        new
+                        {
+                            Id = 23,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 933, DateTimeKind.Local).AddTicks(3570),
+                            OrderId = 110,
+                            Price = 993.72m,
+                            ProductId = 8,
+                            Quantity = 4
+                        },
+                        new
+                        {
+                            Id = 24,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 933, DateTimeKind.Local).AddTicks(3800),
+                            OrderId = 110,
+                            Price = 1759.52m,
+                            ProductId = 5,
+                            Quantity = 7
+                        },
+                        new
+                        {
+                            Id = 25,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 934, DateTimeKind.Local).AddTicks(7920),
+                            OrderId = 111,
+                            Price = 237.30m,
+                            ProductId = 12,
+                            Quantity = 3
+                        },
+                        new
+                        {
+                            Id = 26,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 934, DateTimeKind.Local).AddTicks(8139),
+                            OrderId = 111,
+                            Price = 502.72m,
+                            ProductId = 5,
+                            Quantity = 2
+                        },
+                        new
+                        {
+                            Id = 27,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 936, DateTimeKind.Local).AddTicks(2428),
+                            OrderId = 112,
+                            Price = 158.20m,
+                            ProductId = 12,
+                            Quantity = 2
+                        },
+                        new
+                        {
+                            Id = 28,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 936, DateTimeKind.Local).AddTicks(2645),
+                            OrderId = 112,
+                            Price = 3777.70m,
+                            ProductId = 17,
+                            Quantity = 5
+                        },
+                        new
+                        {
+                            Id = 29,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 936, DateTimeKind.Local).AddTicks(2669),
+                            OrderId = 112,
+                            Price = 720.33m,
                             ProductId = 6,
                             Quantity = 3
                         },
                         new
                         {
-                            Id = 7,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(9969),
-                            OrderId = 5,
-                            Price = 25.54m,
-                            ProductId = 6,
-                            Quantity = 2
+                            Id = 30,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 937, DateTimeKind.Local).AddTicks(6777),
+                            OrderId = 113,
+                            Price = 2169.21m,
+                            ProductId = 18,
+                            Quantity = 3
+                        },
+                        new
+                        {
+                            Id = 31,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 937, DateTimeKind.Local).AddTicks(6997),
+                            OrderId = 113,
+                            Price = 251.36m,
+                            ProductId = 5,
+                            Quantity = 1
+                        },
+                        new
+                        {
+                            Id = 32,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 937, DateTimeKind.Local).AddTicks(7015),
+                            OrderId = 113,
+                            Price = 2513.60m,
+                            ProductId = 5,
+                            Quantity = 10
+                        },
+                        new
+                        {
+                            Id = 33,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 939, DateTimeKind.Local).AddTicks(1403),
+                            OrderId = 114,
+                            Price = 251.36m,
+                            ProductId = 5,
+                            Quantity = 1
+                        },
+                        new
+                        {
+                            Id = 34,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 939, DateTimeKind.Local).AddTicks(1666),
+                            OrderId = 114,
+                            Price = 1512.65m,
+                            ProductId = 3,
+                            Quantity = 5
+                        },
+                        new
+                        {
+                            Id = 35,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 939, DateTimeKind.Local).AddTicks(1684),
+                            OrderId = 114,
+                            Price = 553.70m,
+                            ProductId = 12,
+                            Quantity = 7
                         });
                 });
 
@@ -626,93 +1097,262 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(9770),
-                            Description = "The automobile layout consists of a front-engine design, with transaxle-type transmissions mounted at the rear of the engine and four wheel drive",
-                            EditCount = 5,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(8239),
+                            Description = "The Football Is Good For Training And Recreational Purposes",
+                            EditCount = 3,
                             LastModifiedById = 1,
-                            ManufacturerId = 1,
-                            Name = "Instrument Cases",
-                            Price = 122.71m,
-                            PrimaryCategoryId = 3,
-                            QuantityInStock = 17
+                            ManufacturerId = 6,
+                            Name = "Sheet Music Collections",
+                            Price = 726.80m,
+                            PrimaryCategoryId = 5,
+                            QuantityInStock = 14
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(9783),
-                            Description = "Carbonite web goalkeeper gloves are ergonomically designed to give easy fit",
-                            EditCount = 7,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(8250),
+                            Description = "The beautiful range of Apple Naturalé that has an exciting mix of natural ingredients. With the Goodness of 100% Natural Ingredients",
+                            EditCount = 5,
                             LastModifiedById = 1,
                             ManufacturerId = 1,
-                            Name = "Microphone Stands",
-                            Price = 388.74m,
-                            PrimaryCategoryId = 2,
-                            QuantityInStock = 88
+                            Name = "Electric Guitar",
+                            Price = 379.55m,
+                            PrimaryCategoryId = 1,
+                            QuantityInStock = 33
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(9789),
-                            Description = "Ergonomic executive chair upholstered in bonded black leather and PVC padded seat and back for all-day comfort and support",
-                            EditCount = 8,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(8255),
+                            Description = "Andy shoes are designed to keeping in mind durability as well as trends, the most stylish range of shoes & sandals",
+                            EditCount = 3,
                             LastModifiedById = 1,
-                            ManufacturerId = 1,
-                            Name = "Saxophone",
-                            Price = 75.84m,
-                            PrimaryCategoryId = 3,
-                            QuantityInStock = 87
+                            ManufacturerId = 4,
+                            Name = "Flute",
+                            Price = 302.53m,
+                            PrimaryCategoryId = 1,
+                            QuantityInStock = 11
                         },
                         new
                         {
                             Id = 4,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(9795),
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(8261),
                             Description = "The Apollotech B340 is an affordable wireless mouse with reliable connectivity, 12 months battery life and modern design",
-                            EditCount = 8,
+                            EditCount = 2,
                             LastModifiedById = 1,
-                            ManufacturerId = 1,
-                            Name = "Tuners",
-                            Price = 212.88m,
-                            PrimaryCategoryId = 1,
-                            QuantityInStock = 93
+                            ManufacturerId = 4,
+                            Name = "Synthesizer Plugins",
+                            Price = 57.13m,
+                            PrimaryCategoryId = 4,
+                            QuantityInStock = 61
                         },
                         new
                         {
                             Id = 5,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(9800),
-                            Description = "The beautiful range of Apple Naturalé that has an exciting mix of natural ingredients. With the Goodness of 100% Natural Ingredients",
-                            EditCount = 1,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(8266),
+                            Description = "New range of formal shirts are designed keeping you in mind. With fits and styling that will make you stand apart",
+                            EditCount = 2,
                             LastModifiedById = 1,
-                            ManufacturerId = 4,
-                            Name = "Replacement Strings",
-                            Price = 686.70m,
-                            PrimaryCategoryId = 1,
-                            QuantityInStock = 97
+                            ManufacturerId = 1,
+                            Name = "Reeds",
+                            Price = 251.36m,
+                            PrimaryCategoryId = 2,
+                            QuantityInStock = 64
                         },
                         new
                         {
                             Id = 6,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(9807),
-                            Description = "The Apollotech B340 is an affordable wireless mouse with reliable connectivity, 12 months battery life and modern design",
-                            EditCount = 2,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(8272),
+                            Description = "Carbonite web goalkeeper gloves are ergonomically designed to give easy fit",
+                            EditCount = 3,
                             LastModifiedById = 1,
-                            ManufacturerId = 3,
-                            Name = "Stage Lighting Kits",
-                            Price = 147.63m,
+                            ManufacturerId = 4,
+                            Name = "Capos",
+                            Price = 240.11m,
                             PrimaryCategoryId = 2,
-                            QuantityInStock = 39
+                            QuantityInStock = 98
                         },
                         new
                         {
                             Id = 7,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(9812),
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(8277),
+                            Description = "The automobile layout consists of a front-engine design, with transaxle-type transmissions mounted at the rear of the engine and four wheel drive",
+                            EditCount = 4,
+                            LastModifiedById = 1,
+                            ManufacturerId = 6,
+                            Name = "Flute",
+                            Price = 111.31m,
+                            PrimaryCategoryId = 1,
+                            QuantityInStock = 25
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(8283),
+                            Description = "The Nagasaki Lander is the trademarked name of several series of Nagasaki sport bikes, that started with the 1984 ABC800J",
+                            EditCount = 5,
+                            LastModifiedById = 1,
+                            ManufacturerId = 7,
+                            Name = "Synthesizer Plugins",
+                            Price = 248.43m,
+                            PrimaryCategoryId = 4,
+                            QuantityInStock = 46
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(8289),
                             Description = "New ABC 13 9370, 13.3, 5th Gen CoreA5-8250U, 8GB RAM, 256GB SSD, power UHD Graphics, OS 10 Home, OS Office A & J 2016",
-                            EditCount = 10,
+                            EditCount = 3,
+                            LastModifiedById = 1,
+                            ManufacturerId = 2,
+                            Name = "Amplifiers",
+                            Price = 300.04m,
+                            PrimaryCategoryId = 3,
+                            QuantityInStock = 85
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(8295),
+                            Description = "Andy shoes are designed to keeping in mind durability as well as trends, the most stylish range of shoes & sandals",
+                            EditCount = 5,
+                            LastModifiedById = 1,
+                            ManufacturerId = 2,
+                            Name = "Sheet Music Collections",
+                            Price = 717.87m,
+                            PrimaryCategoryId = 5,
+                            QuantityInStock = 22
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(8300),
+                            Description = "Andy shoes are designed to keeping in mind durability as well as trends, the most stylish range of shoes & sandals",
+                            EditCount = 1,
                             LastModifiedById = 1,
                             ManufacturerId = 1,
-                            Name = "Violin",
-                            Price = 839.63m,
+                            Name = "Cello",
+                            Price = 312.93m,
                             PrimaryCategoryId = 1,
+                            QuantityInStock = 65
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(8310),
+                            Description = "Ergonomic executive chair upholstered in bonded black leather and PVC padded seat and back for all-day comfort and support",
+                            EditCount = 3,
+                            LastModifiedById = 1,
+                            ManufacturerId = 6,
+                            Name = "Plugin Bundles",
+                            Price = 79.10m,
+                            PrimaryCategoryId = 4,
+                            QuantityInStock = 15
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(8316),
+                            Description = "New ABC 13 9370, 13.3, 5th Gen CoreA5-8250U, 8GB RAM, 256GB SSD, power UHD Graphics, OS 10 Home, OS Office A & J 2016",
+                            EditCount = 1,
+                            LastModifiedById = 1,
+                            ManufacturerId = 7,
+                            Name = "Synthesizer Plugins",
+                            Price = 960.13m,
+                            PrimaryCategoryId = 4,
+                            QuantityInStock = 4
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(8322),
+                            Description = "Carbonite web goalkeeper gloves are ergonomically designed to give easy fit",
+                            EditCount = 5,
+                            LastModifiedById = 1,
+                            ManufacturerId = 7,
+                            Name = "Music Theory Books",
+                            Price = 69.14m,
+                            PrimaryCategoryId = 5,
+                            QuantityInStock = 25
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(8329),
+                            Description = "Ergonomic executive chair upholstered in bonded black leather and PVC padded seat and back for all-day comfort and support",
+                            EditCount = 2,
+                            LastModifiedById = 1,
+                            ManufacturerId = 4,
+                            Name = "Effects Processors",
+                            Price = 763.86m,
+                            PrimaryCategoryId = 3,
+                            QuantityInStock = 58
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(8336),
+                            Description = "New ABC 13 9370, 13.3, 5th Gen CoreA5-8250U, 8GB RAM, 256GB SSD, power UHD Graphics, OS 10 Home, OS Office A & J 2016",
+                            EditCount = 1,
+                            LastModifiedById = 1,
+                            ManufacturerId = 7,
+                            Name = "Guitar Picks",
+                            Price = 977.14m,
+                            PrimaryCategoryId = 2,
+                            QuantityInStock = 95
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(8343),
+                            Description = "Boston's most advanced compression wear technology increases muscle oxygenation, stabilizes active muscles",
+                            EditCount = 1,
+                            LastModifiedById = 1,
+                            ManufacturerId = 6,
+                            Name = "Karaoke Machines",
+                            Price = 755.54m,
+                            PrimaryCategoryId = 3,
                             QuantityInStock = 32
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(8351),
+                            Description = "Carbonite web goalkeeper gloves are ergonomically designed to give easy fit",
+                            EditCount = 5,
+                            LastModifiedById = 1,
+                            ManufacturerId = 7,
+                            Name = "Amplifiers",
+                            Price = 723.07m,
+                            PrimaryCategoryId = 3,
+                            QuantityInStock = 84
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(8358),
+                            Description = "New ABC 13 9370, 13.3, 5th Gen CoreA5-8250U, 8GB RAM, 256GB SSD, power UHD Graphics, OS 10 Home, OS Office A & J 2016",
+                            EditCount = 4,
+                            LastModifiedById = 1,
+                            ManufacturerId = 6,
+                            Name = "Headphones",
+                            Price = 436.86m,
+                            PrimaryCategoryId = 3,
+                            QuantityInStock = 6
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(8365),
+                            Description = "Boston's most advanced compression wear technology increases muscle oxygenation, stabilizes active muscles",
+                            EditCount = 4,
+                            LastModifiedById = 1,
+                            ManufacturerId = 1,
+                            Name = "Microphone Stands",
+                            Price = 156.46m,
+                            PrimaryCategoryId = 2,
+                            QuantityInStock = 80
                         });
                 });
 
@@ -940,54 +1580,93 @@ namespace DAL.SQLite.Migrations.Migrations
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(5871),
-                            Email = "Eloise.Aufderhar_Jacobson46@hotmail.com",
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(3714),
+                            Email = "Maribel.Daniel0@hotmail.com",
                             Role = 1,
-                            Username = "Eloise.Aufderhar",
-                            Address = "89950 Nikolaus Mills",
-                            City = "East Fern",
-                            PhoneNumber = "+891 300 957 876",
-                            PostalCode = "90113",
-                            State = "Wisconsin"
+                            Username = "Maribel.Daniel",
+                            Address = "42742 Emil Estate",
+                            City = "Champlinland",
+                            PhoneNumber = "1-239-375-1243 x63743",
+                            PostalCode = "78431",
+                            State = "New Hampshire"
                         },
                         new
                         {
                             Id = 3,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(8591),
-                            Email = "Loyce.Roob45.Cassin68@gmail.com",
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(6251),
+                            Email = "Rocio72_Hauck75@gmail.com",
                             Role = 1,
-                            Username = "Loyce.Roob45",
-                            Address = "101 Teagan Crest",
-                            City = "Walshland",
-                            PhoneNumber = "+984 753 417 865",
-                            PostalCode = "11190-8586",
-                            State = "Vermont"
+                            Username = "Rocio72",
+                            Address = "5091 Antonina Groves",
+                            City = "South Justyn",
+                            PhoneNumber = "898.958.8285 x605",
+                            PostalCode = "16072",
+                            State = "Idaho"
                         },
                         new
                         {
                             Id = 4,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(8949),
-                            Email = "Brisa.Berge27@hotmail.com",
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(6685),
+                            Email = "Armani72_Botsford38@hotmail.com",
                             Role = 1,
-                            Username = "Brisa.Berge",
-                            Address = "415 Orn Prairie",
-                            City = "New Zoila",
-                            PhoneNumber = "+037 785 815 319",
-                            PostalCode = "96668",
-                            State = "California"
+                            Username = "Armani72",
+                            Address = "913 Ora Shores",
+                            City = "Bauchport",
+                            PhoneNumber = "978.749.0495 x80098",
+                            PostalCode = "66812",
+                            State = "Montana"
                         },
                         new
                         {
                             Id = 5,
-                            Created = new DateTime(2024, 12, 31, 4, 52, 55, 578, DateTimeKind.Local).AddTicks(9210),
-                            Email = "Armani55.Huel@yahoo.com",
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(6906),
+                            Email = "Porter_Grant_Hettinger7@hotmail.com",
                             Role = 1,
-                            Username = "Armani55",
-                            Address = "835 Colten Courts",
-                            City = "Ondrickatown",
-                            PhoneNumber = "+211 397 045 098",
-                            PostalCode = "20019-3159",
-                            State = "New Mexico"
+                            Username = "Porter_Grant",
+                            Address = "197 Susie Plains",
+                            City = "Lionelberg",
+                            PhoneNumber = "1-653-907-1946 x8876",
+                            PostalCode = "65480",
+                            State = "New Jersey"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(7122),
+                            Email = "Annabelle48_Lehner@hotmail.com",
+                            Role = 1,
+                            Username = "Annabelle48",
+                            Address = "652 Schmeler Island",
+                            City = "Port Keith",
+                            PhoneNumber = "1-775-783-5693",
+                            PostalCode = "38312-5433",
+                            State = "Florida"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(7334),
+                            Email = "Austin_Hegmann.McCullough@yahoo.com",
+                            Role = 1,
+                            Username = "Austin_Hegmann",
+                            Address = "3229 Ezekiel Bypass",
+                            City = "South Savion",
+                            PhoneNumber = "1-766-791-9143",
+                            PostalCode = "67661",
+                            State = "Oregon"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Created = new DateTime(2024, 12, 31, 6, 3, 48, 913, DateTimeKind.Local).AddTicks(7548),
+                            Email = "Zella57_Bergstrom65@yahoo.com",
+                            Role = 1,
+                            Username = "Zella57",
+                            Address = "0886 Bednar Motorway",
+                            City = "West Aniyah",
+                            PhoneNumber = "1-882-692-1255 x7684",
+                            PostalCode = "51320-1250",
+                            State = "Utah"
                         });
                 });
 
