@@ -1,4 +1,9 @@
-﻿using BusinessLayer.Services.Interfaces;
+﻿using BusinessLayer.DTOs.Order;
+using BusinessLayer.DTOs.OrderItem;
+using BusinessLayer.Services;
+using BusinessLayer.Services.Interfaces;
+using DataAccessLayer.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebMVC.Helpers;
 using WebMVC.Models.ShoppingCart;
@@ -8,12 +13,16 @@ namespace WebMVC.Controllers
     public class ShoppingCartController : Controller
     {
         private readonly IGiftCardService _giftCardService;
+        private readonly IOrderService _orderService;
+        private readonly UserManager<LocalIdentityUser> _userManager;
 
-        public ShoppingCartController(IGiftCardService giftCardService)
+        public ShoppingCartController(IGiftCardService giftCardService, IOrderService orderService, UserManager<LocalIdentityUser> userManager)
         {
             _giftCardService = giftCardService;
+            _orderService = orderService;
+            _userManager = userManager;
         }
-
+        
         [HttpGet("Cart")]
         public IActionResult Cart()
         {
@@ -50,8 +59,6 @@ namespace WebMVC.Controllers
         [HttpPost]
         public async Task<IActionResult> Checkout()
         {
-            // Process the order...
-
             var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart");
 
             // Check if the cart is null or empty
@@ -60,15 +67,36 @@ namespace WebMVC.Controllers
                 return View("Cart", new ShoppingCart()); // Reload the cart view
             }
 
-            // Process the order...
-            // Save the order and other details to the database
+            // Retrieve the userId of the currently logged-in user
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null || user.User == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
+            // Create the CreateOrderDto from the cart
+            var createOrderDto = new CreateOrderDto
+            {
+                CustomerId = user.User.Id,
+                Items = cart.CartItems.Select(item => new OrderItemDto
+                {
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity
+                }),
+                AppliedGiftCardCode = cart.AppliedGiftCardCode,
+                DiscountAmount = cart.DiscountAmount
+            };
 
+            var orderCreated = await _orderService.CreateOrderAsync(createOrderDto);
+
+            if (!orderCreated)
+            {
+                return View("Cart", cart); // Reload the cart view
+            }
 
             // Clear the cart
             HttpContext.Session.Remove("Cart");
 
-            //return RedirectToAction("OrderConfirmation");
             return View("Cart");
         }
 
@@ -96,12 +124,12 @@ namespace WebMVC.Controllers
 
             // Apply the discount
             cart.DiscountAmount = couponCode.DiscountAmount;
+            cart.AppliedGiftCardCode = giftCardCode; // Set the applied gift card code
 
             // Save the cart back to session
             HttpContext.Session.SetObjectAsJson("Cart", cart);
 
             return Json(new { success = true, discountAmount = cart.DiscountAmount, finalAmount = cart.FinalAmount });
-            //return View("Cart");
         }
     }
 }

@@ -22,5 +22,7 @@ namespace DataAccessLayer.Models
 
         public int? GiftCardId { get; set; }
         public virtual GiftCard? GiftCard { get; set; }
+
+        public string? UsedCouponCode { get; set; }
     }
 }

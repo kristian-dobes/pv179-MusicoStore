@@ -1,4 +1,5 @@
-﻿using BusinessLayer.DTOs.OrderItem;
+﻿using BusinessLayer.DTOs.GiftCard;
+using BusinessLayer.DTOs.OrderItem;
 using BusinessLayer.DTOs.User;
 using System;
 using System.Collections.Generic;
@@ -17,5 +18,7 @@ namespace BusinessLayer.DTOs.Order
         public required string Email { get; set; }
         public required decimal TotalOrderPrice { get; set; }
         public required string PaymentStatus { get; set; }
+
+        public GiftCardSummaryDTO GiftCard { get; set; }
     }
 }

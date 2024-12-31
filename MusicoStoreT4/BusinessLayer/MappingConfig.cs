@@ -178,17 +178,7 @@ namespace BusinessLayer
                     GiftCardId = src.GiftCard.Id,
                     DiscountAmount = src.GiftCard.DiscountAmount,
                 } : null)
-                .Map(dest => dest.CouponCode, src =>
-                    src.GiftCard != null && src.GiftCard.CouponCodes != null
-                    ? src.GiftCard.CouponCodes
-                        .Where(c => c.IsUsed && c.OrderId == src.Id)
-                        .Select(c => new CouponCodeSummaryDTO
-                        {
-                            Code = c.Code,
-                            DiscountAmount = src.GiftCard.DiscountAmount
-                        })
-                        .FirstOrDefault()
-                    : null);
+                .Map(dest => dest.UsedCouponCode, src => src.UsedCouponCode);
 
             TypeAdapterConfig<CouponCode, CouponCodeDto>.NewConfig()
                 .Map(dest => dest.CouponCodeId, src => src.Id)

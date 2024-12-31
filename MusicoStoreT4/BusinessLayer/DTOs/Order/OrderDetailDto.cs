@@ -20,6 +20,6 @@ namespace BusinessLayer.DTOs.Order
         public required decimal TotalOrderPrice { get; set; }
         public required string PaymentStatus { get; set; }
         public GiftCardSummaryDTO? GiftCard { get; set; }
-        public CouponCodeSummaryDTO? CouponCode { get; set; }
+        public string? UsedCouponCode { get; set; } = "";
     }
 }

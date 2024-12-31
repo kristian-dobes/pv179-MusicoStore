@@ -64,5 +64,12 @@ namespace Infrastructure.Repository.Implementations
 
             return true;
         }
+
+        public async Task<GiftCard?> GetGiftCardByCodeAsync(string code)
+        {
+            return await _context.Set<GiftCard>()
+                .Include(gc => gc.CouponCodes)
+                .FirstOrDefaultAsync(gc => gc.CouponCodes.Any(cc => cc.Code == code));
+        }
     }
 }
