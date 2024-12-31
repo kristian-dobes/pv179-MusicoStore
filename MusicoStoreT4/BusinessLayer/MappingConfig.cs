@@ -146,28 +146,49 @@ namespace BusinessLayer
                 .Map(dest => dest.ProductPrice, src => src.Price)
                 .Map(dest => dest.TotalPricePerOrderItem, src => src.Quantity * src.Price);
 
+            //TypeAdapterConfig<Order, OrderDetailDto>.NewConfig()
+            //    .Map(dest => dest.OrderId, src => src.Id)
+            //    .Map(dest => dest.Created, src => src.Date)
+            //    .Map(
+            //        dest => dest.OrderItemsCount,
+            //        src => src.OrderItems != null ? src.OrderItems.Count() : 0
+            //    )
+            //    .Map(dest => dest.User, src => src.User.Adapt<CustomerOrderDTO>())
+            //    .Map(
+            //        dest => dest.OrderItems,
+            //        src => src.OrderItems.Adapt<IEnumerable<OrderItemCompleteDTO>>()
+            //    )
+            //    .Map(
+            //        dest => dest.TotalOrderPrice,
+            //        src => src.OrderItems != null ? src.OrderItems.Sum(oi => oi.Price * oi.Quantity) : 0 )
+            //    .Map(dest => dest.OrderItems, src => src.OrderItems.Adapt<IEnumerable<OrderItemCompleteDTO>>())
+            //    .Map(dest => dest.TotalOrderPrice, src => src.OrderItems != null ? src.OrderItems.Sum(oi => oi.Price * oi.Quantity) : 0)
+            //    .Map(dest => dest.PaymentStatus, src => src.OrderStatus.ToString());
+
             TypeAdapterConfig<Order, OrderDetailDto>.NewConfig()
                 .Map(dest => dest.OrderId, src => src.Id)
                 .Map(dest => dest.Created, src => src.Date)
-                .Map(
-                    dest => dest.OrderItemsCount,
-                    src => src.OrderItems != null ? src.OrderItems.Count() : 0
-                )
+                .Map(dest => dest.OrderItemsCount, src => src.OrderItems != null ? src.OrderItems.Count() : 0)
                 .Map(dest => dest.User, src => src.User.Adapt<CustomerOrderDTO>())
-                .Map(
-                    dest => dest.OrderItems,
-                    src => src.OrderItems.Adapt<IEnumerable<OrderItemCompleteDTO>>()
-                )
-                .Map(
-                    dest => dest.TotalOrderPrice,
-                    src =>
-                        src.OrderItems != null
-                            ? src.OrderItems.Sum(oi => oi.Price * oi.Quantity)
-                            : 0
-                )
                 .Map(dest => dest.OrderItems, src => src.OrderItems.Adapt<IEnumerable<OrderItemCompleteDTO>>())
                 .Map(dest => dest.TotalOrderPrice, src => src.OrderItems != null ? src.OrderItems.Sum(oi => oi.Price * oi.Quantity) : 0)
-                .Map(dest => dest.PaymentStatus, src => src.OrderStatus.ToString());
+                .Map(dest => dest.PaymentStatus, src => src.OrderStatus.ToString())
+                .Map(dest => dest.GiftCard, src => src.GiftCard != null ? new GiftCardSummaryDTO
+                {
+                    GiftCardId = src.GiftCard.Id,
+                    DiscountAmount = src.GiftCard.DiscountAmount,
+                } : null)
+                .Map(dest => dest.CouponCode, src =>
+                    src.GiftCard != null && src.GiftCard.CouponCodes != null
+                    ? src.GiftCard.CouponCodes
+                        .Where(c => c.IsUsed && c.OrderId == src.Id)
+                        .Select(c => new CouponCodeSummaryDTO
+                        {
+                            Code = c.Code,
+                            DiscountAmount = src.GiftCard.DiscountAmount
+                        })
+                        .FirstOrDefault()
+                    : null);
 
             TypeAdapterConfig<CouponCode, CouponCodeDto>.NewConfig()
                 .Map(dest => dest.CouponCodeId, src => src.Id)

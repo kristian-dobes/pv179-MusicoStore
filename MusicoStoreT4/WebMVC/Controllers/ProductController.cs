@@ -34,6 +34,17 @@ namespace WebMVC.Controllers
             return View(products.Adapt<IEnumerable<ProductDetailViewModel>>());
         }
 
+        [HttpGet("details/{id}")]
+        public async Task<IActionResult> Details(int id)
+        {
+            var product = await _productService.GetProductByIdAsync(id);
+
+            if (product == null)
+                return NotFound();
+
+            return View(product.Adapt<ProductDetailViewModel>());
+        }
+
         [HttpGet("list")]
         [AllowAnonymous]
         public async Task<IActionResult> List(int page = 1, int pageSize = 10)

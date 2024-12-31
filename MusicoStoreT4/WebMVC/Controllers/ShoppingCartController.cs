@@ -60,19 +60,10 @@ namespace WebMVC.Controllers
                 return View("Cart", new ShoppingCart()); // Reload the cart view
             }
 
-            //// If a gift card is applied, mark it as used
-            //if (!string.IsNullOrEmpty(cart.AppliedGiftCardCode))
-            //{
-            //    var couponCode = await _giftCardService.SetCouponCodeAsUsed(cart.AppliedGiftCardCode);
-            //    if (!couponCode)
-            //    {
-            //        // Coupon was already used
-
-            //    }
-            //}
-
             // Process the order...
             // Save the order and other details to the database
+
+
 
             // Clear the cart
             HttpContext.Session.Remove("Cart");

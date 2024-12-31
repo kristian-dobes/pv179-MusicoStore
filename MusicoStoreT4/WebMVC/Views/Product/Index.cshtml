@@ -6,63 +6,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product List</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Add jQuery for AJAX -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <h1>Product List</h1>
+    <div class="container my-5">
+        <h1 class="mb-4 text-center">Product List</h1>
 
-    <table border="1" cellpadding="5" cellspacing="0">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Price</th>
-                <th>Quantity in Stock</th>
-                <th>Category</th>
-                <th>Manufacturer</th>
-                <th>Action</th> <!-- Add a column for "Add to Cart" -->
-            </tr>
-        </thead>
-        <tbody>
-            @if (Model != null && Model.Any())
-            {
-                foreach (var product in Model)
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Quantity in Stock</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Manufacturer</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var product in Model)
+                    {
+                        <tr>
+                            <td>@product.Id</td>
+                            <td>@product.Name</td>
+                            <td>@product.Description</td>
+                            <td>@product.Price.ToString("C")</td>
+                            <td>@product.QuantityInStock</td>
+                            <td>@product.PrimaryCategory.Name (@product.PrimaryCategory.PrimaryProductCount products)</td>
+                            <td>@product.Manufacturer.Name (@product.Manufacturer.ProductCount products)</td>
+                            <td class="text-center">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <input type="number" id="quantity-@product.Id" value="1" min="1" class="form-control form-control-sm me-2" style="width: 70px;" />
+                                    <button class="btn btn-primary btn-sm" onclick="addToCart(@product.Id, '@product.Name', @product.Price)">
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
                 {
                     <tr>
-                        <td>@product.Id</td>
-                        <td>@product.Name</td>
-                        <td>@product.Description</td>
-                        <td>@product.Price.ToString("C")</td>
-                        <td>@product.QuantityInStock</td>
-                        <td>@product.PrimaryCategory.Name (@product.PrimaryCategory.PrimaryProductCount products)</td>
-                        <td>@product.Manufacturer.Name (@product.Manufacturer.ProductCount products)</td>
-                        <td>
-                            <!-- AJAX-based Add to Cart button -->
-                            <input type="number" id="quantity-@product.Id" value="1" min="1" style="width: 50px;" />
-                            <button class="btn btn-primary" onclick="addToCart(@product.Id, '@product.Name', @product.Price)">
-                                Add to Cart
-                            </button>
-                        </td>
+                        <td colspan="8" class="text-center">No products available.</td>
                     </tr>
                 }
-            }
-            else
-            {
-                <tr>
-                    <td colspan="10">No products available.</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 
     <script>
-        // JavaScript function for Add to Cart functionality
         function addToCart(productId, productName, price) {
             const quantity = document.getElementById(`quantity-${productId}`).value;
 
             $.ajax({
-                url: '/ShoppingCart/AddToCart', // URL to your controller action
+                url: '/ShoppingCart/AddToCart',
                 type: 'POST',
                 data: {
                     productId: productId,
@@ -83,5 +86,6 @@
             });
         }
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

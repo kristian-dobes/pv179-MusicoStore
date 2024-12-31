@@ -28,15 +28,15 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
 
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="ShoppingCart" asp-action="Cart">Cart</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Products</a>
-                            </li>
-                            
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Products</a>
+                        </li>
 
                         @{await Html.RenderPartialAsync("_SearchBox", new WebMVC.Models.Shared.SearchViewModel());}
+                            
+                        <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="ShoppingCart" asp-action="Cart">Cart</a>
+                        </li>
                     </ul>
                     <!-- User-specific menu handled by UserMenuViewComponent -->
                     <ul class="navbar-nav ms-auto">
