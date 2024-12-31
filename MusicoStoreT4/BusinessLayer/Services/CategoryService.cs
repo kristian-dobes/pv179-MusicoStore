@@ -174,6 +174,8 @@ namespace BusinessLayer.Services
 
             await _uow.SaveAsync();
 
+            _cacheWrapper.Invalidate(CATEGORY_LIST_CACHE_KEY);
+
             return newCategory;
         }
 
