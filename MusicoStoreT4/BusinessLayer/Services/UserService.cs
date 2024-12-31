@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BusinessLayer.Cache;
+using BusinessLayer.Cache.Interfaces;
 using BusinessLayer.DTOs.OrderItem;
 using BusinessLayer.DTOs.Product;
 using BusinessLayer.DTOs.User;
@@ -14,27 +16,34 @@ using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using DataAccessLayer.Models.Enums;
 using Infrastructure.UnitOfWork;
-using Microsoft.EntityFrameworkCore;
 using Mapster;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Services
 {
     public class UserService : BaseService, IUserService
     {
         private readonly IUnitOfWork _uow;
+        private readonly IMemoryCacheWrapper _cacheWrapper;
+        private const string USER_LIST_CACHE_KEY = "Users_List";
+        private static readonly CacheOptions CacheOptions =
+            new(
+                AbsoluteExpiration: TimeSpan.FromHours(6),
+                SlidingExpiration: TimeSpan.FromMinutes(20)
+            );
 
-        public UserService(IUnitOfWork unitOfWork) : base(unitOfWork)
+        public UserService(IUnitOfWork unitOfWork, IMemoryCacheWrapper memoryCacheWrapper)
+            : base(unitOfWork)
         {
             _uow = unitOfWork;
+            _cacheWrapper = memoryCacheWrapper;
         }
 
         public async Task<CustomerSegmentsDto> GetCustomerSegmentsAsync()
         {
             var currentDate = DateTime.UtcNow;
 
-            var customers = await _uow.UsersRep
-                .WhereAsync(u => u.Role == Role.Customer);
+            var customers = await _uow.UsersRep.WhereAsync(u => u.Role == Role.Customer);
 
             var customersWithStats = new List<CustomerSegmentStatsDto>();
 
@@ -44,14 +53,17 @@ namespace BusinessLayer.Services
                 var orderItems = orders.SelectMany(o => o.OrderItems).ToList();
 
                 var totalExpenditure = orderItems.Sum(oi => oi.Price * oi.Quantity);
-                var isInfrequent = orders.Any() && orders.All(o => (currentDate - o.Date).Days > 180);
+                var isInfrequent =
+                    orders.Any() && orders.All(o => (currentDate - o.Date).Days > 180);
 
-                customersWithStats.Add(new CustomerSegmentStatsDto
-                {
-                    CustomerDTO = (customer as Customer)?.MapToCustomerDto(),
-                    TotalExpenditure = totalExpenditure,
-                    IsInfrequent = isInfrequent
-                });
+                customersWithStats.Add(
+                    new CustomerSegmentStatsDto
+                    {
+                        CustomerDTO = (customer as Customer)?.MapToCustomerDto(),
+                        TotalExpenditure = totalExpenditure,
+                        IsInfrequent = isInfrequent
+                    }
+                );
             }
 
             var highValueCustomers = customersWithStats
@@ -80,8 +92,8 @@ namespace BusinessLayer.Services
                 return null;
             }
 
-            var mostFrequentItem = user.Orders
-                .SelectMany(o => o.OrderItems)
+            var mostFrequentItem = user
+                .Orders.SelectMany(o => o.OrderItems)
                 .GroupBy(oi => oi.ProductId)
                 .Select(g => new { ProductId = g.Key, Quantity = g.Sum(oi => oi.Quantity) })
                 .OrderByDescending(g => g.Quantity)
@@ -106,7 +118,11 @@ namespace BusinessLayer.Services
 
         public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
         {
-            var users = await _uow.UsersRep.GetAllAsync();
+            var users = await _cacheWrapper.GetOrCreateAsync(
+                USER_LIST_CACHE_KEY,
+                async () => await _uow.UsersRep.GetAllAsync(),
+                CacheOptions
+            );
             return users.Select(u => u.MapToUserDto());
         }
 
@@ -125,6 +141,7 @@ namespace BusinessLayer.Services
             var admin = adminDto.MapToAdmin();
             await _uow.UsersRep.AddAsync(admin);
             await _uow.SaveAsync();
+            _cacheWrapper.Invalidate(USER_LIST_CACHE_KEY);
         }
 
         public async Task CreateCustomerAsync(CustomerDto customerDto)
@@ -132,6 +149,7 @@ namespace BusinessLayer.Services
             var customer = customerDto.MapToCustomer();
             await _uow.UsersRep.AddAsync(customer);
             await _uow.SaveAsync();
+            _cacheWrapper.Invalidate(USER_LIST_CACHE_KEY);
         }
 
         public async Task UpdateAdminAsync(int userId, AdminDto adminDto)
@@ -144,11 +162,15 @@ namespace BusinessLayer.Services
             user.Username = adminDto.Username;
             user.Email = adminDto.Email;
             await _uow.SaveAsync();
+            _cacheWrapper.Invalidate(USER_LIST_CACHE_KEY);
         }
 
         public async Task UpdateCustomerAsync(int userId, CustomerDto customerDto)
         {
-            Customer? customer = (Customer?)(await _uow.UsersRep.WhereAsync(u => u is Customer && u.Id == userId)).FirstOrDefault();
+            Customer? customer = (Customer?)
+                (
+                    await _uow.UsersRep.WhereAsync(u => u is Customer && u.Id == userId)
+                ).FirstOrDefault();
 
             if (customer == null || customer.Role != Role.Customer)
                 throw new KeyNotFoundException("Customer not found");
@@ -162,6 +184,7 @@ namespace BusinessLayer.Services
             customer.PostalCode = customerDto.PostalCode;
 
             await _uow.SaveAsync();
+            _cacheWrapper.Invalidate(USER_LIST_CACHE_KEY);
         }
 
         public async Task DeleteUserAsync(int userId)
@@ -173,17 +196,26 @@ namespace BusinessLayer.Services
 
             await _uow.UsersRep.DeleteAsync(user.Id);
             await _uow.SaveAsync();
+            _cacheWrapper.Invalidate(USER_LIST_CACHE_KEY);
         }
 
         public async Task<IEnumerable<UserDetailDto>> GetAllUserDetailsAsync()
         {
-            var users = await _uow.UsersRep.GetAllAsync();
+            var users = await _cacheWrapper.GetOrCreateAsync(
+                USER_LIST_CACHE_KEY,
+                async () => await _uow.UsersRep.GetAllAsync(),
+                CacheOptions
+            );
             return users.Select(u => u.MapToUserDetailDto());
         }
 
         public async Task<IEnumerable<UserSummaryDTO>> GetAllUserSummariesAsync()
         {
-            var users = await _uow.UsersRep.GetAllAsync();
+            var users = await _cacheWrapper.GetOrCreateAsync(
+                USER_LIST_CACHE_KEY,
+                async () => await _uow.UsersRep.GetAllAsync(),
+                CacheOptions
+            );
             return users.Select(u => u.Adapt<UserSummaryDTO>());
         }
     }
