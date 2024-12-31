@@ -1,0 +1,64 @@
+﻿@model WebMVC.Models.Manufacturer.ManufacturerMergeViewModel
+
+@{
+    ViewData["Title"] = "Merge Manufacturers";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col">
+            <h1 class="mb-4">Merge Manufacturers</h1>
+            <p class="text-muted">Select the source and destination manufacturers to merge their products.</p>
+            <p class="text-muted">All products from source manufacturer will be reassigned to destination manufacturer.</p>
+        </div>
+    </div>
+
+    <form asp-action="Merge" method="post">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="SourceManufacturerId" class="form-label">Source Manufacturer</label>
+                    <select asp-for="SourceManufacturerId" class="form-select">
+                        <option value="">-- Select Source Manufacturer --</option>
+                        @foreach (var manufacturer in Model.Manufacturers)
+                        {
+                            <option value="@manufacturer.ManufacturerId">
+                                @manufacturer.Name (@manufacturer.ProductCount products)
+                            </option>
+                        }
+                    </select>
+                    <span asp-validation-for="SourceManufacturerId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="DestinationManufacturerId" class="form-label">Destination Manufacturer</label>
+                    <select asp-for="DestinationManufacturerId" class="form-select">
+                        <option value="">-- Select Destination Manufacturer --</option>
+                        @foreach (var manufacturer in Model.Manufacturers)
+                        {
+                            <option value="@manufacturer.ManufacturerId">
+                                @manufacturer.Name (@manufacturer.ProductCount products)
+                            </option>
+                        }
+                    </select>
+                    <span asp-validation-for="DestinationManufacturerId" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Merge Manufacturers</button>
+                <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </div>
+        </div>
+    </form>
+
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+    }
+</div>

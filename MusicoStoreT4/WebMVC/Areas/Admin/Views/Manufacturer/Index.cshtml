@@ -1,48 +1,80 @@
 ﻿@model IEnumerable<WebMVC.Models.Manufacturer.ManufacturerSummaryViewModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Manufacturer List";
 }
 
-<h1>Products:</h1>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Manufacturers</h1>
+        <p class="text-muted mb-0">Total Manufacturers: <strong>@Model.Count()</strong></p>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ManufacturerId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ProductCount)
-            </th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ManufacturerId)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ProductCount)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.ManufacturerId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.ManufacturerId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.ManufacturerId">Delete</a>
-                </td>
-            </tr>
+    <div class="mb-3">
+        <div class="d-flex gap-2">
+            <a asp-area="Admin" asp-action="Create" class="btn btn-success btn-sm">+ Create New</a>
+            <a asp-area="Admin" asp-action="Merge" class="btn btn-primary btn-sm">Merge Manufacturers</a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover table-striped align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">Manufacturer ID</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Product Count</th>
+                    <th scope="col" class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.ManufacturerId</td>
+                        <td>@item.Name</td>
+                        <td>@item.ProductCount</td>
+                        <td class="text-center">
+                            <div class="btn-group" role="group">
+                                <a asp-area="Admin" asp-action="Edit" asp-route-id="@item.ManufacturerId" class="btn btn-warning btn-sm">Edit</a>
+                                <a asp-area="Admin" asp-action="Details" asp-route-id="@item.ManufacturerId" class="btn btn-info btn-sm text-white">Details</a>
+                                <a asp-area="Admin" asp-action="Delete" asp-route-id="@item.ManufacturerId" class="btn btn-danger btn-sm">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .table {
+        font-size: 0.9rem;
+        vertical-align: middle;
+    }
+
+        .table thead {
+            font-size: 1rem;
         }
-    </tbody>
-</table>
+
+    .btn-group .btn {
+        margin-right: 4px;
+    }
+
+        .btn-group .btn:last-child {
+            margin-right: 0;
+        }
+
+    .table td, .table th {
+        vertical-align: middle;
+    }
+
+    .text-muted {
+        font-size: 0.9rem;
+    }
+
+    .btn {
+        margin: 0 2px;
+    }
+</style>

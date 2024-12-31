@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BusinessLayer.DTOs.Category;
 
 namespace BusinessLayer.DTOs.Product
 {
@@ -15,9 +16,12 @@ namespace BusinessLayer.DTOs.Product
         public required int QuantityInStock { get; set; }
         public required int LastModifiedById { get; set; }
         public required int EditCount { get; set; }
-        public required int CategoryId { get; set; }
-        public required string CategoryName { get; set; }
+        public required int PrimaryCategoryId { get; set; }
+        public required string PrimaryCategoryName { get; set; }
+        public IEnumerable<CategoryBasicDto> SecondaryCategories { get; set; } = [];
+        public required int NumberOfSecondaryCategories { get; set; }
         public required int ManufacturerId { get; set; }
         public required string ManufacturerName { get; set; }
+        public string? ImageFilePath { get; set; }
     }
 }

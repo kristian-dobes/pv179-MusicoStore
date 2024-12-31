@@ -21,15 +21,76 @@ namespace DAL.SQLite.Migrations.Migrations
                 .HasAnnotation("Proxies:CheckEquality", false)
                 .HasAnnotation("Proxies:LazyLoading", true);
 
+            modelBuilder.Entity("CategoryProduct", b =>
+                {
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("CategoryId", "ProductId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("CategoryProduct");
+
+                    b.HasData(
+                        new
+                        {
+                            CategoryId = 1,
+                            ProductId = 1
+                        },
+                        new
+                        {
+                            CategoryId = 3,
+                            ProductId = 1
+                        },
+                        new
+                        {
+                            CategoryId = 1,
+                            ProductId = 2
+                        },
+                        new
+                        {
+                            CategoryId = 3,
+                            ProductId = 3
+                        },
+                        new
+                        {
+                            CategoryId = 2,
+                            ProductId = 4
+                        },
+                        new
+                        {
+                            CategoryId = 1,
+                            ProductId = 5
+                        },
+                        new
+                        {
+                            CategoryId = 2,
+                            ProductId = 5
+                        },
+                        new
+                        {
+                            CategoryId = 1,
+                            ProductId = 6
+                        },
+                        new
+                        {
+                            CategoryId = 1,
+                            ProductId = 7
+                        });
+                });
+
             modelBuilder.Entity("DataAccessLayer.Models.AuditLog", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Action")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Action")
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("TEXT");
@@ -506,9 +567,6 @@ namespace DAL.SQLite.Migrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<DateTime>("Created")
                         .HasColumnType("TEXT");
 
@@ -532,14 +590,17 @@ namespace DAL.SQLite.Migrations.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("PrimaryCategoryId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("QuantityInStock")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
-
                     b.HasIndex("ManufacturerId");
+
+                    b.HasIndex("PrimaryCategoryId");
 
                     b.ToTable("Products");
 
@@ -999,21 +1060,21 @@ namespace DAL.SQLite.Migrations.Migrations
 
             modelBuilder.Entity("DataAccessLayer.Models.Product", b =>
                 {
-                    b.HasOne("DataAccessLayer.Models.Category", "Category")
-                        .WithMany("Products")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("DataAccessLayer.Models.Manufacturer", "Manufacturer")
                         .WithMany("Products")
                         .HasForeignKey("ManufacturerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Category");
+                    b.HasOne("DataAccessLayer.Models.Category", "PrimaryCategory")
+                        .WithMany("PrimaryProducts")
+                        .HasForeignKey("PrimaryCategoryId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.Navigation("Manufacturer");
+
+                    b.Navigation("PrimaryCategory");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Models.ProductImage", b =>
@@ -1080,7 +1141,7 @@ namespace DAL.SQLite.Migrations.Migrations
 
             modelBuilder.Entity("DataAccessLayer.Models.Category", b =>
                 {
-                    b.Navigation("Products");
+                    b.Navigation("PrimaryProducts");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Models.GiftCard", b =>

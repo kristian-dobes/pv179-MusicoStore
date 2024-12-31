@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Areas\Admin\Views\Shared\**" />
+    <Content Remove="Areas\Admin\Views\Shared\**" />
+    <EmbeddedResource Remove="Areas\Admin\Views\Shared\**" />
+    <None Remove="Areas\Admin\Views\Shared\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Mapster" Version="7.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.11" />
@@ -27,16 +34,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BusinessLayer\BusinessLayer.csproj" />
-    <ProjectReference Include="..\DAL.SQLite.Migrations\DAL.SQLite.Migrations.csproj" />
-    <ProjectReference Include="..\DataAccessLayer\DataAccessLayer.csproj" />
+	<ProjectReference Include="..\DAL.SQLite.Migrations\DAL.SQLite.Migrations.csproj" />
     <ProjectReference Include="..\Presentation.Shared\Presentation.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="Areas\Admin\Views\Shared\_Layout.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
+    <Folder Include="Models\Product\" />
   </ItemGroup>
 
 </Project>

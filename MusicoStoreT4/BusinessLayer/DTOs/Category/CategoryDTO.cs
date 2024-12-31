@@ -11,6 +11,7 @@ namespace BusinessLayer.DTOs.Category
     {
         public int CategoryId { get; set; }
         public required string Name { get; set; }
-        public IEnumerable<ProductDto>? Products { get; set; }
+        public IEnumerable<ProductDto>? PrimaryProducts { get; set; }
+        public IEnumerable<ProductDto>? SecondaryProducts { get; set; }
     }
 }

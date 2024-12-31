@@ -2,6 +2,7 @@
 using DataAccessLayer.Models;
 using DataAccessLayer.Models.Enums;
 using Infrastructure.Repository.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -10,10 +11,12 @@ namespace Infrastructure.Repository.Implementations
     public class UserRepository : Repository<User>, IUserRepository
     {
         private readonly MyDBContext _context;
+        private readonly UserManager<LocalIdentityUser> _userManager;
 
-        public UserRepository(MyDBContext context) : base(context)
+        public UserRepository(MyDBContext context, UserManager<LocalIdentityUser> userManager) : base(context)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         public override async Task<bool> UpdateAsync(User entity)
@@ -41,6 +44,14 @@ namespace Infrastructure.Repository.Implementations
                 .Include(u => u.Orders)
                 .ThenInclude(o => o.OrderItems)
                 .FirstOrDefaultAsync(u => u.Id == userId);
+        }
+
+        public async Task<string?> GetIdentityUserIdByUserIdAsync(int userId)
+        {
+            return await _userManager.Users
+                .Where(u => u.UserId == userId)
+                .Select(u => u.Id)
+                .FirstOrDefaultAsync();
         }
 
         //public async Task<List<UserSummaryDto>> GetUserSummariesAsync()

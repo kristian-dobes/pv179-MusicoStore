@@ -48,7 +48,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CategoryUpdateDTO categoryNameDto)
+        public async Task<IActionResult> Create([FromBody] CategoryUpdateDTO categoryNameDto)
         {
             await _categoryService.CreateCategory(categoryNameDto);
 
@@ -56,7 +56,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("{categoryId}")]
-        public async Task<IActionResult> Update(int categoryId, CategoryUpdateDTO categoryNameDto)
+        public async Task<IActionResult> Update(int categoryId, [FromBody] CategoryUpdateDTO categoryNameDto)
         {
             if (string.IsNullOrWhiteSpace(categoryNameDto.Name))
             {
@@ -120,7 +120,7 @@ namespace WebAPI.Controllers
                     mergeCategoriesDTO.NewCategoryName,
                     mergeCategoriesDTO.SourceCategoryId1,
                     mergeCategoriesDTO.SourceCategoryId2,
-                    save: true
+                    1
                 );
 
                 var result = CreatedAtAction("GetCategoryById", new { id = newCategory.Id }, new

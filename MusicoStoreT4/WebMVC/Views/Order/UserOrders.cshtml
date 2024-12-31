@@ -7,7 +7,7 @@
         <tr>
             <th>Order ID</th>
             <th>Order Date</th>
-            <th>Order Status</th>
+            <th>Payment Status</th>
             <th>Items Count</th>
             <th>Total Price</th>
             <th>Items</th>
@@ -19,7 +19,7 @@
             <tr>
                 <td>@order.OrderId</td>
                 <td>@order.Created.ToString("dd MMM yyyy")</td>
-                <td>@order.OrderStatus</td>
+                <td>@order.PaymentStatus</td>
                 <td>@order.OrderItemsCount</td>
                 <td>@order.TotalOrderPrice.ToString("C")</td>
                 <td>
@@ -29,7 +29,7 @@
                             <li>
                                 <div class="product-details-container">
                                     <div class="image-container">
-                                        @if (!string.IsNullOrEmpty(item.ProductName))
+                                        @if (!string.IsNullOrEmpty(item.ProductImageFilePath))
                                         {
                                             <img src="@Url.Action("GetImage", "Image", new { productId = item.ProductId })" alt="@item.ProductName" class="product-image" />
                                         }

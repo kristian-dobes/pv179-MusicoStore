@@ -1,133 +1,238 @@
 ﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading.Tasks;
+using BusinessLayer.Cache;
+using BusinessLayer.Cache.Interfaces;
 using BusinessLayer.DTOs;
 using BusinessLayer.DTOs.Order;
 using BusinessLayer.DTOs.OrderItem;
+using BusinessLayer.DTOs.User;
 using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
-using Mapster;
-using Infrastructure.UnitOfWork;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using DataAccessLayer.Models.Enums;
+using Infrastructure.UnitOfWork;
+using Mapster;
+using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Services
 {
     public class OrderService : BaseService, IOrderService
     {
         private readonly IUnitOfWork _uow;
+        private readonly IMemoryCacheWrapper _cacheWrapper;
+        private const string CUSTOMER_ORDER_LIST_CACHE_KEY = "Customer_Orders_List";
+        private static readonly CacheOptions CacheOptions =
+            new(
+                AbsoluteExpiration: TimeSpan.FromHours(1),
+                SlidingExpiration: TimeSpan.FromMinutes(10)
+            );
 
-        public OrderService(IUnitOfWork unitOfWork) : base(unitOfWork)
+        public OrderService(IUnitOfWork unitOfWork, IMemoryCacheWrapper memoryCacheWrapper)
+            : base(unitOfWork)
         {
             _uow = unitOfWork;
+            _cacheWrapper = memoryCacheWrapper;
         }
 
-        public async Task<IEnumerable<OrderDetailDTO>> GetAllOrdersAsync()
+        public async Task<IEnumerable<OrderSummaryDTO>> GetAllOrdersAsync()
         {
-            var orders = await _uow.OrdersRep.GetAllAsync();
+            var orders = await _uow.OrdersRep.GetAllOrdersWithDetailsQuery().ToListAsync();
 
-            return orders.Select(o => o.Adapt<OrderDetailDTO>()).ToList();
+            // in memory, sum isnt handled well by db
+            return orders.Select(o => new OrderSummaryDTO
+            {
+                OrderId = o.Id,
+                Created = o.Created,
+                OrderItemsCount = o.OrderItems.Count,
+                CustomerId = o.User.Id,
+                Email = o.User.Email,
+                TotalOrderPrice = o.OrderItems.Sum(oi => oi.Price * oi.Quantity),
+                PaymentStatus = MapPaymentStatus(o.OrderStatus)
+            });
         }
 
-        public async Task<OrderDetailDTO?> GetOrderByIdAsync(int id)
+        private static string MapPaymentStatus(PaymentStatus status)
+        {
+            return status switch
+            {
+                PaymentStatus.Pending => "Pending ",
+                PaymentStatus.Paid => "Paid",
+                PaymentStatus.Failed => "Failed",
+                PaymentStatus.Refunded => "Refunded",
+                _ => "Unknown Status"
+            };
+        }
+
+        public async Task<OrderDetailDto?> GetOrderByIdAsync(int id)
         {
             var order = await _uow.OrdersRep.GetByIdAsync(id);
-
+            // in memory, single order only, sum isnt handled well by db
             if (order == null)
                 return null;
 
-            return order?.Adapt<OrderDetailDTO>();
+            return order?.Adapt<OrderDetailDto>();
         }
 
-        public async Task<int> CreateOrderAsync(CreateOrderDto createOrderDto)
+        public async Task<bool> CreateOrderAsync(CreateOrderDto createOrderDto)
         {
-            if (createOrderDto == null || createOrderDto.Items == null || !createOrderDto.Items.Any())
-                throw new ArgumentException("Order must contain at least one item.");
+            // Validate input
+            if (
+                createOrderDto == null
+                || createOrderDto.Items == null
+                || !createOrderDto.Items.Any()
+            )
+                throw new ArgumentException(
+                    "Order must contain at least one item.",
+                    nameof(createOrderDto)
+                );
 
-            if (!(await _uow.UsersRep.AnyAsync(u => u.Id == createOrderDto.CustomerId)))
-                throw new ArgumentException($"No such customer with id {createOrderDto.CustomerId}");
+            // Validate customer existence
+            if (!await _uow.UsersRep.AnyAsync(u => u.Id == createOrderDto.CustomerId))
+                throw new ArgumentException(
+                    $"No such customer with id {createOrderDto.CustomerId}",
+                    nameof(createOrderDto.CustomerId)
+                );
 
-            foreach (var orderItemDto in createOrderDto.Items)
+            // Validate product existence and create order items
+            var orderItems = new List<OrderItem>();
+            var productIds = createOrderDto.Items.Select(i => i.ProductId).ToHashSet();
+            var products = await _uow.ProductsRep.GetByIdsAsync(productIds); // bulk fetch
+
+            foreach (var itemDto in createOrderDto.Items)
             {
-                if (!(await _uow.ProductsRep.AnyAsync(p => p.Id == orderItemDto.ProductId)))
-                    throw new ArgumentException($"No such product with id {orderItemDto.ProductId}. Order was not created.");
+                var product = products.FirstOrDefault(p => p.Id == itemDto.ProductId);
+                if (product == null)
+                    throw new ArgumentException(
+                        $"No such product with id {itemDto.ProductId}",
+                        nameof(itemDto.ProductId)
+                    );
+
+                orderItems.Add(
+                    new OrderItem
+                    {
+                        ProductId = itemDto.ProductId,
+                        Quantity = itemDto.Quantity,
+                        Price = product.Price
+                    }
+                );
             }
+
+            var userId = createOrderDto.CustomerId;
 
             var order = new Order
             {
-                UserId = createOrderDto.CustomerId,
+                UserId = userId,
                 Date = DateTime.UtcNow,
-                OrderItems = (ICollection<OrderItem>)createOrderDto.Items.Select(async itemDto => new OrderItem
-                {
-                    ProductId = itemDto.ProductId,
-                    Quantity = itemDto.Quantity,
-                    Price = (await _uow.ProductsRep.GetByIdAsync(itemDto.ProductId)).Price,
-                }).ToList(),
-                OrderStatus = OrderStatus.Pending
+                OrderItems = orderItems,
+                OrderStatus = PaymentStatus.Pending
             };
 
             await _uow.OrdersRep.AddAsync(order);
 
-            return 1;
+            try
+            {
+                await _uow.SaveAsync();
+                _cacheWrapper.Invalidate($"{CUSTOMER_ORDER_LIST_CACHE_KEY}_{userId}");
+            }
+            catch (DbUpdateException)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public async Task<bool> UpdateOrderAsync(int orderId, UpdateOrderDto updateOrderDto)
         {
-            var order = await _uow.OrdersRep.GetByIdAsync(orderId);
+            if (updateOrderDto == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(updateOrderDto),
+                    "UpdateOrderDto cannot be null."
+                );
+            }
 
+            // Fetch the order
+            var order = await _uow.OrdersRep.GetByIdAsync(orderId);
+            var userId = order?.UserId;
             if (order == null)
             {
                 throw new ArgumentException($"Order with ID {orderId} not found.");
             }
 
+            // Update the order date if provided
             if (updateOrderDto.OrderDate.HasValue)
-                order.Date = updateOrderDto.OrderDate.Value;
-
-            if (updateOrderDto.OrderItems == null || !updateOrderDto.OrderItems.Any())
             {
-                throw new ArgumentException("Order must contain at least one item.");
+                order.Date = updateOrderDto.OrderDate.Value;
             }
 
-            order.OrderItems?.Clear();
-
-            var productIds = updateOrderDto.OrderItems.Select(i => i.ProductId).ToList();
-            var products = await _uow.ProductsRep.WhereAsync(p => productIds.Contains(p.Id));
-
-            foreach (var itemDto in updateOrderDto.OrderItems)
+            // Update the payment status if provided
+            if (!string.IsNullOrWhiteSpace(updateOrderDto.PaymentStatus))
             {
-                var product = products.FirstOrDefault(p => p.Id == itemDto.ProductId);
-
-                if (product != null)
+                if (
+                    Enum.TryParse<PaymentStatus>(
+                        updateOrderDto.PaymentStatus,
+                        true,
+                        out var parsedStatus
+                    )
+                )
                 {
-                    order.OrderItems.Add(new OrderItem
-                    {
-                        ProductId = itemDto.ProductId,
-                        Quantity = itemDto.Quantity,
-                        Price = product.Price
-                    });
+                    order.OrderStatus = parsedStatus;
                 }
                 else
                 {
-                    throw new ArgumentException($"Product with ID {itemDto.ProductId} not found.");
+                    // Set to 'Failed' if the payment status string is invalid
+                    order.OrderStatus = PaymentStatus.Failed;
                 }
             }
+
+            // Remove all existing order items
+            order.OrderItems.Clear();
+
+            // bulk fetch
+            var productIds = updateOrderDto.OrderItems.Select(item => item.ProductId).Distinct();
+            var products = await _uow.ProductsRep.GetByIdsAsync(productIds);
+
+            if (products.Count() != productIds.Count())
+                throw new ArgumentException("One or more products in the order are invalid.");
+
+            // Add new order items
+            order.OrderItems = updateOrderDto
+                .OrderItems.Join(
+                    products,
+                    itemDto => itemDto.ProductId,
+                    product => product.Id,
+                    (itemDto, product) =>
+                        new OrderItem
+                        {
+                            ProductId = product.Id,
+                            Quantity = itemDto.Quantity,
+                            Price = product.Price
+                        }
+                )
+                .ToList();
 
             try
             {
                 await _uow.SaveAsync();
+                // await transaction.CommitAsync();
+                if (userId.HasValue)
+                {
+                    _cacheWrapper.Invalidate($"{CUSTOMER_ORDER_LIST_CACHE_KEY}_{userId}");
+                }
                 return true;
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                throw new InvalidOperationException($"Failed to update order with ID {orderId}.", ex);
+                return false;
             }
         }
 
@@ -136,18 +241,24 @@ namespace BusinessLayer.Services
             var order = await _uow.OrdersRep.GetByIdAsync(orderId);
 
             if (order == null)
+            {
                 return false;
+            }
 
-            await _uow.OrdersRep.DeleteAsync(order.Id);
+            await _uow.OrdersRep.DeleteAsync(orderId);
+            _cacheWrapper.Invalidate($"{CUSTOMER_ORDER_LIST_CACHE_KEY}_{order.UserId}");
             return true;
         }
 
-        public async Task<IEnumerable<OrderDetailDTO?>> GetOrdersByUserAsync(int userId)
+        public async Task<IEnumerable<OrderDetailDto?>> GetOrdersByUserAsync(int userId)
         {
-            var orders = await _uow.OrdersRep.GetOrdersByAsync(userId);
+            var orders = await _cacheWrapper.GetOrCreateAsync(
+                $"{CUSTOMER_ORDER_LIST_CACHE_KEY}_{userId}",
+                async () => await _uow.OrdersRep.GetOrdersByAsync(userId),
+                CacheOptions
+            );
 
-            return orders.Select(o => o.Adapt<OrderDetailDTO>()).ToList();
-            //return (await _uow.OrdersRep.GetOrdersWithProductsAsync(userId)).Select(o => o.Adapt<OrderDetailDTO>()).ToList();
+            return orders.Select(o => o.Adapt<OrderDetailDto>()).ToList();
         }
     }
 }

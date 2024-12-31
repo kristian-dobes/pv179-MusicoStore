@@ -1,20 +1,21 @@
-using BusinessLayer.Services;
+using BusinessLayer;
+using BusinessLayer.Cache;
+using BusinessLayer.Cache.Interfaces;
 using BusinessLayer.Facades;
 using BusinessLayer.Facades.Interfaces;
-using DataAccessLayer.Data;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
-using WebAPI.Middlewares;
+using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
-using Infrastructure.Repository.Interfaces;
-using Infrastructure.Repository;
-using Infrastructure.UnitOfWork;
+using DataAccessLayer.Data;
+using DataAccessLayer.Models;
 using Infrastructure.Repository.Implementations;
 using Infrastructure.Repository.Implementations.Implementations;
-using Mapster;
-using BusinessLayer;
+using Infrastructure.Repository.Interfaces;
+using Infrastructure.UnitOfWork;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Presentations.Shared.Middlewares;
+using WebAPI.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,13 +23,14 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
     {
-        policy.WithOrigins("https://localhost:7256", "https://localhost:5270")  // Web MVC origin (https and http)
+        policy.WithOrigins("https://localhost:7256", "https://localhost:5270")  // Web MVC origin (https and http) 
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
     });
 });
 
+builder.Services.AddMemoryCache();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
@@ -62,6 +64,8 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddScoped<AuditSaveChangesInterceptor>();
+
 var databaseName = builder.Configuration["DatabaseName"];
 var folder = Environment.SpecialFolder.LocalApplicationData;
 var dbPath = Path.Join(Environment.GetFolderPath(folder), databaseName);
@@ -69,6 +73,8 @@ string imagesFolder = Path.Combine(Path.GetDirectoryName(dbPath) ?? string.Empty
 
 builder.Services.AddDbContextFactory<MyDBContext>(options =>
 {
+    var auditInterceptor = builder.Services.BuildServiceProvider().GetRequiredService<AuditSaveChangesInterceptor>();
+
     options
         .UseSqlite(
             $"Data Source={dbPath}",
@@ -76,10 +82,15 @@ builder.Services.AddDbContextFactory<MyDBContext>(options =>
         )
         .LogTo(s => System.Diagnostics.Debug.WriteLine(s))
         .UseLazyLoadingProxies()
+        .AddInterceptors(auditInterceptor)
         ;
 });
 
-builder.Services.AddScoped<IUserService, UserService>();
+// Register Identity
+builder
+    .Services.AddIdentity<LocalIdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<MyDBContext>()
+    .AddDefaultTokenProviders();
 
 // Register Repositories
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
@@ -99,6 +110,8 @@ builder.Services.AddScoped<IGiftCardRepository, GiftCardRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Register Services
+builder.Services.AddScoped<IMemoryCacheWrapper, MemoryCacheWrapper>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IImageService>(provider =>
 {
@@ -109,9 +122,11 @@ builder.Services.AddScoped<IImageService>(provider =>
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddScoped<IManufacturerFacade, ManufacturerFacade>();
 builder.Services.AddScoped<ILogService, LogService>();
 builder.Services.AddScoped<IGiftCardService, GiftCardService>();
+
+// Register Facades
+builder.Services.AddScoped<IManufacturerFacade, ManufacturerFacade>();
 
 // Mapster Mapping configuration for using DTOs
 new MappingConfig().RegisterMappings();

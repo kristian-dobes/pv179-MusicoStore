@@ -12,7 +12,8 @@ namespace BusinessLayer.Services.Interfaces
     {
         Task<IEnumerable<CategorySummaryDTO>> GetCategoriesAsync();
         Task<CategorySummaryDTO?> GetByIdAsync(int id);
-        Task<Category> MergeCategoriesAndCreateNewAsync(string newCategoryName, int sourceCategoryId1, int sourceCategoryId2, bool save = true);
+        Task<CategoryProductsDTO?> GetCategoryWithProductsAsync(int categoryId);
+        Task<Category> MergeCategoriesAndCreateNewAsync(string newCategoryName, int sourceCategoryId1, int sourceCategoryId2, int modifiedById);
         Task<IEnumerable<CategoryDTO>> GetCategoriesWithProductsAsync();
         Task CreateCategory(CategoryUpdateDTO categoryDto);
         Task<CategoryDTO?> UpdateCategoryAsync(int categoryId, CategoryUpdateDTO categoryDto);

@@ -39,7 +39,7 @@ namespace Infrastructure.Repository.Implementations
         {
             return await _context.OrderItems
                 .Include(oi => oi.Product)
-                .ThenInclude(p => p.Category)
+                .ThenInclude(p => p.PrimaryCategory)
                 .Where(oi => oi.Order.Date >= startDate && oi.Order.Date <= endDate)
                 .ToListAsync();
         }

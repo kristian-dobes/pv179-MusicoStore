@@ -1,0 +1,20 @@
+﻿<li class="nav-item">
+    <a class="nav-link text-dark" asp-area="" asp-controller="Order" asp-action="UserOrders">My Orders</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link text-dark">Hello @Model.UserName!</a>
+</li>
+@if (Model.IsAdmin)
+{
+    @* <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="Admin" asp-controller="Home" asp-action="Index">Admin Section</a>
+    </li> *@
+    <partial name="_AdminMenuPartial" />
+}
+<li class="nav-item">
+    <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+        <button type="submit" class="btn btn-link nav-link text-dark" style="text-decoration:none;">
+            Logout
+        </button>
+    </form>
+</li>

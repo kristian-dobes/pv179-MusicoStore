@@ -7,7 +7,7 @@
 <h1>Order Details</h1>
 
 <div>
-    <h4>Order</h4>
+    <h4>Order:</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
@@ -35,10 +35,10 @@
             @Model.TotalOrderPrice.ToString("C")
         </dd>
         <dt class="col-sm-2">
-            Order Status
+            Payment Status
         </dt>
         <dd class="col-sm-10">
-            @Model.OrderStatus
+            @Model.PaymentStatus
         </dd>
     </dl>
 </div>
@@ -125,7 +125,7 @@
 </div>
 
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.OrderId">Edit</a> |
-    <a asp-action="Delete" asp-route-id="@Model.OrderId">Delete</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-area="Admin" asp-action="Edit" asp-route-id="@Model.OrderId">Edit</a> |
+    <a asp-area="Admin" asp-action="Delete" asp-route-id="@Model.OrderId">Delete</a> |
+    <a asp-area="Admin" asp-action="Index">Back to List</a>
 </div>

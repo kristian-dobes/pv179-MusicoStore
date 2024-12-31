@@ -29,14 +29,6 @@
                         </li>
 
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="Admin" asp-controller="Home" asp-action="Index">Admin Section</a>
-                            </li>
-                            <partial name="_AdminMenuPartial" />
-
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Order" asp-action="UserOrders">My Orders</a>
-                            </li
-                            <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="ShoppingCart" asp-action="Cart">Cart</a>
                             </li>
                             <li class="nav-item">
@@ -44,23 +36,18 @@
                             </li
                             
 
-                    </ul>
-                    <!-- Align the logout button to the right -->
-                    <ul class="navbar-nav ms-auto">
-                        @if (SignInManager.IsSignedIn(User))
-                        {
-                            <li>
-                                <a asp-area="" class="nav-link text-dark">Hello @UserManager.GetUserName(User)!</a>
+                        @{await Html.RenderPartialAsync("_SearchBox", new WebMVC.Models.Shared.SearchViewModel());}
                             </li>
-
                             <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
-                                    <button type="submit" class="btn btn-link nav-link text-dark" style="text-decoration:none;">
-                                        Logout
-                                    </button>
-                                </form>
-                            </li>
-                        }
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Products</a>
+                            </li
+                            
+
+                        @{await Html.RenderPartialAsync("_SearchBox", new WebMVC.Models.Shared.SearchViewModel());}
+                    </ul>
+                    <!-- User-specific menu handled by UserMenuViewComponent -->
+                    <ul class="navbar-nav ms-auto">
+                        @await Component.InvokeAsync("UserMenu")
                     </ul>
                 </div>
             </div>

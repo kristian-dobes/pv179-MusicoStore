@@ -1,21 +1,25 @@
+using BusinessLayer.Cache;
+using BusinessLayer.Cache.Interfaces;
 using BusinessLayer.Facades;
 using BusinessLayer.Facades.Interfaces;
 using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Infrastructure.Repository.Implementations.Implementations;
 using Infrastructure.Repository.Implementations;
+using Infrastructure.Repository.Implementations.Implementations;
 using Infrastructure.Repository.Interfaces;
 using Infrastructure.UnitOfWork;
-using WebMVC;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Presentations.Shared.Middlewares;
+using WebMVC;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<AuditSaveChangesInterceptor>();
 
 var databaseName = builder.Configuration["DatabaseName"];
 
@@ -31,16 +35,21 @@ if (!Directory.Exists(imagesFolder))
 // Register DbContext
 builder.Services.AddDbContext<MyDBContext>(options =>
 {
+    var auditInterceptor = builder.Services.BuildServiceProvider().GetRequiredService<AuditSaveChangesInterceptor>();
+    
     options
         .UseSqlite($"Data Source={dbPath}", x => x.MigrationsAssembly("DAL.SQLite.Migrations"))
         .LogTo(s => System.Diagnostics.Debug.WriteLine(s))
-        .UseLazyLoadingProxies();
+        .UseLazyLoadingProxies()
+        .AddInterceptors(auditInterceptor)
+        ;
 });
 
 new MapsterConfig().RegisterMappings();
 
 // Register Identity
-builder.Services.AddIdentity<LocalIdentityUser, IdentityRole>()
+builder
+    .Services.AddIdentity<LocalIdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<MyDBContext>()
     .AddDefaultTokenProviders();
 
@@ -72,6 +81,7 @@ builder.Services.AddScoped<IGiftCardRepository, GiftCardRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Register Services
+builder.Services.AddScoped<IMemoryCacheWrapper, MemoryCacheWrapper>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IImageService, ImageService>();
@@ -79,15 +89,21 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<ILogService, LogService>();
+builder.Services.AddScoped<IGiftCardService, GiftCardService>();
 builder.Services.AddScoped<IImageService>(provider =>
 {
     var uow = provider.GetRequiredService<IUnitOfWork>();
     var imagesPath = imagesFolder;
     return new ImageService(uow, imagesPath);
 });
+
+// Register Facades
 builder.Services.AddScoped<IManufacturerFacade, ManufacturerFacade>();
-builder.Services.AddScoped<ILogService, LogService>();
-builder.Services.AddScoped<IGiftCardService, GiftCardService>();
+builder.Services.AddScoped<IAuthFacade, AuthFacade>();
+
+// Register Mapster mappings
+new MapsterConfig().RegisterMappings();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
@@ -128,9 +144,10 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "areas",
-    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+);
 app.MapControllerRoute(
-    name: "default",
+    name: "default", 
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 using (var scope = app.Services.CreateScope())
@@ -140,6 +157,7 @@ using (var scope = app.Services.CreateScope())
 
 app.Run();
 
+// Seed Roles for Identity
 async Task SeedRoles(IServiceProvider serviceProvider)
 {
     var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();

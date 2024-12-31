@@ -1,17 +1,20 @@
-﻿using BusinessLayer.DTOs;
+﻿using BusinessLayer.Cache;
+using BusinessLayer.DTOs;
 using BusinessLayer.DTOs.User;
+using BusinessLayer.DTOs.User.Customer;
 using BusinessLayer.Facades;
 using BusinessLayer.Mapper;
 using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
-using Infrastructure.Repository.Implementations.Implementations;
 using Infrastructure.Repository.Implementations;
+using Infrastructure.Repository.Implementations.Implementations;
 using Infrastructure.UnitOfWork;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using Tests.Other;
-using BusinessLayer.DTOs.User.Customer;
 
 namespace Tests
 {
@@ -19,25 +22,44 @@ namespace Tests
     public class UserServiceTests
     {
         private UserService _userService;
+        private Mock<UserManager<LocalIdentityUser>> _mockUserManager;
         private IUnitOfWork _uow;
 
         [SetUp]
         public void SetUp()
         {
             var context = MockDbContext.GenerateMock();
-            _uow = new UnitOfWork(context,
-                                  new UserRepository(context),
-                                  new CategoryRepository(context),
-                                  new ManufacturerRepository(context),
-                                  new OrderRepository(context),
-                                  new OrderItemRepository(context),
-                                  new ProductRepository(context),
-                                  new ProductImageRepository(context),
-                                  new AuditLogRepository(context),
-                                  new LogRepository(context),
-                                  new GiftCardRepository(context),
-                                  new CouponCodeRepository(context));
-            _userService = new UserService(_uow);
+
+            // Mock UserManager dependencies
+            var store = new Mock<IUserStore<LocalIdentityUser>>();
+            _mockUserManager = new Mock<UserManager<LocalIdentityUser>>(
+                store.Object,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            );
+
+            _uow = new UnitOfWork(
+                context,
+                new UserRepository(context, _mockUserManager.Object),
+                new CategoryRepository(context),
+                new ManufacturerRepository(context),
+                new OrderRepository(context),
+                new OrderItemRepository(context),
+                new ProductRepository(context),
+                new ProductImageRepository(context),
+                new AuditLogRepository(context),
+                new LogRepository(context)
+            );
+            _userService = new UserService(
+                _uow,
+                new MemoryCacheWrapper(new MemoryCache(new MemoryCacheOptions()))
+            );
         }
 
         [Test]
@@ -45,7 +67,9 @@ namespace Tests
         {
             // Arrange
             int userId = 1;
-            await _uow.UsersRep.DeleteByIdsAsync((await _uow.UsersRep.GetAllAsync()).Select(u => u.Id));
+            await _uow.UsersRep.DeleteByIdsAsync(
+                (await _uow.UsersRep.GetAllAsync()).Select(u => u.Id)
+            );
 
             // Act
             var result = await _userService.GetMostFrequentBoughtItemAsync(userId);
@@ -59,8 +83,12 @@ namespace Tests
         {
             // Arrange
             int userId = 1;
-            await _uow.OrdersRep.DeleteByIdsAsync((await _uow.OrdersRep.GetAllAsync()).Select(o => o.Id));
-            await _uow.OrderItemsRep.DeleteByIdsAsync((await _uow.OrderItemsRep.GetAllAsync()).Select(oi => oi.Id));
+            await _uow.OrdersRep.DeleteByIdsAsync(
+                (await _uow.OrdersRep.GetAllAsync()).Select(o => o.Id)
+            );
+            await _uow.OrderItemsRep.DeleteByIdsAsync(
+                (await _uow.OrderItemsRep.GetAllAsync()).Select(oi => oi.Id)
+            );
 
             // Act
             var result = await _userService.GetMostFrequentBoughtItemAsync(userId);
@@ -77,7 +105,9 @@ namespace Tests
 
             var user = await _uow.UsersRep.GetByIdAsync(userId);
             var orders = await _uow.OrdersRep.WhereAsync(o => o.UserId == userId);
-            var orderItems = await _uow.OrderItemsRep.WhereAsync(oi => orders.Select(o => o.Id).Contains(oi.OrderId));
+            var orderItems = await _uow.OrderItemsRep.WhereAsync(oi =>
+                orders.Select(o => o.Id).Contains(oi.OrderId)
+            );
 
             Assert.IsNotNull(user);
             Assert.IsNotEmpty(orders);
@@ -107,7 +137,9 @@ namespace Tests
             // Retrieve the user and related orders from the unit of work
             var user = await _uow.UsersRep.GetByIdAsync(userId);
             var orders = await _uow.OrdersRep.WhereAsync(o => o.UserId == userId);
-            var orderItems = await _uow.OrderItemsRep.WhereAsync(oi => orders.Select(o => o.Id).Contains(oi.OrderId));
+            var orderItems = await _uow.OrderItemsRep.WhereAsync(oi =>
+                orders.Select(o => o.Id).Contains(oi.OrderId)
+            );
 
             Assert.IsNotNull(user);
             Assert.IsNotEmpty(orders);
@@ -136,7 +168,9 @@ namespace Tests
 
             var user = await _uow.UsersRep.GetByIdAsync(userId);
             var orders = await _uow.OrdersRep.WhereAsync(o => o.UserId == userId);
-            var orderItems = await _uow.OrderItemsRep.WhereAsync(oi => orders.Select(o => o.Id).Contains(oi.OrderId));
+            var orderItems = await _uow.OrderItemsRep.WhereAsync(oi =>
+                orders.Select(o => o.Id).Contains(oi.OrderId)
+            );
 
             Assert.IsNotNull(user);
             Assert.IsNotEmpty(orders);
@@ -188,8 +222,14 @@ namespace Tests
             var result = await _userService.GetCustomerSegmentsAsync();
 
             // Assert
-            CollectionAssert.AreEquivalent(customerSegmentsDto.HighValueCustomers, result.HighValueCustomers);
-            CollectionAssert.AreEquivalent(customerSegmentsDto.InfrequentCustomers, result.InfrequentCustomers);
+            CollectionAssert.AreEquivalent(
+                customerSegmentsDto.HighValueCustomers,
+                result.HighValueCustomers
+            );
+            CollectionAssert.AreEquivalent(
+                customerSegmentsDto.InfrequentCustomers,
+                result.InfrequentCustomers
+            );
         }
 
         [Test]

@@ -99,10 +99,11 @@ namespace BusinessLayer.Mapper
                 Name = product.Name,
                 Description = product.Description,
                 Price = product.Price,
-                CategoryName = product.Category?.Name ?? "",
+                PrimaryCategoryName = product.PrimaryCategory?.Name ?? "",
                 ManufacturerName = product.Manufacturer?.Name ?? "",
                 QuantityInStock = product.QuantityInStock,
-                DateCreated = product.Created
+                DateCreated = product.Created,
+                SecondaryCategories = product.SecondaryCategories.Select(c => c.Name)
             };
         }
     }

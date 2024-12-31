@@ -1,15 +1,15 @@
 ﻿using DataAccessLayer.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repository.Interfaces
 {
     public interface IProductRepository : IRepository<Product>
     {
         Task<List<Product>> GetAllWithDetailsAsync();
-        IQueryable<Product> GetAllQuery();
+        IQueryable<Product> GetQuery();
+        Task<IEnumerable<Product>> GetByIdsAsync(IEnumerable<int> ids);
+        Task<List<int>> GetProductIdsByManufacturerAsync(int manufacturerId);
+        Task ReassignProductsToManufacturerAsync(int sourceManufacturerId, int destinationManufacturerId, int modifiedById);
+        Task UpdatePrimaryCategoryAsync(IEnumerable<int> productIds, int newCategoryId);
+        Task UpdateSecondaryCategoriesAsync(IEnumerable<int> productIds, int newCategoryId, IEnumerable<int> oldCategoryIds);
     }
 }
