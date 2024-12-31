@@ -39,14 +39,22 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/Category/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            var category = await _categoryService.GetByIdAsync(id);
+            //var category = await _categoryService.GetByIdAsync(id);
 
+            //if (category == null)
+            //{
+            //    return NotFound();
+            //}
+
+            //return View(category.Adapt<CategorySummaryViewModel>());
+
+            var category = await _categoryService.GetCategoryWithProductsAsync(id);
             if (category == null)
             {
                 return NotFound();
             }
 
-            return View(category.Adapt<CategorySummaryViewModel>());
+            return View(category.Adapt<CategoryProductsViewModel>());
         }
 
         // GET: Admin/Category/Create
@@ -68,7 +76,7 @@ namespace WebMVC.Areas.Admin.Controllers
 
             await _categoryService.CreateCategory(category);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { area = "Admin" });
         }
 
         // GET: Admin/Category/Edit/5
@@ -97,7 +105,7 @@ namespace WebMVC.Areas.Admin.Controllers
             var category = model.Adapt<CategoryUpdateDTO>();
             await _categoryService.UpdateCategoryAsync(id, category);
 
-            return RedirectToAction("Details", new { id });
+            return RedirectToAction("Details", "Category", new { area = "Admin", id });
         }
 
         // GET: Admin/Category/Delete/5
@@ -108,7 +116,7 @@ namespace WebMVC.Areas.Admin.Controllers
             if (category == null)
                 return NotFound();
 
-            if (category.ProductCount > 0)
+            if (category.PrimaryProductCount > 0)
                 return BadRequest("Category has products, cannot delete.");
 
             return View(category.Adapt<CategorySummaryViewModel>());
@@ -120,7 +128,7 @@ namespace WebMVC.Areas.Admin.Controllers
         {
             await _categoryService.DeleteCategoryAsync(id);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { area = "Admin" });
         }
 
         // GET: Admin/Category/Merge
@@ -159,7 +167,7 @@ namespace WebMVC.Areas.Admin.Controllers
             await _categoryService.MergeCategoriesAndCreateNewAsync(model.NewCategoryName, model.SourceCategoryId1, model.SourceCategoryId2, user.UserId);
            
             //return RedirectToAction("Details", new { id = newCategory.Id });
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { area = "Admin" });
         }
     }
 }

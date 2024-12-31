@@ -29,7 +29,7 @@
                             <li>
                                 <div class="product-details-container">
                                     <div class="image-container">
-                                        @if (!string.IsNullOrEmpty(item.ProductName))
+                                        @if (!string.IsNullOrEmpty(item.ProductImageFilePath))
                                         {
                                             <img src="@Url.Action("GetImage", "Image", new { productId = item.ProductId })" alt="@item.ProductName" class="product-image" />
                                         }

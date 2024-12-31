@@ -45,7 +45,7 @@ namespace WebMVC.Areas.Admin.Controllers
         {
             var userToResetPasswordTo = await _userService.GetUserByIdAsync(id);
             if (userToResetPasswordTo == null)
-                return View("Index");
+                return RedirectToAction("Index", new { area = "Admin" });
 
             var viewModel = new UserResetPasswordViewModel 
             { 
@@ -94,7 +94,7 @@ namespace WebMVC.Areas.Admin.Controllers
                 return View(model); // Re-render view with validation errors
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { area = "Admin" });
         }
     }
 }

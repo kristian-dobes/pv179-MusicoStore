@@ -23,17 +23,23 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Name)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ProductCount)
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PrimaryProductCount)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ProductCount)
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PrimaryProductCount)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SecondaryProductCount)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SecondaryProductCount)
         </dd>
     </dl>
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="CategoryId" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+        <a asp-area="Admin" asp-action="Index">Back to List</a>
     </form>
 </div>

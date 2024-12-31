@@ -19,8 +19,10 @@ namespace WebMVC.Models.Product
         public  int QuantityInStock { get; set; }
         
         [Required]
-        public  int CategoryId { get; set; }
-        
+        public  int PrimaryCategoryId { get; set; }
+
+        public List<int>? SecondaryCategoryIds { get; set; } = [];
+
         [Required]
         public  int ManufacturerId { get; set; }
 

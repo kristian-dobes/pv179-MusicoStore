@@ -47,7 +47,7 @@
                 <p><strong>Stock:</strong> @item.QuantityInStock units available</p>
                 <p><strong>Primary Category:</strong> @item.PrimaryCategory.Name</p>
                 <p><strong>Manufacturer:</strong> @item.Manufacturer.Name</p>
-                <a asp-action="Detailz" asp-controller="Product" asp-route-id="@item.Id" class="btn details-btn">View Detailz</a>
+                <a asp-action="Details" asp-controller="Product" asp-route-id="@item.Id" class="btn details-btn">Show product</a>
             </div>
         }
     </div>

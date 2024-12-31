@@ -45,8 +45,8 @@ public static class DataGenerator
         modelBuilder.Entity<OrderItem>().HasData(orderItems);
 
         // Images
-        var images = PrepareImagesModels();
-        modelBuilder.Entity<ProductImage>().HasData(images);
+        //var images = PrepareImagesModels();
+        //modelBuilder.Entity<ProductImage>().HasData(images);
     }
 
     // Dictionary to store product for each category
@@ -270,28 +270,28 @@ public static class DataGenerator
         };
     }
 
-    private static List<ProductImage> PrepareImagesModels()
-    {
-        return new List<ProductImage>()
-        {
-            new ProductImage()
-            {
-                Id = 1,
-                ProductId = 3,
-                FilePath = "images\\drums.png",
-                FileName = "drums.png",
-                MimeType = "image/png",
-                Created = DateTime.UtcNow
-            },
-            new ProductImage()
-            {
-                Id = 2,
-                ProductId = 5,
-                FilePath = "images\\guitar.png",
-                FileName = "guitar.png",
-                MimeType = "image/png",
-                Created = DateTime.UtcNow
-            }
-        };
-    }
+    //private static List<ProductImage> PrepareImagesModels()
+    //{
+    //    return new List<ProductImage>()
+    //    {
+    //        new ProductImage()
+    //        {
+    //            Id = 1,
+    //            ProductId = 3,
+    //            FilePath = "images\\drums.png",
+    //            FileName = "drums.png",
+    //            MimeType = "image/png",
+    //            Created = DateTime.UtcNow
+    //        },
+    //        new ProductImage()
+    //        {
+    //            Id = 2,
+    //            ProductId = 5,
+    //            FilePath = "images\\guitar.png",
+    //            FileName = "guitar.png",
+    //            MimeType = "image/png",
+    //            Created = DateTime.UtcNow
+    //        }
+    //    };
+    //}
 }
