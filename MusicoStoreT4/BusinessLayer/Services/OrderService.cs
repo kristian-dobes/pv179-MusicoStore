@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks;
+using BusinessLayer.Cache;
+using BusinessLayer.Cache.Interfaces;
 using BusinessLayer.DTOs;
 using BusinessLayer.DTOs.Order;
 using BusinessLayer.DTOs.OrderItem;
@@ -24,11 +26,20 @@ namespace BusinessLayer.Services
     public class OrderService : BaseService, IOrderService
     {
         private readonly IUnitOfWork _uow;
+        private readonly IMemoryCacheWrapper _cacheWrapper;
+        private const string CUSTOMER_ORDER_LIST_CACHE_KEY = "Customer_Orders_List";
+        private static readonly CacheOptions CacheOptions =
+            new(
+                AbsoluteExpiration: TimeSpan.FromHours(1),
+                SlidingExpiration: TimeSpan.FromMinutes(10)
+            );
 
-        public OrderService(IUnitOfWork unitOfWork)
+
+        public OrderService(IUnitOfWork unitOfWork, IMemoryCacheWrapper memoryCacheWrapper)
             : base(unitOfWork)
         {
             _uow = unitOfWork;
+            _cacheWrapper = memoryCacheWrapper;
         }
 
         public async Task<IEnumerable<OrderDetailDto>> GetAllOrdersAsync()
@@ -77,9 +88,11 @@ namespace BusinessLayer.Services
                 });
             }
 
+            var userId = createOrderDto.CustomerId;
+
             var order = new Order
             {
-                UserId = createOrderDto.CustomerId,
+                UserId = userId,
                 Date = DateTime.UtcNow,
                 OrderItems = orderItems,
                 OrderStatus = PaymentStatus.Pending
@@ -90,6 +103,7 @@ namespace BusinessLayer.Services
             try
             {
                 await _uow.SaveAsync();
+                _cacheWrapper.Invalidate($"{CUSTOMER_ORDER_LIST_CACHE_KEY}_{userId}");
             }
             catch (DbUpdateException)
             {
@@ -106,6 +120,7 @@ namespace BusinessLayer.Services
 
             // Fetch the order
             var order = await _uow.OrdersRep.GetByIdAsync(orderId);
+            var userId = order?.UserId;
             if (order == null)
                 throw new ArgumentException($"Order with ID {orderId} not found.");
 
@@ -132,7 +147,7 @@ namespace BusinessLayer.Services
 
             // bulk fetch
             var productIds = updateOrderDto.OrderItems.Select(item => item.ProductId).Distinct();
-            var products = await _uow.ProductsRep.GetByIdsAsync(productIds); 
+            var products = await _uow.ProductsRep.GetByIdsAsync(productIds);
 
             if (products.Count() != productIds.Count())
                 throw new ArgumentException("One or more products in the order are invalid.");
@@ -153,7 +168,11 @@ namespace BusinessLayer.Services
             try
             {
                 await _uow.SaveAsync();
-               // await transaction.CommitAsync();
+                // await transaction.CommitAsync();
+                if (userId.HasValue)
+                {
+                    _cacheWrapper.Invalidate($"{CUSTOMER_ORDER_LIST_CACHE_KEY}_{userId}");
+                }
                 return true;
             }
             catch (DbUpdateConcurrencyException ex)
@@ -172,12 +191,17 @@ namespace BusinessLayer.Services
                 return false;
 
             await _uow.OrdersRep.DeleteAsync(order.Id);
+            _cacheWrapper.Invalidate($"{CUSTOMER_ORDER_LIST_CACHE_KEY}_{order.UserId}");
             return true;
         }
 
         public async Task<IEnumerable<OrderDetailDto?>> GetOrdersByUserAsync(int userId)
         {
-            var orders = await _uow.OrdersRep.GetOrdersByAsync(userId);
+            var orders = await _cacheWrapper.GetOrCreateAsync(
+                $"{CUSTOMER_ORDER_LIST_CACHE_KEY}_{userId}",
+                async () => await _uow.OrdersRep.GetOrdersByAsync(userId),
+                CacheOptions
+            );
 
             return orders.Select(o => o.Adapt<OrderDetailDto>()).ToList();
             //return (await _uow.OrdersRep.GetOrdersWithProductsAsync(userId)).Select(o => o.Adapt<OrderDetailDTO>()).ToList();
