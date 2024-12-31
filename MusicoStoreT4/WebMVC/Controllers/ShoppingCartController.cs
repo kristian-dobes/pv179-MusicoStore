@@ -57,6 +57,26 @@ namespace WebMVC.Controllers
         }
 
         [HttpPost]
+        public IActionResult RemoveItem(int productId)
+        {
+            // Retrieve the shopping cart from session
+            var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
+
+            // Find the item in the cart
+            var itemToRemove = cart.CartItems.FirstOrDefault(i => i.ProductId == productId);
+
+            // Remove the item if it exists
+            if (itemToRemove != null)
+            {
+                cart.CartItems.Remove(itemToRemove);
+                HttpContext.Session.SetObjectAsJson("Cart", cart);
+            }
+
+            return Json(new { success = true, cartTotal = cart.TotalAmount });
+        }
+
+
+        [HttpPost]
         public async Task<IActionResult> Checkout()
         {
             var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart");

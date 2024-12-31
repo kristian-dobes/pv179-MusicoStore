@@ -25,6 +25,9 @@ else
                     <td>@item.Quantity</td>
                     <td>@item.Price.ToString("C")</td>
                     <td>@((item.Price * item.Quantity).ToString("C", System.Globalization.CultureInfo.CurrentCulture))</td>
+                    <td>
+                        <button type="button" class="btn btn-danger" data-action="remove" data-id="@item.ProductId">Remove</button>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -80,4 +83,33 @@ else
             });
         });
     });
+        document.querySelectorAll('.btn').forEach(button => {
+        button.addEventListener('click', function (event) {
+            let action = event.target.dataset.action;
+            let productId = event.target.dataset.id;
+
+            if (action === 'increase') {
+                updateCart(productId, 1);
+            } else if (action === 'decrease') {
+                updateCart(productId, -1);
+            } else if (action === 'remove') {
+                removeFromCart(productId);
+            }
+        });
+    });
+
+    // Function to remove item from cart
+    function removeFromCart(productId) {
+        fetch(`/ShoppingCart/RemoveItem?productId=${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  location.reload(); // Reload the page to reflect updated cart
+              }
+          });
+    }
 </script>
