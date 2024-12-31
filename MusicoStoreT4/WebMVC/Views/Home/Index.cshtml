@@ -25,11 +25,14 @@
     </div>
 
     <div class="mt-5">
-        <h3>Featured Product</h3>
+        @if (Model.IsValid)
+        {
+            <h3>Featured Product</h3>
 
-        <div class="partial-view-container">
-            @Html.Partial("~/Views/Product/ProductDetails.cshtml", Model)
-        </div>
+            <div class="partial-view-container">
+                @Html.Partial("~/Views/Product/ProductDetails.cshtml", Model)
+            </div>
+        }
     </div>
 </div>
 

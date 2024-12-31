@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BusinessLayer.DTOs.Category;
+using BusinessLayer.DTOs.Product;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Models;
 using DataAccessLayer.Models.Enums;
 using Infrastructure.UnitOfWork;
 using Mapster;
+using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Services
 {
@@ -26,16 +28,61 @@ namespace BusinessLayer.Services
 
         public async Task<IEnumerable<CategorySummaryDTO>> GetCategoriesAsync()
         {
-            var categoryEntities = await _uow.CategoriesRep.GetAllAsync();
-            return categoryEntities.Adapt<IEnumerable<CategorySummaryDTO>>();
+            return await _uow.CategoriesRep.GetQueryProducts()
+                .Select(c => new CategorySummaryDTO
+                {
+                    CategoryId = c.Id,
+                    Name = c.Name,
+                    PrimaryProductCount = c.PrimaryProducts != null ? c.PrimaryProducts.Count : 0,
+                    SecondaryProductCount = c.SecondaryProducts != null ? c.SecondaryProducts.Count : 0
+                })
+                .ToListAsync();
         }
 
         public async Task<CategorySummaryDTO?> GetByIdAsync(int id)
         {
-            var category = await _uow.CategoriesRep.GetByIdAsync(id);
+            var category = await _uow.CategoriesRep.GetQueryById(id)
+                .Select(c => new CategorySummaryDTO
+                {
+                    CategoryId = c.Id,
+                    Name = c.Name,
+                    PrimaryProductCount = c.PrimaryProducts != null ? c.PrimaryProducts.Count : 0,
+                    SecondaryProductCount = c.SecondaryProducts != null ? c.SecondaryProducts.Count : 0
+                })
+                .FirstOrDefaultAsync();
 
-            return category.Adapt<CategorySummaryDTO>();
+            return category;
         }
+
+        public async Task<CategoryProductsDTO?> GetCategoryWithProductsAsync(int categoryId)
+        {
+            return await _uow.CategoriesRep.GetQueryById(categoryId)
+                .Select(c => new CategoryProductsDTO
+                {
+                    CategoryId = c.Id,
+                    Name = c.Name,
+                    PrimaryProducts = c.PrimaryProducts.Select(p => new ProductSummaryDTO
+                    {
+                        ProductId = p.Id,
+                        Name = p.Name,
+                        Description = p.Description,
+                        Price = p.Price,
+                        QuantityInStock = p.QuantityInStock
+                    }).ToList(),
+                    PrimaryProductCount = c.PrimaryProducts != null ? c.PrimaryProducts.Count : 0,
+                    SecondaryProducts = c.SecondaryProducts.Select(p => new ProductSummaryDTO
+                    {
+                        ProductId = p.Id,
+                        Name = p.Name,
+                        Description = p.Description,
+                        Price = p.Price,
+                        QuantityInStock = p.QuantityInStock
+                    }).ToList(),
+                    SecondaryProductCount = c.SecondaryProducts != null ? c.SecondaryProducts.Count : 0
+                })
+                .FirstOrDefaultAsync();
+        }
+
 
         public async Task<Category> MergeCategoriesAndCreateNewAsync(
             string newCategoryName,
@@ -143,12 +190,8 @@ namespace BusinessLayer.Services
             if (await _uow.CategoriesRep.HasProductsAsync(categoryId))
                 return false; // Cannot delete if the category has products
 
-            var category = await _uow.CategoriesRep.GetByIdAsync(categoryId);
-            if (category == null)
-                return false; // Not found
-
-            await _uow.CategoriesRep.DeleteAsync(category.Id);
-            return true;
+            var deleted = await _uow.CategoriesRep.DeleteAsync(categoryId);
+            return deleted;
         }
     }
 }

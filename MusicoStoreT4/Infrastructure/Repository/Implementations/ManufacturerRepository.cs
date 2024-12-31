@@ -48,5 +48,17 @@ namespace Infrastructure.Repository.Implementations
         {
             return _context.Manufacturers.AsQueryable();
         }
+
+        public IQueryable<Manufacturer> GetAllQueryWithProducts()
+        {
+            return _context.Manufacturers.Include(m => m.Products);
+        }
+
+        public IQueryable<Manufacturer> GetQueryById(int id)
+        {
+            return _context.Manufacturers
+                .Where(m => m.Id == id)
+                .Include(m => m.Products);
+        }
     }
 }

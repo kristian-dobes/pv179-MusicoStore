@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using BusinessLayer.DTOs;
 using BusinessLayer.DTOs.Order;
 using BusinessLayer.DTOs.OrderItem;
+using BusinessLayer.DTOs.User;
 using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Data;
@@ -31,17 +32,40 @@ namespace BusinessLayer.Services
             _uow = unitOfWork;
         }
 
-        public async Task<IEnumerable<OrderDetailDto>> GetAllOrdersAsync()
+        public async Task<IEnumerable<OrderSummaryDTO>> GetAllOrdersAsync()
         {
-            var orders = await _uow.OrdersRep.GetAllAsync();
+            var orders = await _uow.OrdersRep.GetAllOrdersWithDetailsQuery()
+                .ToListAsync();
 
-            return orders.Select(o => o.Adapt<OrderDetailDto>()).ToList();
+            // in memory, sum isnt handled well by db
+            return orders.Select(o => new OrderSummaryDTO
+            {
+                OrderId = o.Id,
+                Created = o.Created,
+                OrderItemsCount = o.OrderItems.Count,
+                CustomerId = o.User.Id,
+                Email = o.User.Email,
+                TotalOrderPrice = o.OrderItems.Sum(oi => oi.Price * oi.Quantity),
+                PaymentStatus = MapPaymentStatus(o.OrderStatus)
+            });
+        }
+
+        private static string MapPaymentStatus(PaymentStatus status)
+        {
+            return status switch
+            {
+                PaymentStatus.Pending => "Pending ",
+                PaymentStatus.Paid => "Paid",
+                PaymentStatus.Failed => "Failed",
+                PaymentStatus.Refunded => "Refunded",
+                _ => "Unknown Status"
+            };
         }
 
         public async Task<OrderDetailDto?> GetOrderByIdAsync(int id)
         {
             var order = await _uow.OrdersRep.GetByIdAsync(id);
-
+            // in memory, single order only, sum isnt handled well by db
             if (order == null)
                 return null;
 
@@ -102,16 +126,22 @@ namespace BusinessLayer.Services
         public async Task<bool> UpdateOrderAsync(int orderId, UpdateOrderDto updateOrderDto)
         {
             if (updateOrderDto == null)
-                throw new ArgumentNullException(nameof(updateOrderDto), "UpdateOrderDto cannot be null.");
+            { 
+                throw new ArgumentNullException(nameof(updateOrderDto), "UpdateOrderDto cannot be null."); 
+            }
 
             // Fetch the order
             var order = await _uow.OrdersRep.GetByIdAsync(orderId);
             if (order == null)
+            {
                 throw new ArgumentException($"Order with ID {orderId} not found.");
+            }
 
             // Update the order date if provided
             if (updateOrderDto.OrderDate.HasValue)
+            {
                 order.Date = updateOrderDto.OrderDate.Value;
+            }
 
             // Update the payment status if provided
             if (!string.IsNullOrWhiteSpace(updateOrderDto.PaymentStatus))
@@ -148,39 +178,32 @@ namespace BusinessLayer.Services
                     })
                 .ToList();
 
-            // Save changes within a transaction
-            //using var transaction = await _uow.BeginTransactionAsync();
             try
             {
                 await _uow.SaveAsync();
-               // await transaction.CommitAsync();
                 return true;
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                //await transaction.RollbackAsync();
-                throw new ArgumentException($"Failed to update order with ID {orderId} due to concurrency issues.", ex);
+                return false;
             }
         }
 
-
         public async Task<bool> DeleteOrderAsync(int orderId)
         {
-            var order = await _uow.OrdersRep.GetByIdAsync(orderId);
+            var orderExists = await _uow.OrdersRep.ExistsAsync(orderId);
 
-            if (order == null)
+            if (!orderExists)
                 return false;
 
-            await _uow.OrdersRep.DeleteAsync(order.Id);
+            await _uow.OrdersRep.DeleteAsync(orderId);
             return true;
         }
 
         public async Task<IEnumerable<OrderDetailDto?>> GetOrdersByUserAsync(int userId)
         {
             var orders = await _uow.OrdersRep.GetOrdersByAsync(userId);
-
             return orders.Select(o => o.Adapt<OrderDetailDto>()).ToList();
-            //return (await _uow.OrdersRep.GetOrdersWithProductsAsync(userId)).Select(o => o.Adapt<OrderDetailDTO>()).ToList();
         }
     }
 }

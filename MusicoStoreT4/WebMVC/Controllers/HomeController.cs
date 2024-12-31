@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using BusinessLayer.DTOs.Category;
 using BusinessLayer.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,37 +10,33 @@ namespace WebMVC.Controllers
     [Authorize]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly IProductService _productService;
-        private readonly IImageService _imageService;
 
         public HomeController(
-            ILogger<HomeController> logger,
-            IProductService productService,
-            IImageService imageService
+            IProductService productService
         )
         {
-            _logger = logger;
             _productService = productService;
-            _imageService = imageService;
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            int productId = 3;
+            int productId = 3; // Featured product is hardcoded for now
             var product = await _productService.GetProductByIdAsync(productId);
 
             if (product == null)
-                return NotFound();
+                return View(new ProductHomeViewModel { IsValid = false });
 
             var productHomeViewModel = new ProductHomeViewModel
             {
+                IsValid = true,
                 ProductId = product.ProductId,
                 ProductName = product.Name,
                 Description = product.Description,
                 Price = product.Price,
                 PrimaryCategory = product.PrimaryCategoryName,
-                ImageFilePath = await _imageService.GetImagePathByProductIdAsync(productId)
+                ImageFilePath = product.ImageFilePath ?? string.Empty
             };
 
             return View(productHomeViewModel);

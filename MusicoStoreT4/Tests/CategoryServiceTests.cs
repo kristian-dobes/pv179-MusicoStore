@@ -91,7 +91,7 @@ namespace Tests
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result.CategoryId);
             Assert.AreEqual("Guitars", result.Name);
-            Assert.AreEqual(2, result.ProductCount);
+            Assert.AreEqual(2, result.PrimaryProductCount);
         }
 
         [Test]

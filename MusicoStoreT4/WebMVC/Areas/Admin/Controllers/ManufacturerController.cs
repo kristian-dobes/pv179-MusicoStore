@@ -41,14 +41,22 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/Manufacturer/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            var manufacturer = await _manufacturerService.GetById(id);
+            //var manufacturer = await _manufacturerService.GetById(id);
 
+            //if (manufacturer == null)
+            //{
+            //    return NotFound();
+            //}
+
+            //return View(manufacturer.Adapt<ManufacturerSummaryViewModel>());
+
+            var manufacturer = await _manufacturerService.GetManufacturerWithProductsAsync(id);
             if (manufacturer == null)
             {
                 return NotFound();
             }
 
-            return View(manufacturer.Adapt<ManufacturerSummaryViewModel>());
+            return View(manufacturer.Adapt<ManufacturerProductsViewModel>());
         }
 
         // GET: Admin/Manufacturer/Create
@@ -70,7 +78,7 @@ namespace WebMVC.Areas.Admin.Controllers
 
             await _manufacturerService.CreateManufacturerAsync(manufacturer);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { area = "Admin" });
         }
 
         // GET: Admin/Manufacturer/Edit/5
@@ -99,7 +107,7 @@ namespace WebMVC.Areas.Admin.Controllers
             var manufacturer = model.Adapt<ManufacturerUpdateDTO>();
             await _manufacturerService.UpdateManufacturerAsync(id, manufacturer);
          
-            return RedirectToAction("Details", new { id });
+            return RedirectToAction("Details", "Manufacturer", new { area = "Admin", id });
         }
 
         // GET: Admin/Manufacturer/Delete/5
@@ -122,7 +130,7 @@ namespace WebMVC.Areas.Admin.Controllers
         {
             await _manufacturerService.DeleteManufacturerAsync(id);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { area = "Admin" });
         }
 
         // GET: Admin/Manufacturer/Merge
@@ -161,7 +169,7 @@ namespace WebMVC.Areas.Admin.Controllers
                 return Unauthorized("User must be authenticated to delete the product.");
 
             await _manufacturerFacade.MergeManufacturersAsync(model.SourceManufacturerId, model.DestinationManufacturerId, user.UserId);
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { area = "Admin" });
         }
     }
 }

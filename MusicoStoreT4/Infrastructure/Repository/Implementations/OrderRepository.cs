@@ -56,5 +56,16 @@ namespace Infrastructure.Repository.Implementations
                 .OrderByDescending(o => o.Date)
                 .ToListAsync();
         }
+        public IQueryable<Order> GetAllOrdersWithDetailsQuery()
+        {
+            return _context.Orders
+                .Include(o => o.OrderItems)
+                .Include(o => o.User);
+        }
+
+        public async Task<bool> ExistsAsync(int id)
+        {
+            return await _context.Orders.AnyAsync(o => o.Id == id);
+        }
     }
 }

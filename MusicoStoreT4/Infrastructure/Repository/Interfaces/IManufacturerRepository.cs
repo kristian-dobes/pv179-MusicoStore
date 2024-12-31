@@ -11,5 +11,7 @@ namespace Infrastructure.Repository.Interfaces
     {
         Task<List<Manufacturer>> GetManufacturersWithProductsAsync();
         IQueryable<Manufacturer> GetAllQuery();
+        IQueryable<Manufacturer> GetAllQueryWithProducts();
+        IQueryable<Manufacturer> GetQueryById(int id);
     }
 }

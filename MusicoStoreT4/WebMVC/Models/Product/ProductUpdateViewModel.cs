@@ -5,6 +5,7 @@ namespace WebMVC.Models.Product
 {
     public class ProductUpdateViewModel
     {
+        public int Id { get; set; }
         public required string Name { get; set; }
         public required string Description { get; set; }
         public required decimal Price { get; set; }
@@ -12,6 +13,10 @@ namespace WebMVC.Models.Product
         public required int PrimaryCategoryId { get; set; }
         public required int ManufacturerId { get; set; }
         public IEnumerable<int> SecondaryCategoryIds { get; set; } = new List<int>();
+
+        public IFormFile? Image { get; set; }
+        public string? ImagePath { get; set; }
+        public bool DeleteImage { get; set; }
 
         public IEnumerable<CategorySummaryDTO> Categories { get; set; } = [];
         public IEnumerable<ManufacturerSummaryDTO> Manufacturers { get; set; } = [];

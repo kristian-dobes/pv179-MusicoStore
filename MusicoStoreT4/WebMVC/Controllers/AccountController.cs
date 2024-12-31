@@ -38,19 +38,16 @@ namespace WebMVC.Controllers
 
                 var result = await _userManager.CreateAsync(user, model.Password);
 
-                if (model.IsAdmin)
-                {
-                    await _userManager.AddToRoleAsync(user, "Admin");
-                }
-
                 if (result.Succeeded)
                 {
+                    if (model.IsAdmin)
+                    {
+                        await _userManager.AddToRoleAsync(user, "Admin");
+                    }
+
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     // return RedirectToAction("Login", "Account");
-                    return RedirectToAction(
-                        nameof(Login),
-                        nameof(AccountController).Replace("Controller", "")
-                    );
+                    return RedirectToAction(nameof(Index), nameof(HomeController).Replace("Controller", ""));
                 }
 
                 foreach (var error in result.Errors)

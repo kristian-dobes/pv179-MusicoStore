@@ -28,13 +28,13 @@ namespace WebAPI.Controllers
             return Ok(products);
         }
 
-        [HttpGet("with-order-items")]
-        public async Task<IActionResult> FetchWithOrderItems()
-        {
-            var products = await _productService.GetAllProductsWithDetailsAsync();
+        //[HttpGet("with-order-items")]
+        //public async Task<IActionResult> FetchWithOrderItems()
+        //{
+        //    var products = await _productService.GetAllProductsWithDetailsAsync();
 
-            return Ok(products);
-        }
+        //    return Ok(products);
+        //}
 
         [HttpPost("filter")]
         public async Task<IActionResult> GetProducts([FromBody] FilterProductDto filterProductDTO)
@@ -47,19 +47,14 @@ namespace WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ProductCreateDTO createProductDto)
         {
-            try
+            var result = await _productService.CreateProductAsync(createProductDto);
+            if (result)
             {
-                var createdProduct = await _productService.CreateProductAsync(createProductDto);
-                
-                return Ok($"Product {createdProduct.Name} created successfully.");
-            }
-            catch (ArgumentException ex)
+                return Ok($"Product created successfully.");
+            }   
+            else
             {
-                return BadRequest(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return StatusCode(500, ex.Message);
+                return BadRequest("Product creation failed.");
             }
         }
 

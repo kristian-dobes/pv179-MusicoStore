@@ -24,7 +24,12 @@ namespace WebMVC.ViewComponents
             }
 
             var user = await _userManager.GetUserAsync(HttpContext.User);
-            var isAdmin = user != null && await _userManager.IsInRoleAsync(user, "Admin");
+            if (user == null)
+            {
+                return View("LoggedOutMenu");
+            }
+
+            var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
             var userName = await _userManager.GetUserNameAsync(user);
 
             return View("LoggedInMenu", new UserMenuViewModel

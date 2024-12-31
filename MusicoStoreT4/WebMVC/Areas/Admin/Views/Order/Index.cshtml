@@ -1,54 +1,85 @@
-﻿@model IEnumerable<WebMVC.Models.Order.OrderDetailViewModel>
+﻿@model IEnumerable<WebMVC.Models.Order.OrderSummaryViewModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Order List";
 }
 
 <div class="container mt-4">
-    <div class="row">
-        <div class="col">
-            <h1 class="mb-4">Orders</h1>
-            <p class="text-muted">Total Orders: <strong>@Model.Count()</strong></p>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Orders</h1>
+        <p class="text-muted mb-0">Total Orders: <strong>@Model.Count()</strong></p>
+    </div>
+
+    <div class="mb-3">
+        <div class="d-flex gap-2">
+            <a asp-area="Admin" asp-action="Create" class="btn btn-success btn-sm">+ Create New</a>
         </div>
     </div>
 
-    <div class="row mb-4">
-        <div class="col d-flex gap-2">
-            <a asp-action="Create" class="btn btn-success">Create New</a>
-        </div>
-    </div>
-
-    <table class="table table-striped table-bordered">
-        <thead class="table-dark">
-            <tr>
-                <th>OrderID</th>
-                <th>@Html.DisplayNameFor(model => model.Created)</th>
-                <th>User Email</th>
-                <th>@Html.DisplayNameFor(model => model.OrderItemsCount)</th>
-                <th>@Html.DisplayNameFor(model => model.TotalOrderPrice)</th>
-                <th>@Html.DisplayNameFor(model => model.PaymentStatus)</th>
-                <th class="text-center">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
+    <div class="table-responsive">
+        <table class="table table-hover table-striped align-middle">
+            <thead class="table-dark">
                 <tr>
-                    <td>@Html.DisplayFor(modelItem => item.OrderId)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Created)</td>
-                    <td>@item.User?.Email</td>
-                    <td>@Html.DisplayFor(modelItem => item.OrderItemsCount)</td>
-                    <td>@item.TotalOrderPrice.ToString("C")</td>
-                    <td>@Html.DisplayFor(modelItem => item.PaymentStatus)</td>
-                    <td class="text-center">
-                        <div class="d-flex justify-content-center gap-2">
-                            <a asp-action="Edit" asp-route-id="@item.OrderId" class="btn btn-warning btn-sm">Edit</a>
-                            <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-info btn-sm">Details</a>
-                            <a asp-action="Delete" asp-route-id="@item.OrderId" class="btn btn-danger btn-sm">Delete</a>
-                        </div>
-                    </td>
+                    <th scope="col">Order ID</th>
+                    <th scope="col">Created</th>
+                    <th scope="col">User Email</th>
+                    <th scope="col">Items Count</th>
+                    <th scope="col">Total Price</th>
+                    <th scope="col">Payment Status</th>
+                    <th scope="col" class="text-center">Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.OrderId</td>
+                        <td>@item.Created.ToString("g")</td>
+                        <td>@item.Email</td>
+                        <td>@item.OrderItemsCount</td>
+                        <td>@item.TotalOrderPrice.ToString("C")</td>
+                        <td>@item.PaymentStatus</td>
+                        <td class="text-center">
+                            <div class="btn-group" role="group">
+                                <a asp-area="Admin" asp-action="Edit" asp-route-id="@item.OrderId" class="btn btn-warning btn-sm">Edit</a>
+                                <a asp-area="Admin" asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-info btn-sm text-white">Details</a>
+                                <a asp-area="Admin" asp-action="Delete" asp-route-id="@item.OrderId" class="btn btn-danger btn-sm">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<style>
+    .table {
+        font-size: 0.9rem;
+        vertical-align: middle;
+    }
+
+        .table thead {
+            font-size: 1rem;
+        }
+
+    .btn-group .btn {
+        margin-right: 4px;
+    }
+
+        .btn-group .btn:last-child {
+            margin-right: 0;
+        }
+
+    .table td, .table th {
+        vertical-align: middle;
+    }
+
+    .text-muted {
+        font-size: 0.9rem;
+    }
+
+    .btn {
+        margin: 0 2px;
+    }
+</style>

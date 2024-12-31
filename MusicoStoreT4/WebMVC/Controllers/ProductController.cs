@@ -13,31 +13,23 @@ namespace WebMVC.Controllers
     public class ProductController : Controller
     {
         private readonly IProductService _productService;
-        private readonly IImageService _imageService;
 
         public ProductController(
-            IProductService productService,
-            IImageService imageService
+            IProductService productService
         )
         {
             _productService = productService;
-            _imageService = imageService;
         }
 
-        [HttpGet("detailz/{id}")]
-        public async Task<IActionResult> Detailz(int id)
+        [HttpGet("details/{id}")]
+        public async Task<IActionResult> Details(int id)
         {
             var product = await _productService.GetProductByIdAsync(id);
 
             if (product == null)
                 return NotFound();
 
-            string imageFilePath = await _imageService.GetImagePathByProductIdAsync(id);
-
-            var productViewModel = product.Adapt<ProductDetailViewModel>();
-            productViewModel.ImageFilePath = imageFilePath;
-
-            return View(productViewModel);
+            return View(product.Adapt<ProductDetailViewModel>());
         }
 
         [HttpGet("list")]
