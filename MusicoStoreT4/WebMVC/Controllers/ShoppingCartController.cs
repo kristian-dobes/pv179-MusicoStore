@@ -140,6 +140,12 @@ namespace WebMVC.Controllers
         {
             var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
 
+            // Check if a gift card is already applied
+            if (!string.IsNullOrEmpty(cart.AppliedGiftCardCode))
+            {
+                return Json(new { success = false, message = "A gift card has already been applied to this cart." });
+            }
+
             // Validate gift code
             var couponCode = await _giftCardService.GetGiftCardByCouponCodeAsync(giftCardCode);
 

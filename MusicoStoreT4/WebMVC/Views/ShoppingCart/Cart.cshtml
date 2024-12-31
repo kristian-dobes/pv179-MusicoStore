@@ -73,32 +73,50 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
-        // Apply gift card functionality
-        $('#applyGiftCardButton').on('click', function () {
-            const giftCardCode = $('#giftCardCode').val();
+            $('#applyGiftCardButton').on('click', function () {
+        const giftCardCode = $('#giftCardCode').val();
 
-            if (!giftCardCode) {
-                alert('Please enter a gift card code.');
-                return;
-            }
+        if (!giftCardCode) {
+            alert('Please enter a gift card code.');
+            return;
+        }
 
-            $.ajax({
-                url: '/ShoppingCart/ApplyGiftCard',
-                type: 'POST',
-                data: { giftCardCode: giftCardCode },
-                success: function (response) {
-                    if (response.success) {
-                        $('#giftCardMessage').text('Gift card applied: -$' + response.discountAmount);
-                        $('h3:last').text('Total: $' + response.finalAmount);
+        $.ajax({
+            url: '/ShoppingCart/ApplyGiftCard',
+            type: 'POST',
+            data: { giftCardCode: giftCardCode },
+            success: function (response) {
+                if (response.success) {
+                    // Update the success message
+                    $('#giftCardMessage')
+                        .removeClass('text-danger')
+                        .addClass('text-success')
+                        .text(`Gift card applied: -${response.discountAmount.toFixed(2)}`);
+
+                    // Update the total amounts
+                    $('h4 span.text-primary').text(response.finalAmount.toFixed(2)); // Final Total
+                    if (!$('p.text-success').length) {
+                        $('<p class="text-success">')
+                            .text(`Gift Card (${response.giftCardCode}): -${response.discountAmount.toFixed(2)}`)
+                            .insertAfter('h4:contains("Subtotal:")');
                     } else {
-                        $('#giftCardMessage').text(response.message);
+                        $('p.text-success').text(`Gift Card (${response.giftCardCode}): -${response.discountAmount.toFixed(2)}`);
                     }
-                },
-                error: function () {
-                    $('#giftCardMessage').text('An error occurred while applying the gift card.');
+
+                    // Clear input field
+                    $('#giftCardCode').val('');
+                } else {
+                    $('#giftCardMessage')
+                        .removeClass('text-success')
+                        .addClass('text-danger')
+                        .text(response.message);
                 }
-            });
+            },
+            error: function () {
+                $('#giftCardMessage').text('An error occurred while applying the gift card.');
+            }
         });
+    });
 
         // Handle quantity update and item removal buttons
         document.querySelectorAll('.btn').forEach(button => {
