@@ -49,7 +49,9 @@ namespace Tests
                 new ProductRepository(context),
                 new ProductImageRepository(context),
                 new AuditLogRepository(context),
-                new LogRepository(context)
+                new LogRepository(context),
+                new GiftCardRepository(context),
+                new CouponCodeRepository(context)
             );
             _manufacturerFacade = new ManufacturerFacade(
                 new ManufacturerService(

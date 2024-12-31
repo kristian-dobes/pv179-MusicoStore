@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BusinessLayer.DTOs.Category;
+﻿using BusinessLayer.DTOs.Category;
+using BusinessLayer.DTOs.CouponCode;
+using BusinessLayer.DTOs.GiftCard;
 using BusinessLayer.DTOs.Manufacturer;
 using BusinessLayer.DTOs.Order;
 using BusinessLayer.DTOs.OrderItem;
@@ -126,8 +123,8 @@ namespace BusinessLayer
                 .Map(dest => dest.City, src => src.City)
                 .Map(dest => dest.State, src => src.State)
                 .Map(dest => dest.PostalCode, src => src.PostalCode);
-            TypeAdapterConfig<OrderItem, OrderItemCompleteDTO>
-                .NewConfig()
+
+            TypeAdapterConfig<OrderItem, OrderItemCompleteDTO>.NewConfig()
                 .Map(dest => dest.OrderItemId, src => src.Id)
                 .Map(dest => dest.OrderId, src => src.OrderId)
                 //.Map(dest => dest.Product, src => src.Product.Adapt<ProductCompleteDTO>())
@@ -144,27 +141,36 @@ namespace BusinessLayer
                 .Map(dest => dest.ProductPrice, src => src.Price)
                 .Map(dest => dest.TotalPricePerOrderItem, src => src.Quantity * src.Price);
 
-            TypeAdapterConfig<Order, OrderDetailDto>
-                .NewConfig()
+            TypeAdapterConfig<Order, OrderDetailDto>.NewConfig()
                 .Map(dest => dest.OrderId, src => src.Id)
                 .Map(dest => dest.Created, src => src.Date)
-                .Map(
-                    dest => dest.OrderItemsCount,
-                    src => src.OrderItems != null ? src.OrderItems.Count() : 0
-                )
+                .Map(dest => dest.OrderItemsCount, src => src.OrderItems != null ? src.OrderItems.Count() : 0)
                 .Map(dest => dest.User, src => src.User.Adapt<CustomerOrderDTO>())
-                .Map(
-                    dest => dest.OrderItems,
-                    src => src.OrderItems.Adapt<IEnumerable<OrderItemCompleteDTO>>()
-                )
-                .Map(
-                    dest => dest.TotalOrderPrice,
-                    src =>
-                        src.OrderItems != null
-                            ? src.OrderItems.Sum(oi => oi.Price * oi.Quantity)
-                            : 0
-                )
-                .Map(dest => dest.PaymentStatus, src => src.OrderStatus.ToString());
+                .Map(dest => dest.OrderItems, src => src.OrderItems.Adapt<IEnumerable<OrderItemCompleteDTO>>())
+                .Map(dest => dest.TotalOrderPrice, src => src.OrderItems != null ? src.OrderItems.Sum(oi => oi.Price * oi.Quantity) : 0)
+                .Map(dest => dest.PaymentStatus, src => src.OrderStatus.ToString())
+                .Map(dest => dest.GiftCard, src => src.GiftCard != null ? new GiftCardSummaryDTO
+                {
+                    GiftCardId = src.GiftCard.Id,
+                    DiscountAmount = src.GiftCard.DiscountAmount,
+                } : null)
+                .Map(dest => dest.UsedCouponCode, src => src.UsedCouponCode);
+
+            TypeAdapterConfig<CouponCode, CouponCodeDto>.NewConfig()
+                .Map(dest => dest.CouponCodeId, src => src.Id)
+                .Map(dest => dest.Created, src => src.Created)
+                .Map(dest => dest.Code, src => src.Code)
+                .Map(dest => dest.IsUsed, src => src.IsUsed)
+                .Map(dest => dest.GiftCardId, src => src.GiftCardId)
+                .Map(dest => dest.OrderId, src => src.OrderId);
+
+            TypeAdapterConfig<GiftCard, GiftCardDto>.NewConfig()
+                .Map(dest => dest.GiftCardId, src => src.Id)
+                .Map(dest => dest.Created, src => src.Created)
+                .Map(dest => dest.DiscountAmount, src => src.DiscountAmount)
+                .Map(dest => dest.ValidityStartDate, src => src.ValidityStartDate)
+                .Map(dest => dest.ValidityEndDate, src => src.ValidityEndDate)
+                .Map(dest => dest.CouponCodes, src => src.CouponCodes.Adapt<IEnumerable<CouponCodeDto>>());
         }
     }
 }

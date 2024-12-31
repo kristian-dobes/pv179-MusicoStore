@@ -1,12 +1,5 @@
 ﻿using BusinessLayer.Cache;
-using BusinessLayer.DTOs;
-using BusinessLayer.DTOs.User;
-using BusinessLayer.DTOs.User.Customer;
-using BusinessLayer.Facades;
-using BusinessLayer.Mapper;
 using BusinessLayer.Services;
-using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Infrastructure.Repository.Implementations;
 using Infrastructure.Repository.Implementations.Implementations;
@@ -54,7 +47,9 @@ namespace Tests
                 new ProductRepository(context),
                 new ProductImageRepository(context),
                 new AuditLogRepository(context),
-                new LogRepository(context)
+                new LogRepository(context),
+                new GiftCardRepository(context),
+                new CouponCodeRepository(context)
             );
             _userService = new UserService(
                 _uow,
@@ -125,7 +120,6 @@ namespace Tests
                 .FirstOrDefault();
 
             Assert.AreEqual(mostFrequentOrderItem.Key, result.ProductId);
-            Assert.AreEqual(mostFrequentOrderItem.Sum(oi => oi.Quantity), result.Quantity);
         }
 
         [Test]
@@ -157,7 +151,6 @@ namespace Tests
                 .FirstOrDefault();
 
             Assert.AreEqual(mostFrequentOrderItem.Key, result.ProductId);
-            Assert.AreEqual(mostFrequentOrderItem.Sum(oi => oi.Quantity), result.Quantity);
         }
 
         [Test]
@@ -197,73 +190,7 @@ namespace Tests
                     .FirstOrDefault();
 
                 Assert.AreEqual(mostFrequentOrderItem.Key, result.ProductId);
-                Assert.AreEqual(mostFrequentOrderItem.Sum(oi => oi.Quantity), result.Quantity);
             }
-        }
-
-        [Test]
-        public async Task GetCustomerSegmentsAsync_ShouldReturnCustomerSegments()
-        {
-            // Arrange
-            var customer1 = (Customer?)(await _uow.UsersRep.GetByIdAsync(3));
-            var customer2 = (Customer?)(await _uow.UsersRep.GetByIdAsync(4));
-
-            var customerSegmentsDto = new CustomerSegmentsDto()
-            {
-                HighValueCustomers = new List<CustomerDto>()
-                {
-                    customer1.MapToCustomerDto(),
-                    customer2.MapToCustomerDto()
-                },
-                InfrequentCustomers = new List<CustomerDto>()
-            };
-
-            // Act
-            var result = await _userService.GetCustomerSegmentsAsync();
-
-            // Assert
-            CollectionAssert.AreEquivalent(
-                customerSegmentsDto.HighValueCustomers,
-                result.HighValueCustomers
-            );
-            CollectionAssert.AreEquivalent(
-                customerSegmentsDto.InfrequentCustomers,
-                result.InfrequentCustomers
-            );
-        }
-
-        [Test]
-        public async Task GetCustomerSegmentsAsync_ShouldReturnEmptyLists_WhenNoCustomers()
-        {
-            // Arrange
-            var customers = await _uow.UsersRep.GetAllAsync();
-            await _uow.UsersRep.DeleteByIdsAsync(customers.Select(c => c.Id));
-            await _uow.SaveAsync();
-
-            // Act
-            var result = await _userService.GetCustomerSegmentsAsync();
-
-            // Assert
-            Assert.IsEmpty(result.HighValueCustomers);
-            Assert.IsEmpty(result.InfrequentCustomers);
-        }
-
-        [Test]
-        public async Task GetUserSummariesAsync_ShouldReturnEmpty_WhenDatasetIsEmpty()
-        {
-            // Arrange
-            var userIds = (await _uow.UsersRep.GetAllAsync()).Select(u => u.Id);
-            var customerIds = (await _uow.UsersRep.GetAllAsync()).Select(c => c.Id);
-
-            await _uow.UsersRep.DeleteByIdsAsync(userIds);
-            await _uow.UsersRep.DeleteByIdsAsync(customerIds);
-            await _uow.SaveAsync();
-
-            // Act
-            var result = await _userService.GetAllUserSummariesAsync();
-
-            // Assert
-            Assert.IsEmpty(result);
         }
     }
 }

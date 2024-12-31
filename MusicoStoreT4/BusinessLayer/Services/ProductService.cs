@@ -1,7 +1,6 @@
 using BusinessLayer.DTOs;
 using BusinessLayer.DTOs.Category;
 using BusinessLayer.DTOs.Manufacturer;
-using BusinessLayer.DTOs.OrderItem;
 using BusinessLayer.DTOs.Product;
 using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
@@ -10,7 +9,6 @@ using DataAccessLayer.Models.Enums;
 using Infrastructure.UnitOfWork;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 
 namespace BusinessLayer.Services
 {
@@ -87,44 +85,19 @@ namespace BusinessLayer.Services
             return productDtos;
         }
 
-        //public async Task<IEnumerable<ProductWithDetailsDto>> GetAllProductsWithDetailsAsync()
-        //{
-        //    var products = await _uow.ProductsRep.GetAllWithDetailsAsync();
-
-        //    return products
-        //        .Select(p => new ProductWithDetailsDto
-        //        {
-        //            ProductId = p.Id,
-        //            ProductName = p.Name,
-        //            ProductDateOfCreation = p.Created,
-        //            ProductDescription = p.Description,
-        //            ProductPrice = p.Price,
-        //            ProductQuantityInStock = p.QuantityInStock,
-        //            ProductManufacturer = p.ManufacturerId,
-        //            ProductCategory = p.PrimaryCategoryId,
-        //            OrderItems = p
-        //                .OrderItems.Select(oi => new OrderItemDto
-        //                {
-        //                    ProductId = p.Id,
-        //                    Quantity = oi.Quantity,
-        //                })
-        //                .ToList(),
-        //            Category = p.PrimaryCategory?.Adapt<CategorySummaryDTO>(),
-        //            Manufacturer = p.Manufacturer?.Adapt<ManufacturerSummaryDTO>()
-        //        })
-        //        .ToList();
-        //}
-
         public async Task<ProductCompleteDTO> UpdateProductAsync(int productId, ProductUpdateDTO productDto)
         {
             var product = await _uow.ProductsRep.GetByIdAsync(productId);
             if (product == null)
+            {
                 throw new KeyNotFoundException($"Product with ID {productId} not found.");
+            }
 
-            // Validate Manufacturer
             var manufacturer = await _uow.ManufacturersRep.GetByIdAsync(productDto.ManufacturerId);
             if (manufacturer == null)
+            {
                 throw new KeyNotFoundException($"Manufacturer with ID {productDto.ManufacturerId} not found.");
+            }
 
             // Validate Primary Category
             var primaryCategory = await _uow.CategoriesRep.GetByIdAsync(productDto.PrimaryCategoryId);
@@ -149,10 +122,8 @@ namespace BusinessLayer.Services
             product.SecondaryCategories?.Clear();
             product.SecondaryCategories = secondaryCategories.ToList();
 
-            // Log the update action and save changes
             await _auditLogService.LogAsync(productId, AuditAction.Update, productDto.LastModifiedById);
             await _uow.SaveAsync();
-
             return product.Adapt<ProductCompleteDTO>();
         }
 
@@ -160,7 +131,6 @@ namespace BusinessLayer.Services
         {
             if (productDto.Price <= 0)
                 return false;
-                //throw new ArgumentException("Price must be valid");
 
             // VALIDATION
             var categoriesQuery = _uow.CategoriesRep.GetAllQuery()
@@ -183,23 +153,19 @@ namespace BusinessLayer.Services
             // Validate Primary Category
             if (!categories.Any(c => c.Id == productDto.PrimaryCategoryId))
                 return false;
-                //throw new ArgumentException($"Category with id {productDto.PrimaryCategoryId} not found.");
 
             // Validate Secondary Categories
             var secondaryCategories = categories.Where(c => productDto.SecondaryCategoryIds.Contains(c.Id)).ToList();
             if (secondaryCategories.Count != productDto.SecondaryCategoryIds.Count)
                 return false;
-                //throw new ArgumentException("One or more secondary categories not found.");
 
             // Validate Manufacturer
             if (!manufacturerExists)
                 return false;
-                //throw new ArgumentException($"Manufacturer with id {productDto.ManufacturerId} not found.");
 
             // Validate Product Name
             if (productNameExists)
                 return false;
-                //throw new ArgumentException($"Product with name '{productDto.Name}' already exists.");
 
             var product = productDto.MapToProduct(secondaryCategories);
 
@@ -239,44 +205,6 @@ namespace BusinessLayer.Services
             await _auditLogService.LogAsync(auditLogs);
 
             await _uow.SaveAsync();
-        }
-
-        public async Task<IEnumerable<TopSellingProductDto>> GetTopSellingProductsByCategoryAsync(
-            DateTime startDate,
-            DateTime endDate,
-            int topN = 5
-        )
-        {
-            // Fetch order items within the date range using the repository
-            var orderItems = await _uow.OrderItemsRep.GetByDateRangeAsync(startDate, endDate);
-
-            // Perform the grouping and aggregation in-memory
-            var query = orderItems
-                .GroupBy(oi => new
-                {
-                    oi.Product.PrimaryCategory.Id,
-                    oi.Product.PrimaryCategory.Name
-                })
-                .Select(categoryGroup => new TopSellingProductDto
-                {
-                    CategoryId = categoryGroup.Key.Id,
-                    CategoryName = categoryGroup.Key.Name,
-                    Products = categoryGroup
-                        .GroupBy(oi => new { oi.Product.Id, oi.Product.Name })
-                        .Select(productGroup => new ProductSalesDto
-                        {
-                            ProductId = productGroup.Key.Id,
-                            ProductName = productGroup.Key.Name,
-                            TotalUnitsSold = productGroup.Sum(x => x.Quantity),
-                            Revenue = productGroup.Sum(x => x.Quantity * x.Price)
-                        })
-                        .OrderByDescending(p => p.TotalUnitsSold)
-                        .Take(topN)
-                        .ToList()
-                })
-                .ToList();
-
-            return query;
         }
 
         public async Task DeleteProductAsync(int productId, int deletedBy)

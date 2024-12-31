@@ -1,23 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BusinessLayer;
+﻿using BusinessLayer;
 using BusinessLayer.Cache;
-using BusinessLayer.DTOs;
 using BusinessLayer.Services;
-using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Infrastructure.Repository.Implementations;
 using Infrastructure.Repository.Implementations.Implementations;
-using Infrastructure.Repository.Interfaces;
 using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
-using NUnit.Framework;
 using Tests.Other;
 
 namespace Tests
@@ -58,7 +48,9 @@ namespace Tests
                 new ProductRepository(context),
                 new ProductImageRepository(context),
                 new AuditLogRepository(context),
-                new LogRepository(context)
+                new LogRepository(context),
+                new GiftCardRepository(context),
+                new CouponCodeRepository(context)
             );
 
             _service = new CategoryService(
@@ -224,8 +216,8 @@ namespace Tests
             Assert.IsNotNull(category1, "Category 1 is missing in the mock data.");
             Assert.IsNotNull(category2, "Category 2 is missing in the mock data.");
 
-            var product1 = (await _uow.ProductsRep.WhereAsync(p => p.Id == 1)).FirstOrDefault();
-            var product2 = (await _uow.ProductsRep.WhereAsync(p => p.Id == 2)).FirstOrDefault();
+            var product1 = await _uow.ProductsRep.FirstOrDefaultAsync(p => p.Id == 1);
+            var product2 = await _uow.ProductsRep.FirstOrDefaultAsync(p => p.Id == 2);
             Assert.IsNotNull(product1, "Product 1 is missing in the mock data.");
             Assert.IsNotNull(product2, "Product 2 is missing in the mock data.");
 

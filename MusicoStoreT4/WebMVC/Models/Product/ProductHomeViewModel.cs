@@ -1,5 +1,3 @@
-using BusinessLayer.DTOs.Category;
-
 namespace WebMVC.Models.Product
 {
     public class ProductHomeViewModel

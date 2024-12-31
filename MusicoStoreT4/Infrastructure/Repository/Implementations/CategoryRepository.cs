@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
 using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Infrastructure.Repository.Interfaces;
@@ -37,9 +32,7 @@ namespace Infrastructure.Repository.Implementations
 
             existingCategory.Name = entity.Name;
 
-            _context.Categories.Update(existingCategory);
             await _context.SaveChangesAsync();
-
             return true;
         }
 
@@ -106,6 +99,12 @@ namespace Infrastructure.Repository.Implementations
             var categories = _context.Categories.Where(c => categoryIds.Contains(c.Id)).ToList();
             _context.Categories.RemoveRange(categories);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> IsNameUniqueAsync(string name, int? excludeCategoryId = null)
+        {
+            return !await _context.Categories
+                .AnyAsync(c => c.Name == name && (!excludeCategoryId.HasValue || c.Id != excludeCategoryId.Value));
         }
     }
 }

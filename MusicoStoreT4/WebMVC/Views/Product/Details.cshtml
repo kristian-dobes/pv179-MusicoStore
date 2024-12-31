@@ -50,6 +50,14 @@
                             <strong>@Model.Manufacturer.Name</strong>
                         </dd>
                     </dl>
+
+                    <!-- Add to Cart Button -->
+                    <div class="d-flex align-items-center mt-3">
+                        <input type="number" id="quantity-@Model.Id" value="1" min="1" class="form-control form-control-sm me-2" style="width: 80px;" />
+                        <button class="btn btn-primary btn-sm" onclick="addToCart(@Model.Id, '@Model.Name', @Model.Price)">
+                            <i class="bi bi-cart-plus"></i> Add to Cart
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -59,6 +67,33 @@
         <a class="btn btn-info" onclick="history.back()">Back to Search Results</a>
     </div>
 </div>
+
+<script>
+    function addToCart(productId, productName, price) {
+        const quantity = document.getElementById(`quantity-${productId}`).value;
+
+        $.ajax({
+            url: '/ShoppingCart/AddToCart',
+            type: 'POST',
+            data: {
+                productId: productId,
+                productName: productName,
+                price: price,
+                quantity: quantity
+            },
+            success: function (response) {
+                if (response.success) {
+                    alert(`Added to cart! Total: $${response.cartTotal}`);
+                } else {
+                    alert('Failed to add to cart.');
+                }
+            },
+            error: function () {
+                alert('An error occurred while adding to the cart.');
+            }
+        });
+    }
+</script>
 
 <style>
     .image-container {

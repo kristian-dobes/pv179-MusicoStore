@@ -1,7 +1,5 @@
 ﻿using BusinessLayer.DTOs.OrderItem;
 using BusinessLayer.DTOs.Product;
-using BusinessLayer.DTOs.User;
-using System.ComponentModel.DataAnnotations;
 
 namespace WebMVC.Models.Order
 {

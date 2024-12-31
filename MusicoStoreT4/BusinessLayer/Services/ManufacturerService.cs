@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BusinessLayer.Cache;
+﻿using BusinessLayer.Cache;
 using BusinessLayer.Cache.Interfaces;
-using BusinessLayer.DTOs;
-using BusinessLayer.DTOs.Category;
 using BusinessLayer.DTOs.Manufacturer;
 using BusinessLayer.DTOs.Product;
-using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Infrastructure.UnitOfWork;
 using Mapster;
@@ -134,9 +125,7 @@ namespace BusinessLayer.Services
                 throw new ArgumentException("Manufacturer name is required");
             }
 
-            var exists = (
-                await _uow.ManufacturersRep.WhereAsync(m => m.Name == manufacturerDto.Name)
-            ).Any();
+            var exists = (await _uow.ManufacturersRep.AnyAsync(m => m.Name == manufacturerDto.Name));
 
             if (exists)
             {
@@ -156,7 +145,7 @@ namespace BusinessLayer.Services
         {
             if (string.IsNullOrWhiteSpace(updateManufacturerDto.Name))
             {
-                throw new ArgumentException("Manufacturer name is required");
+                throw new ArgumentException("Manufacturer name is required.");
             }
 
             var existingManufacturer = (
@@ -165,7 +154,7 @@ namespace BusinessLayer.Services
 
             if (existingManufacturer == null)
             {
-                throw new KeyNotFoundException("Manufacturer ID not found");
+                throw new KeyNotFoundException("Manufacturer ID not found.");
             }
 
             var nameExists = (
@@ -176,7 +165,7 @@ namespace BusinessLayer.Services
 
             if (nameExists)
             {
-                throw new ArgumentException("Manufacturer with that name already exists");
+                throw new ArgumentException("Manufacturer with that name already exists.");
             }
 
             existingManufacturer.Name = updateManufacturerDto.Name;

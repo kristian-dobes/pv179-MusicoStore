@@ -1,10 +1,4 @@
-﻿using Infrastructure.Repository;
-using Infrastructure.Repository.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Infrastructure.Repository.Interfaces;
 
 namespace Infrastructure.UnitOfWork
 {
@@ -19,6 +13,8 @@ namespace Infrastructure.UnitOfWork
         IProductImageRepository ProductImagesRep { get; }
         IAuditLogRepository ProductAuditsRep { get; }
         ILogRepository LogsRep { get; }
+        IGiftCardRepository GiftCardsRep { get; }
+        ICouponCodeRepository CouponCodesRep { get; }
 
         Task<int> SaveAsync();
         void BeginTransaction();

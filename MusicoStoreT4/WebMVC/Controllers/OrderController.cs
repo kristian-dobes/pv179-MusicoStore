@@ -1,12 +1,8 @@
 ﻿using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
-using WebMVC.Models;
 using WebMVC.Models.Order;
 
 namespace WebMVC.Controllers
@@ -25,9 +21,9 @@ namespace WebMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> UserOrders()
         {
-            //var userId = await GetCurrentUserId();
-            var userId = 3; // for testing
-            
+            var userId = await GetCurrentUserId();
+            //var userId = 3; // for testing
+
             var orders = await _orderService.GetOrdersByUserAsync(userId);
 
             if (orders == null || !orders.Any())

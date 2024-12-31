@@ -21,6 +21,19 @@ namespace WebMVC.Controllers
             _productService = productService;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            var products = await _productService.GetAllProductsAsync();
+
+            if (!products.Any())
+            {
+                return NotFound();
+            }
+
+            return View(products.Adapt<IEnumerable<ProductDetailViewModel>>());
+        }
+
         [HttpGet("details/{id}")]
         public async Task<IActionResult> Details(int id)
         {

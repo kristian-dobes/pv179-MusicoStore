@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BusinessLayer.DTOs.Product;
+﻿using BusinessLayer.DTOs.Product;
 
 namespace BusinessLayer.DTOs.Category
 {

@@ -1,0 +1,50 @@
+﻿@model WebMVC.Models.GiftCard.CouponCodeViewModel
+
+@{
+    ViewData["Title"] = "Coupon Code Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Coupon Code:</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CouponCodeId)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CouponCodeId)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Code)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Code)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Created)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Created)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.IsUsed)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.IsUsed)
+        </dd>
+        <dt class="col-sm-2">
+            Used in Order of ID:
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.OrderId)
+        </dd>
+    </dl>
+</div>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.CouponCodeId">Edit Coupon Code</a> |
+    <a asp-action="Delete" asp-route-id="@Model?.CouponCodeId">Delete Coupon Code</a> |
+    <a asp-controller="GiftCard" asp-action="Index">Back to List</a>
+</div>

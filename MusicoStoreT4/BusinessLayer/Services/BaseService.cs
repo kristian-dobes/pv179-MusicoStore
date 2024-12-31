@@ -1,5 +1,4 @@
 ﻿using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
 using Infrastructure.UnitOfWork;
 
 namespace BusinessLayer.Services

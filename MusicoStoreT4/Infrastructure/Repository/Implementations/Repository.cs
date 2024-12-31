@@ -2,12 +2,7 @@
 using DataAccessLayer.Models;
 using Infrastructure.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repository.Implementations
 {
@@ -59,11 +54,16 @@ namespace Infrastructure.Repository.Implementations
             return await _context.Set<T>().AnyAsync(predicate);
         }
 
+        public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _context.Set<T>().FirstOrDefaultAsync(predicate);
+        }
+
         public async Task<bool> DeleteByIdsAsync(IEnumerable<int> ids)
         {
             var entities = await _context.Set<T>()
                 .Where(e => ids.Contains(e.Id))
-            .ToListAsync();
+                .ToListAsync();
 
             if (!entities.Any())
             {

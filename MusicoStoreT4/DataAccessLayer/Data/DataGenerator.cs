@@ -1,19 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using Bogus;
+﻿using Bogus;
 using DataAccessLayer.Models;
 using DataAccessLayer.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 
 public static class DataGenerator
 {
+    private const int NumberOfUsers = 7;
+    private const int NumberOfOrders = 15;
+    private const int NumberOfProducts = 20;
+    private const int NumberOfManufacturers = 7;
+
     public static void Seed(this ModelBuilder modelBuilder)
     {
         // Bogus Seeding for simple entities (Categories, Manufacturers, Products, Customers)
         var categories = GenerateCategories();
-        var manufacturers = GenerateManufacturers(5);
-        var products = GenerateProducts(7, categories, manufacturers);
-        var customers = GenerateCustomers(4);
+        var manufacturers = GenerateManufacturers(NumberOfManufacturers);
+        var products = GenerateProducts(NumberOfProducts, categories, manufacturers);
+        var customers = GenerateCustomers(NumberOfUsers);
         var categoryProducts = GenerateCategoryProducts(products);
 
         modelBuilder.Entity<Category>().HasData(categories);
@@ -37,9 +40,8 @@ public static class DataGenerator
         modelBuilder.Entity<Customer>().HasData(customers);
         modelBuilder.Entity("CategoryProduct").HasData(categoryProducts);
 
-        // Manual Seeding for Orders and OrderItems
-        var orders = PrepareOrderModels();
-        var orderItems = PrepareOrderItemsModels();
+        var orders = GenerateOrders(NumberOfOrders, customers);
+        var orderItems = GenerateOrderItems(orders, products);
 
         modelBuilder.Entity<Order>().HasData(orders);
         modelBuilder.Entity<OrderItem>().HasData(orderItems);
@@ -47,38 +49,23 @@ public static class DataGenerator
         // Images
         //var images = PrepareImagesModels();
         //modelBuilder.Entity<ProductImage>().HasData(images);
+
+        var coupons = PrepareCouponCodesModels();
+        modelBuilder.Entity<CouponCode>().HasData(coupons);
+
+        var giftCards = PrepareGiftCardsModels(coupons);
+        modelBuilder.Entity<GiftCard>().HasData(giftCards);
     }
 
     // Dictionary to store product for each category
     private static readonly Dictionary<string, List<string>> CategoryProducts =
         new()
         {
-            {
-                "Instruments",
-                new() { "Acoustic Guitar", "Digital Piano", "Drum Kit", "Violin", "Saxophone" }
-            },
-            {
-                "Accessories",
-                new()
-                {
-                    "Guitar Picks",
-                    "Instrument Cases",
-                    "Replacement Strings",
-                    "Tuners",
-                    "Microphone Stands"
-                }
-            },
-            {
-                "Equipment",
-                new()
-                {
-                    "Amplifiers",
-                    "PA Systems",
-                    "Studio Monitors",
-                    "Karaoke Machines",
-                    "Stage Lighting Kits"
-                }
-            }
+        { "Instruments", new() { "Acoustic Guitar", "Digital Piano", "Drum Kit", "Violin", "Saxophone", "Electric Guitar", "Bass Guitar", "Trumpet", "Flute", "Cello", "Ukulele", "Harmonica", "Mandolin", "Banjo", "Clarinet" } },
+        { "Accessories", new() { "Guitar Picks", "Instrument Cases", "Replacement Strings", "Tuners", "Microphone Stands", "Capos", "Guitar Straps", "Drumsticks", "Reeds", "Music Stands", "Pedalboards", "Metronomes", "Rosin" } },
+        { "Equipment", new() { "Amplifiers", "PA Systems", "Studio Monitors", "Karaoke Machines", "Stage Lighting Kits", "Mixing Consoles", "Audio Interfaces", "Wireless Microphone Systems", "Headphones", "Recording Microphones", "DI Boxes", "Equalizers", "Effects Processors" } },
+        { "Software", new() { "Digital Audio Workstations (DAWs)", "Virtual Instruments", "Music Notation Software", "Audio Editing Tools", "Loop Libraries", "Plugin Bundles", "Synthesizer Plugins", "Drum Machine Software" } },
+        { "Learning", new() { "Music Theory Books", "Instrument Tutorials", "Chord Charts", "Online Course Subscriptions", "Practice Apps", "Ear Training Tools", "Sheet Music Collections" } }
         };
 
     public static List<Category> GenerateCategories()
@@ -100,35 +87,31 @@ public static class DataGenerator
             .Generate(count);
     }
 
-    public static List<Product> GenerateProducts(
-        int count,
-        List<Category> categories,
-        List<Manufacturer> manufacturers
-    )
+    public static List<Product> GenerateProducts(int count, List<Category> categories, List<Manufacturer> manufacturers)
     {
         int id = 1;
 
         return new Faker<Product>()
             .RuleFor(p => p.Id, f => id++)
-            .RuleFor(
-                p => p.Name,
-                f =>
-                {
-                    var category = f.PickRandom(categories);
-                    var product = f.PickRandom(CategoryProducts[category.Name]);
-                    return product;
-                }
-            )
+            .RuleFor(p => p.Name, (f, p) =>
+            {
+                // Ensure product matches its category
+                var category = f.PickRandom(categories);
+                var product = f.PickRandom(CategoryProducts[category.Name]);
+                p.PrimaryCategoryId = category.Id; // Assign the correct category ID
+                return product;
+            })
             .RuleFor(p => p.Description, f => f.Commerce.ProductDescription())
             .RuleFor(p => p.Price, f => Math.Round(f.Random.Decimal(10, 1000), 2))
             .RuleFor(p => p.LastModifiedById, f => 1)
-            .RuleFor(p => p.PrimaryCategoryId, f => f.PickRandom(categories).Id)
-            .RuleFor(p => p.EditCount, f => f.Random.Int(1, 10))
+            .RuleFor(p => p.EditCount, f => f.Random.Int(1, 5))
             .RuleFor(p => p.ManufacturerId, f => f.PickRandom(manufacturers).Id)
             .RuleFor(p => p.QuantityInStock, f => f.Random.Int(1, 100))
-            .RuleFor(
-                p => p.SecondaryCategories,
-                f => f.PickRandom(categories, f.Random.Int(1, 3)).ToList()
+            .RuleFor(p => p.SecondaryCategories, (f, p) =>
+            {
+                var secondaryCategories = f.PickRandom(categories.Where(c => c.Id != p.PrimaryCategoryId).ToList(), f.Random.Int(0, 3)).ToList();
+                return secondaryCategories;
+            }
             )
             .Generate(count);
     }
@@ -141,8 +124,8 @@ public static class DataGenerator
                     .SecondaryCategories.Where(c => c.Id != product.PrimaryCategoryId)
                     .Select(category => new Dictionary<string, object>
                     {
-                        { "ProductId", product.Id },
-                        { "CategoryId", category.Id }
+                    { "ProductId", product.Id },
+                    { "CategoryId", category.Id }
                     })
             )
             .ToList();
@@ -157,7 +140,7 @@ public static class DataGenerator
             .RuleFor(c => c.Username, f => f.Internet.UserName())
             .RuleFor(c => c.Email, (f, c) => f.Internet.Email(c.Username))
             .RuleFor(c => c.Role, f => Role.Customer)
-            .RuleFor(c => c.PhoneNumber, f => f.Phone.PhoneNumber("+### ### ### ###"))
+            .RuleFor(c => c.PhoneNumber, f => f.Phone.PhoneNumber())
             .RuleFor(c => c.Address, f => f.Address.StreetAddress())
             .RuleFor(c => c.City, f => f.Address.City())
             .RuleFor(c => c.State, f => f.Address.State())
@@ -165,133 +148,98 @@ public static class DataGenerator
             .Generate(count);
     }
 
-    private static List<Order> PrepareOrderModels()
+    public static List<Order> GenerateOrders(int count, List<Customer> customers)
     {
-        return new List<Order>()
+        int id = 100; // Start ID
+        return new Faker<Order>()
+            .RuleFor(o => o.Id, _ => id++) // Ensure unique IDs
+            .RuleFor(o => o.Date, f => f.Date.Past(2))
+            .RuleFor(o => o.UserId, f => f.PickRandom(customers).Id)
+            .RuleFor(o => o.OrderStatus, f => f.PickRandom<PaymentStatus>())
+            .Generate(count);
+    }
+
+    public static List<OrderItem> GenerateOrderItems(List<Order> orders, List<Product> products)
+    {
+        int id = 1; // Start ID for order items
+        return orders.SelectMany(order =>
+            new Faker<OrderItem>()
+                .RuleFor(oi => oi.Id, _ => id++) // Ensure unique IDs
+                .RuleFor(oi => oi.OrderId, _ => order.Id)
+                .RuleFor(oi => oi.ProductId, f => f.PickRandom(products).Id)
+                .RuleFor(oi => oi.Quantity, f => f.Random.Int(1, 10))
+                .RuleFor(oi => oi.Price, (f, oi) =>
+                {
+                    var product = products.First(p => p.Id == oi.ProductId);
+                    return Math.Round(product.Price * oi.Quantity, 2);
+                })
+                .Generate(new Random().Next(1, 5))) // Random number of items per order
+            .ToList();
+    }
+
+    private static List<CouponCode> PrepareCouponCodesModels()
+    {
+        return new List<CouponCode>()
         {
-            new Order()
+            new CouponCode()
             {
                 Id = 1,
-                Date = new DateTime(2024, 10, 1),
-                UserId = 2,
-                OrderStatus = PaymentStatus.Pending
+                Created = DateTime.Now.AddMonths(-1),
+                Code = "GIFT200-1",
+                IsUsed = false,
+                GiftCardId = 1,
+                OrderId = null,
             },
-            new Order()
+            new CouponCode()
             {
                 Id = 2,
-                Date = new DateTime(2024, 11, 15),
-                UserId = 3,
-                OrderStatus = PaymentStatus.Pending
+                Created = DateTime.Now.AddMonths(-1),
+                Code = "GIFT200-2",
+                IsUsed = false,
+                GiftCardId = 1,
+                OrderId = null,
             },
-            new Order()
+            new CouponCode()
             {
                 Id = 3,
-                Date = new DateTime(2024, 12, 5),
-                UserId = 3,
-                OrderStatus = PaymentStatus.Pending
+                Created = DateTime.Now.AddMonths(-2),
+                Code = "GIFT100-1",
+                IsUsed = false,
+                GiftCardId = 2,
+                OrderId = null,
             },
-            new Order()
+            new CouponCode()
             {
                 Id = 4,
-                Date = new DateTime(2025, 1, 20),
-                UserId = 2,
-                OrderStatus = PaymentStatus.Pending
-            },
-            new Order()
-            {
-                Id = 5,
-                Date = new DateTime(2025, 2, 10),
-                UserId = 2,
-                OrderStatus = PaymentStatus.Pending
-            },
+                Created = DateTime.Now.AddMonths(-2),
+                Code = "GIFT100-2",
+                IsUsed = false,
+                GiftCardId = 2,
+                OrderId = null,
+            }
         };
     }
 
-    private static List<OrderItem> PrepareOrderItemsModels()
+    private static List<GiftCard> PrepareGiftCardsModels(List<CouponCode> couponCodes)
     {
-        return new List<OrderItem>()
+        return new List<GiftCard>()
         {
-            new OrderItem()
+            new GiftCard()
             {
                 Id = 1,
-                OrderId = 1,
-                ProductId = 1,
-                Quantity = 1,
-                Price = 99.99m,
+                Created = DateTime.Now.AddMonths(-1),
+                DiscountAmount = 200.00m,
+                ValidityStartDate = DateTime.Now.AddMonths(-1),
+                ValidityEndDate = DateTime.Now.AddMonths(6)
             },
-            new OrderItem()
+            new GiftCard()
             {
                 Id = 2,
-                OrderId = 1,
-                ProductId = 2,
-                Quantity = 2,
-                Price = 21.99m,
-            },
-            new OrderItem()
-            {
-                Id = 3,
-                OrderId = 2,
-                ProductId = 3,
-                Quantity = 100,
-                Price = 280m,
-            },
-            new OrderItem()
-            {
-                Id = 4,
-                OrderId = 3,
-                ProductId = 4,
-                Quantity = 5,
-                Price = 499.99m,
-            },
-            new OrderItem()
-            {
-                Id = 5,
-                OrderId = 3,
-                ProductId = 5,
-                Quantity = 1,
-                Price = 720.05m,
-            },
-            new OrderItem()
-            {
-                Id = 6,
-                OrderId = 4,
-                ProductId = 6,
-                Quantity = 3,
-                Price = 29.99m,
-            },
-            new OrderItem()
-            {
-                Id = 7,
-                OrderId = 5,
-                ProductId = 6,
-                Quantity = 2,
-                Price = 25.54m,
-            },
+                Created = DateTime.Now.AddMonths(-2),
+                DiscountAmount = 100.00m,
+                ValidityStartDate = DateTime.Now.AddMonths(-2),
+                ValidityEndDate = DateTime.Now.AddMonths(4)
+            }
         };
     }
-
-    //private static List<ProductImage> PrepareImagesModels()
-    //{
-    //    return new List<ProductImage>()
-    //    {
-    //        new ProductImage()
-    //        {
-    //            Id = 1,
-    //            ProductId = 3,
-    //            FilePath = "images\\drums.png",
-    //            FileName = "drums.png",
-    //            MimeType = "image/png",
-    //            Created = DateTime.UtcNow
-    //        },
-    //        new ProductImage()
-    //        {
-    //            Id = 2,
-    //            ProductId = 5,
-    //            FilePath = "images\\guitar.png",
-    //            FileName = "guitar.png",
-    //            MimeType = "image/png",
-    //            Created = DateTime.UtcNow
-    //        }
-    //    };
-    //}
 }

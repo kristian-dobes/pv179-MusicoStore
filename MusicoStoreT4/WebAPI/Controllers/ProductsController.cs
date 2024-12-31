@@ -1,11 +1,6 @@
 using BusinessLayer.DTOs.Product;
-using BusinessLayer.Mapper;
-using BusinessLayer.Services;
 using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
-using DataAccessLayer.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace WebAPI.Controllers
 {
@@ -27,14 +22,6 @@ namespace WebAPI.Controllers
 
             return Ok(products);
         }
-
-        //[HttpGet("with-order-items")]
-        //public async Task<IActionResult> FetchWithOrderItems()
-        //{
-        //    var products = await _productService.GetAllProductsWithDetailsAsync();
-
-        //    return Ok(products);
-        //}
 
         [HttpPost("filter")]
         public async Task<IActionResult> GetProducts([FromBody] FilterProductDto filterProductDTO)
@@ -98,17 +85,6 @@ namespace WebAPI.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
-        }
-
-        [HttpGet("top-selling")]
-        public async Task<IActionResult> TopSellingProducts(DateTime startDate, DateTime endDate)
-        {
-            var result = await _productService.GetTopSellingProductsByCategoryAsync(
-                startDate,
-                endDate
-            );
-
-            return Ok(result);
         }
     }
 }

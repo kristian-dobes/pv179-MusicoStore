@@ -2,7 +2,6 @@
 using DataAccessLayer.Models;
 using Infrastructure.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace Infrastructure.Repository.Implementations
 {
@@ -30,14 +29,14 @@ namespace Infrastructure.Repository.Implementations
             existingOrder.Date = entity.Date;
             existingOrder.UserId = entity.UserId;
 
-            _context.OrderItems.RemoveRange(existingOrder.OrderItems ?? Enumerable.Empty<OrderItem>());
+            if (existingOrder.OrderItems != null)
+                _context.OrderItems.RemoveRange(existingOrder.OrderItems);
 
-            if (entity.OrderItems != null)
+            if (entity.OrderItems != null && entity.OrderItems.Any())
             {
                 foreach (var item in entity.OrderItems)
-                {
                     item.OrderId = entity.Id;
-                }
+
                 await _context.OrderItems.AddRangeAsync(entity.OrderItems);
             }
 

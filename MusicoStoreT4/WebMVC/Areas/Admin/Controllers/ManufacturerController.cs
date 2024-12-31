@@ -41,15 +41,6 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/Manufacturer/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            //var manufacturer = await _manufacturerService.GetById(id);
-
-            //if (manufacturer == null)
-            //{
-            //    return NotFound();
-            //}
-
-            //return View(manufacturer.Adapt<ManufacturerSummaryViewModel>());
-
             var manufacturer = await _manufacturerService.GetManufacturerWithProductsAsync(id);
             if (manufacturer == null)
             {
@@ -101,7 +92,6 @@ namespace WebMVC.Areas.Admin.Controllers
             if (!ModelState.IsValid)
             {
                 return View(model);
-                // return BadRequest(ModelState);
             }
 
             var manufacturer = model.Adapt<ManufacturerUpdateDTO>();

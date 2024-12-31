@@ -103,6 +103,8 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ILogRepository, LogRepository>();
+builder.Services.AddScoped<ICouponCodeRepository, CouponCodeRepository>();
+builder.Services.AddScoped<IGiftCardRepository, GiftCardRepository>();
 
 // Register Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -121,6 +123,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ILogService, LogService>();
+builder.Services.AddScoped<IGiftCardService, GiftCardService>();
 
 // Register Facades
 builder.Services.AddScoped<IManufacturerFacade, ManufacturerFacade>();

@@ -1,19 +1,8 @@
 ﻿using BusinessLayer.DTOs;
-using BusinessLayer.DTOs.Category;
-using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace BusinessLayer.Services
 {
@@ -144,7 +133,7 @@ namespace BusinessLayer.Services
 
         public async Task<bool> DeleteProductImageAsync(int productId)
         {
-            var product = (await _uow.ProductsRep.WhereAsync(p => p.Id == productId)).FirstOrDefault();
+            var product = await _uow.ProductsRep.FirstOrDefaultAsync(p => p.Id == productId);
 
             if (product == null || product.Image == null)
             {

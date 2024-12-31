@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BusinessLayer.Cache;
+﻿using BusinessLayer.Cache;
 using BusinessLayer.Cache.Interfaces;
-using BusinessLayer.DTOs.OrderItem;
 using BusinessLayer.DTOs.Product;
 using BusinessLayer.DTOs.User;
 using BusinessLayer.DTOs.User.Admin;
 using BusinessLayer.DTOs.User.Customer;
 using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using DataAccessLayer.Models.Enums;
 using Infrastructure.UnitOfWork;
@@ -39,75 +32,30 @@ namespace BusinessLayer.Services
             _cacheWrapper = memoryCacheWrapper;
         }
 
-        public async Task<CustomerSegmentsDto> GetCustomerSegmentsAsync()
+        public async Task<ProductMostBoughtDTO?> GetMostFrequentBoughtItemAsync(int userId)
         {
-            var currentDate = DateTime.UtcNow;
+            var mostFrequentItem = await _uow.UsersRep.GetUserOrderItemsQuery(userId)
+                .GroupBy(oi => new { oi.ProductId, oi.Product.Name, oi.Product.Description, oi.Product.Price })
+                .Select(g => new
+                {
+                    ProductId = g.Key.ProductId,
+                    Name = g.Key.Name,
+                    Description = g.Key.Description,
+                    Price = g.Key.Price,
+                    TotalQuantity = g.Sum(oi => oi.Quantity)
+                })
+                .OrderByDescending(g => g.TotalQuantity)
+                .FirstOrDefaultAsync();
 
-            var customers = await _uow.UsersRep.WhereAsync(u => u.Role == Role.Customer);
-
-            var customersWithStats = new List<CustomerSegmentStatsDto>();
-
-            foreach (var customer in customers)
-            {
-                var orders = await _uow.OrdersRep.WhereAsync(o => o.UserId == customer.Id);
-                var orderItems = orders.SelectMany(o => o.OrderItems).ToList();
-
-                var totalExpenditure = orderItems.Sum(oi => oi.Price * oi.Quantity);
-                var isInfrequent =
-                    orders.Any() && orders.All(o => (currentDate - o.Date).Days > 180);
-
-                customersWithStats.Add(
-                    new CustomerSegmentStatsDto
-                    {
-                        CustomerDTO = (customer as Customer)?.MapToCustomerDto(),
-                        TotalExpenditure = totalExpenditure,
-                        IsInfrequent = isInfrequent
-                    }
-                );
-            }
-
-            var highValueCustomers = customersWithStats
-                .Where(c => c.TotalExpenditure > 1000)
-                .Select(c => c.CustomerDTO)
-                .ToList();
-
-            var infrequentCustomers = customersWithStats
-                .Where(c => c.IsInfrequent)
-                .Select(c => c.CustomerDTO)
-                .ToList();
-
-            return new CustomerSegmentsDto
-            {
-                HighValueCustomers = highValueCustomers,
-                InfrequentCustomers = infrequentCustomers
-            };
-        }
-
-        public async Task<OrderItemDto?> GetMostFrequentBoughtItemAsync(int userId)
-        {
-            var user = await _uow.UsersRep.GetUserWithOrdersAsync(userId);
-
-            if (user == null || !user.Orders.Any())
-            {
+            if (mostFrequentItem == null || !mostFrequentItem.ProductId.HasValue)
                 return null;
-            }
 
-            var mostFrequentItem = user
-                .Orders.SelectMany(o => o.OrderItems)
-                .GroupBy(oi => oi.ProductId)
-                .Select(g => new { ProductId = g.Key, Quantity = g.Sum(oi => oi.Quantity) })
-                .OrderByDescending(g => g.Quantity)
-                .FirstOrDefault();
-
-            if (mostFrequentItem == null)
-            {
-                return null;
-            }
-
-            return new OrderItemDto
+            return new ProductMostBoughtDTO
             {
                 ProductId = mostFrequentItem.ProductId.Value,
-                Quantity = mostFrequentItem.Quantity
+                Name = mostFrequentItem.Name,
+                Description = mostFrequentItem.Description,
+                NumberOfBuys = mostFrequentItem.TotalQuantity
             };
         }
 
@@ -131,7 +79,9 @@ namespace BusinessLayer.Services
             var user = await _uow.UsersRep.GetByIdAsync(userId);
 
             if (user == null)
+            {
                 return null;
+            }
 
             return user.Adapt<UserSummaryDTO>();
         }
@@ -157,7 +107,9 @@ namespace BusinessLayer.Services
             var user = await _uow.UsersRep.GetByIdAsync(userId);
 
             if (user == null || user.Role != Role.Admin)
+            {
                 throw new KeyNotFoundException("Admin not found");
+            }
 
             user.Username = adminDto.Username;
             user.Email = adminDto.Email;
@@ -173,7 +125,9 @@ namespace BusinessLayer.Services
                 ).FirstOrDefault();
 
             if (customer == null || customer.Role != Role.Customer)
+            {
                 throw new KeyNotFoundException("Customer not found");
+            }
 
             customer.Username = customerDto.Username;
             customer.Email = customerDto.Email;
@@ -192,7 +146,9 @@ namespace BusinessLayer.Services
             var user = await _uow.UsersRep.GetByIdAsync(userId);
 
             if (user == null)
+            {
                 throw new KeyNotFoundException("User not found");
+            }
 
             await _uow.UsersRep.DeleteAsync(user.Id);
             await _uow.SaveAsync();

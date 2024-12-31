@@ -1,11 +1,6 @@
 ﻿using BusinessLayer.DTOs.Category;
-using BusinessLayer.Services;
-﻿using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
-using DataAccessLayer.Models;
-using Infrastructure.UnitOfWork;
+using BusinessLayer.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using WebAPI.DTOs;
 
 namespace WebAPI.Controllers

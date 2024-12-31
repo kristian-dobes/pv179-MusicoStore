@@ -13,6 +13,7 @@ using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Presentations.Shared.Middlewares;
+using System.Globalization;
 using WebMVC;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -55,6 +56,15 @@ builder
 
 builder.Services.AddSingleton(imagesFolder);
 
+// Add session services
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Adjust as needed
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 // Register Repositories
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
@@ -65,6 +75,8 @@ builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 builder.Services.AddScoped<ILogRepository, LogRepository>();
+builder.Services.AddScoped<ICouponCodeRepository, CouponCodeRepository>();
+builder.Services.AddScoped<IGiftCardRepository, GiftCardRepository>();
 
 // Register Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -79,6 +91,7 @@ builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ILogService, LogService>();
+builder.Services.AddScoped<IGiftCardService, GiftCardService>();
 builder.Services.AddScoped<IImageService>(provider =>
 {
     var uow = provider.GetRequiredService<IUnitOfWork>();
@@ -108,6 +121,11 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Account/Login";
 });
 
+// Set the default culture to en-US (for Dollars) 
+var defaultCulture = new CultureInfo("en-US"); // Can be changed to "fr-FR" for Euros (any other culture)
+CultureInfo.DefaultThreadCurrentCulture = defaultCulture;
+CultureInfo.DefaultThreadCurrentUICulture = defaultCulture;
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -123,6 +141,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+// Add session middleware
+app.UseSession();
+
 app.UseAuthentication();
 app.UseAuthorization();
 

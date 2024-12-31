@@ -1,21 +1,7 @@
-﻿using System;
-using System;
-using System.Collections.Generic;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading.Tasks;
-using BusinessLayer.Cache;
+﻿using BusinessLayer.Cache;
 using BusinessLayer.Cache.Interfaces;
-using BusinessLayer.DTOs;
 using BusinessLayer.DTOs.Order;
-using BusinessLayer.DTOs.OrderItem;
-using BusinessLayer.DTOs.User;
-using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using DataAccessLayer.Models.Enums;
 using Infrastructure.UnitOfWork;
@@ -83,64 +69,91 @@ namespace BusinessLayer.Services
 
         public async Task<bool> CreateOrderAsync(CreateOrderDto createOrderDto)
         {
-            // Validate input
-            if (
-                createOrderDto == null
-                || createOrderDto.Items == null
-                || !createOrderDto.Items.Any()
-            )
-                throw new ArgumentException(
-                    "Order must contain at least one item.",
-                    nameof(createOrderDto)
-                );
+            if (createOrderDto == null || createOrderDto.Items == null || !createOrderDto.Items.Any())
+                throw new ArgumentException("Order must contain at least one item.", nameof(createOrderDto));
 
-            // Validate customer existence
             if (!await _uow.UsersRep.AnyAsync(u => u.Id == createOrderDto.CustomerId))
-                throw new ArgumentException(
-                    $"No such customer with id {createOrderDto.CustomerId}",
-                    nameof(createOrderDto.CustomerId)
-                );
+                throw new ArgumentException($"No such customer with id {createOrderDto.CustomerId}", nameof(createOrderDto.CustomerId));
 
-            // Validate product existence and create order items
+            // validate products
             var orderItems = new List<OrderItem>();
             var productIds = createOrderDto.Items.Select(i => i.ProductId).ToHashSet();
-            var products = await _uow.ProductsRep.GetByIdsAsync(productIds); // bulk fetch
+            var products = await _uow.ProductsRep.GetByIdsAsync(productIds); // Bulk fetch
 
             foreach (var itemDto in createOrderDto.Items)
             {
                 var product = products.FirstOrDefault(p => p.Id == itemDto.ProductId);
                 if (product == null)
-                    throw new ArgumentException(
-                        $"No such product with id {itemDto.ProductId}",
-                        nameof(itemDto.ProductId)
-                    );
+                    throw new ArgumentException($"No such product with id {itemDto.ProductId}", nameof(itemDto.ProductId));
 
-                orderItems.Add(
-                    new OrderItem
-                    {
-                        ProductId = itemDto.ProductId,
-                        Quantity = itemDto.Quantity,
-                        Price = product.Price
-                    }
-                );
+                orderItems.Add(new OrderItem
+                {
+                    ProductId = itemDto.ProductId,
+                    Quantity = itemDto.Quantity,
+                    Price = product.Price
+                });
             }
 
-            var userId = createOrderDto.CustomerId;
+            // Fetch gift card
+            GiftCard? appliedGiftCard = null;
+            CouponCode? appliedCouponCode = null;
+            if (!string.IsNullOrEmpty(createOrderDto.AppliedGiftCardCode))
+            {
+                appliedCouponCode = await _uow.CouponCodesRep.GetCouponCodeByCodeAsync(createOrderDto.AppliedGiftCardCode);
+                if (appliedCouponCode == null)
+                    throw new ArgumentException($"Invalid coupon code: {createOrderDto.AppliedGiftCardCode}", nameof(createOrderDto.AppliedGiftCardCode));
+
+                appliedGiftCard = await _uow.GiftCardsRep.GetGiftCardByCodeAsync(createOrderDto.AppliedGiftCardCode);
+                if (appliedGiftCard == null)
+                    throw new ArgumentException($"Invalid gift card code: {createOrderDto.AppliedGiftCardCode}", nameof(createOrderDto.AppliedGiftCardCode));
+            }
 
             var order = new Order
             {
-                UserId = userId,
+                UserId = createOrderDto.CustomerId,
                 Date = DateTime.UtcNow,
                 OrderItems = orderItems,
-                OrderStatus = PaymentStatus.Pending
+                OrderStatus = PaymentStatus.Pending,
+                GiftCardId = appliedGiftCard?.Id,
+                UsedCouponCode = createOrderDto.AppliedGiftCardCode
             };
 
+            
+            // discount
+            if (appliedGiftCard != null)
+            {
+                decimal totalOrderPrice = orderItems.Sum(item => item.Price * item.Quantity);
+                decimal remainingDiscount = createOrderDto.DiscountAmount;
+
+                foreach (var item in orderItems)
+                {
+                    var itemTotalPrice = item.Price * item.Quantity;
+                    var itemProportion = itemTotalPrice / totalOrderPrice;
+
+                    // per item
+                    var itemDiscount = Math.Min(remainingDiscount, itemProportion * createOrderDto.DiscountAmount);
+
+                    item.Price -= itemDiscount / item.Quantity;
+
+                    if (item.Price < 0) item.Price = 0;
+
+                    remainingDiscount -= itemDiscount;
+                }
+            }
+
             await _uow.OrdersRep.AddAsync(order);
+
+            if (appliedCouponCode != null)
+            {
+                appliedCouponCode.IsUsed = true;
+                appliedCouponCode.OrderId = order.Id; // assign order's ID to coupon code
+                _uow.CouponCodesRep.UpdateAsync(appliedCouponCode); // Track the change
+            }
 
             try
             {
                 await _uow.SaveAsync();
-                _cacheWrapper.Invalidate($"{CUSTOMER_ORDER_LIST_CACHE_KEY}_{userId}");
+                _cacheWrapper.Invalidate($"{CUSTOMER_ORDER_LIST_CACHE_KEY}_{createOrderDto.CustomerId}");
             }
             catch (DbUpdateException)
             {

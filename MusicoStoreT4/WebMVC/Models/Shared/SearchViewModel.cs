@@ -1,5 +1,3 @@
-using BusinessLayer.Enums;
-
 namespace WebMVC.Models.Shared
 {
     public class SearchViewModel

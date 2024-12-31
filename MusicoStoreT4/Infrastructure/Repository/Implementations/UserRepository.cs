@@ -1,10 +1,8 @@
 ﻿using DataAccessLayer.Data;
 using DataAccessLayer.Models;
-using DataAccessLayer.Models.Enums;
 using Infrastructure.Repository.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace Infrastructure.Repository.Implementations
 {
@@ -38,12 +36,11 @@ namespace Infrastructure.Repository.Implementations
             return true;
         }
 
-        public async Task<User?> GetUserWithOrdersAsync(int userId)
+        public IQueryable<OrderItem> GetUserOrderItemsQuery(int userId)
         {
-            return await _context.Users
-                .Include(u => u.Orders)
-                .ThenInclude(o => o.OrderItems)
-                .FirstOrDefaultAsync(u => u.Id == userId);
+            return _context.OrderItems
+                .Where(oi => oi.Order.UserId == userId)
+                .Include(oi => oi.Product);
         }
 
         public async Task<string?> GetIdentityUserIdByUserIdAsync(int userId)
@@ -53,23 +50,5 @@ namespace Infrastructure.Repository.Implementations
                 .Select(u => u.Id)
                 .FirstOrDefaultAsync();
         }
-
-        //public async Task<List<UserSummaryDto>> GetUserSummariesAsync()
-        //{
-        //    var userSummaries = await _context.Users
-        //        .Where(u => u.Role == Role.Customer)
-        //        .Select(u => new UserSummaryDto
-        //        {
-        //            UserId = u.Id,
-        //            Username = u.Username,
-        //            Role = u.Role,
-        //            TotalExpenditure = (decimal)u.Orders
-        //                .SelectMany(o => o.OrderItems)
-        //                .Sum(oi => (double)(oi.Price * oi.Quantity))
-        //        })
-        //        .ToListAsync();
-
-        //    return userSummaries;
-        //}
     }
 }

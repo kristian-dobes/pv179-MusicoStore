@@ -1,0 +1,52 @@
+﻿@model IEnumerable<WebMVC.Models.GiftCard.GiftCardViewModel>
+
+@{
+    ViewData["Title"] = "View gift cards";
+}
+
+<h1>Gift cards:</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Created)</th>
+            <th>@Html.DisplayNameFor(model => model.DiscountAmount)</th>
+            <th>@Html.DisplayNameFor(model => model.ValidityStartDate)</th>
+            <th>@Html.DisplayNameFor(model => model.ValidityEndDate)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr style="background-color: #f0f0f0;">
+                <td>@Html.DisplayFor(modelItem => item.Created)</td>
+                <td>@Html.DisplayFor(modelItem => item.DiscountAmount)</td>
+                <td>@Html.DisplayFor(modelItem => item.ValidityStartDate)</td>
+                <td>@Html.DisplayFor(modelItem => item.ValidityEndDate)</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.GiftCardId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.GiftCardId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.GiftCardId">Delete</a> |
+                    <a asp-controller="CouponCode" asp-action="Create" asp-route-giftCardId="@item.GiftCardId" class="btn btn-success">Add Coupon Code</a>
+                </td>
+            </tr>
+
+            @foreach (var coupon in item.CouponCodes)
+            {
+                <tr>
+                    <td style="padding-left: 50px;">@coupon.Code</td>
+                    <td style="padding-left: 50px;">Used: @coupon.IsUsed</td>
+                    <td style="padding-left: 50px;">
+                        <a asp-controller="CouponCode" asp-action="Details" asp-route-id="@coupon.CouponCodeId">Details</a> |
+                        <a asp-controller="CouponCode" asp-action="Edit" asp-route-id="@coupon.CouponCodeId">Edit</a> |
+                        <a asp-controller="CouponCode" asp-action="Delete" asp-route-id="@coupon.CouponCodeId">Delete</a>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

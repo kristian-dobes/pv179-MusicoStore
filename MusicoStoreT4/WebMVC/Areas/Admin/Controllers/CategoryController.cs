@@ -4,7 +4,6 @@ using BusinessLayer.Services.Interfaces;
 using Mapster;
 using BusinessLayer.DTOs.Category;
 using WebMVC.Models.Category;
-using BusinessLayer.Services;
 using Microsoft.AspNetCore.Identity;
 using DataAccessLayer.Models;
 
@@ -39,15 +38,6 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/Category/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            //var category = await _categoryService.GetByIdAsync(id);
-
-            //if (category == null)
-            //{
-            //    return NotFound();
-            //}
-
-            //return View(category.Adapt<CategorySummaryViewModel>());
-
             var category = await _categoryService.GetCategoryWithProductsAsync(id);
             if (category == null)
             {
@@ -99,7 +89,6 @@ namespace WebMVC.Areas.Admin.Controllers
             if (!ModelState.IsValid)
             {
                 return View(model);
-                // return BadRequest(ModelState);
             }
 
             var category = model.Adapt<CategoryUpdateDTO>();

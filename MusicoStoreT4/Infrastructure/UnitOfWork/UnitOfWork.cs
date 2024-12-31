@@ -1,12 +1,6 @@
 ﻿using DataAccessLayer.Data;
-using Infrastructure.Repository;
 using Infrastructure.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore.Storage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.UnitOfWork
 {
@@ -24,6 +18,8 @@ namespace Infrastructure.UnitOfWork
         public IAuditLogRepository ProductAuditsRep { get; }
         public IProductImageRepository ProductImagesRep { get; }
         public ILogRepository LogsRep { get; }
+        public IGiftCardRepository GiftCardsRep{ get; }
+        public ICouponCodeRepository CouponCodesRep { get; }
 
         public UnitOfWork(MyDBContext context,
                           IUserRepository userRepository,
@@ -34,7 +30,9 @@ namespace Infrastructure.UnitOfWork
                           IProductRepository productRepository,
                           IProductImageRepository productImageRepository,
                           IAuditLogRepository auditLogRepository,
-                          ILogRepository logsRepository)
+                          ILogRepository logsRepository,
+                          IGiftCardRepository giftCardRepository,
+                          ICouponCodeRepository couponCodeRepository)
         {
             _context = context;
 
@@ -47,6 +45,8 @@ namespace Infrastructure.UnitOfWork
             ProductImagesRep = productImageRepository;
             ProductAuditsRep = auditLogRepository;
             LogsRep = logsRepository;
+            GiftCardsRep = giftCardRepository;
+            CouponCodesRep = couponCodeRepository;
         }
 
         public async Task<int> SaveAsync()
