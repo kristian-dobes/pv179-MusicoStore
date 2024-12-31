@@ -39,8 +39,8 @@
                                 <td class="text-truncate" style="max-width: 250px;">@product.Description</td>
                                 <td>@product.Price.ToString("C")</td>
                                 <td>@product.QuantityInStock</td>
-                                <td>@product.PrimaryCategory.Name (@product.PrimaryCategory.PrimaryProductCount products)</td>
-                                <td>@product.Manufacturer.Name (@product.Manufacturer.ProductCount products)</td>
+                                <td>@product.PrimaryCategory.Name</td>
+                                <td>@product.Manufacturer.Name</td>
                                 <td class="text-center">
                                     <div class="d-flex align-items-center justify-content-center">
                                         <input type="number" id="quantity-@product.Id" value="1" min="1" class="form-control form-control-sm me-2" style="width: 70px;" />

@@ -13,6 +13,7 @@ using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Presentations.Shared.Middlewares;
+using System.Globalization;
 using WebMVC;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -119,6 +120,11 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
 });
+
+// Set the default culture to en-US (for Dollars) 
+var defaultCulture = new CultureInfo("en-US"); // Can be changed to "fr-FR" for Euros (any other culture)
+CultureInfo.DefaultThreadCurrentCulture = defaultCulture;
+CultureInfo.DefaultThreadCurrentUICulture = defaultCulture;
 
 var app = builder.Build();
 
