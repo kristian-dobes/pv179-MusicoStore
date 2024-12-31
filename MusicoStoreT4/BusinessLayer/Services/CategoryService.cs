@@ -212,12 +212,12 @@ namespace BusinessLayer.Services
 
             existingCategory.Name = updateCategoryDto.Name;
 
-            var success = await _uow.CategoriesRep.UpdateAsync(category);
+            //var success = await _uow.CategoriesRep.UpdateAsync(category);
 
-            if (!success)
-            {
-                throw new InvalidOperationException("Failed to update the category");
-            }
+            //if (!success)
+            //{
+            //    throw new InvalidOperationException("Failed to update the category");
+            //}
 
             await _uow.SaveAsync();
             _cacheWrapper.Invalidate(CATEGORY_LIST_CACHE_KEY);

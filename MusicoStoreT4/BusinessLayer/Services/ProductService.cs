@@ -124,11 +124,10 @@ namespace BusinessLayer.Services
             }
 
             var manufacturer = await _uow.ManufacturersRep.GetByIdAsync(productDto.ManufacturerId);
-            var category = await _uow.CategoriesRep.GetByIdAsync(productDto.CategoryId);
-
             if (manufacturer == null)
             {
                 throw new KeyNotFoundException($"Manufacturer with ID {productDto.ManufacturerId} not found.");
+            }
 
             // Validate Primary Category
             var primaryCategory = await _uow.CategoriesRep.GetByIdAsync(productDto.PrimaryCategoryId);

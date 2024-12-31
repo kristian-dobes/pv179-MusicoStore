@@ -146,7 +146,7 @@ namespace BusinessLayer
                 .Map(dest => dest.ProductPrice, src => src.Price)
                 .Map(dest => dest.TotalPricePerOrderItem, src => src.Quantity * src.Price);
 
-            TypeAdapterConfig<Order, OrderDetailDTO>.NewConfig()
+            TypeAdapterConfig<Order, OrderDetailDto>.NewConfig()
                 .Map(dest => dest.OrderId, src => src.Id)
                 .Map(dest => dest.Created, src => src.Date)
                 .Map(
@@ -165,10 +165,9 @@ namespace BusinessLayer
                             ? src.OrderItems.Sum(oi => oi.Price * oi.Quantity)
                             : 0
                 )
-                .Map(dest => dest.PaymentStatus, src => src.OrderStatus.ToString());
                 .Map(dest => dest.OrderItems, src => src.OrderItems.Adapt<IEnumerable<OrderItemCompleteDTO>>())
                 .Map(dest => dest.TotalOrderPrice, src => src.OrderItems != null ? src.OrderItems.Sum(oi => oi.Price * oi.Quantity) : 0)
-                .Map(dest => dest.OrderStatus, src => src.OrderStatus.ToString());
+                .Map(dest => dest.PaymentStatus, src => src.OrderStatus.ToString());
 
             TypeAdapterConfig<CouponCode, CouponCodeDto>.NewConfig()
                 .Map(dest => dest.CouponCodeId, src => src.Id)
