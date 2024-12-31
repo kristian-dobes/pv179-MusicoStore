@@ -141,25 +141,6 @@ namespace BusinessLayer
                 .Map(dest => dest.ProductPrice, src => src.Price)
                 .Map(dest => dest.TotalPricePerOrderItem, src => src.Quantity * src.Price);
 
-            //TypeAdapterConfig<Order, OrderDetailDto>.NewConfig()
-            //    .Map(dest => dest.OrderId, src => src.Id)
-            //    .Map(dest => dest.Created, src => src.Date)
-            //    .Map(
-            //        dest => dest.OrderItemsCount,
-            //        src => src.OrderItems != null ? src.OrderItems.Count() : 0
-            //    )
-            //    .Map(dest => dest.User, src => src.User.Adapt<CustomerOrderDTO>())
-            //    .Map(
-            //        dest => dest.OrderItems,
-            //        src => src.OrderItems.Adapt<IEnumerable<OrderItemCompleteDTO>>()
-            //    )
-            //    .Map(
-            //        dest => dest.TotalOrderPrice,
-            //        src => src.OrderItems != null ? src.OrderItems.Sum(oi => oi.Price * oi.Quantity) : 0 )
-            //    .Map(dest => dest.OrderItems, src => src.OrderItems.Adapt<IEnumerable<OrderItemCompleteDTO>>())
-            //    .Map(dest => dest.TotalOrderPrice, src => src.OrderItems != null ? src.OrderItems.Sum(oi => oi.Price * oi.Quantity) : 0)
-            //    .Map(dest => dest.PaymentStatus, src => src.OrderStatus.ToString());
-
             TypeAdapterConfig<Order, OrderDetailDto>.NewConfig()
                 .Map(dest => dest.OrderId, src => src.Id)
                 .Map(dest => dest.Created, src => src.Date)

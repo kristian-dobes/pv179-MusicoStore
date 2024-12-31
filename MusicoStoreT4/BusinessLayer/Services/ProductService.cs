@@ -131,7 +131,6 @@ namespace BusinessLayer.Services
         {
             if (productDto.Price <= 0)
                 return false;
-                //throw new ArgumentException("Price must be valid");
 
             // VALIDATION
             var categoriesQuery = _uow.CategoriesRep.GetAllQuery()
@@ -154,23 +153,19 @@ namespace BusinessLayer.Services
             // Validate Primary Category
             if (!categories.Any(c => c.Id == productDto.PrimaryCategoryId))
                 return false;
-                //throw new ArgumentException($"Category with id {productDto.PrimaryCategoryId} not found.");
 
             // Validate Secondary Categories
             var secondaryCategories = categories.Where(c => productDto.SecondaryCategoryIds.Contains(c.Id)).ToList();
             if (secondaryCategories.Count != productDto.SecondaryCategoryIds.Count)
                 return false;
-                //throw new ArgumentException("One or more secondary categories not found.");
 
             // Validate Manufacturer
             if (!manufacturerExists)
                 return false;
-                //throw new ArgumentException($"Manufacturer with id {productDto.ManufacturerId} not found.");
 
             // Validate Product Name
             if (productNameExists)
                 return false;
-                //throw new ArgumentException($"Product with name '{productDto.Name}' already exists.");
 
             var product = productDto.MapToProduct(secondaryCategories);
 

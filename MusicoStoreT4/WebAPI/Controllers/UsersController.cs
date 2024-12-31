@@ -84,13 +84,6 @@ namespace WebAPI.Controllers
             return Ok(summaries);
         }
 
-        //[HttpGet("segments")]
-        //public async Task<IActionResult> GetCustomerSegments()
-        //{
-        //    var segments = await _userService.GetCustomerSegmentsAsync();
-        //    return Ok(segments);
-        //}
-
         [HttpGet("frequent-item/{userId}")]
         public async Task<IActionResult> GetMostFrequentItem(int userId)
         {

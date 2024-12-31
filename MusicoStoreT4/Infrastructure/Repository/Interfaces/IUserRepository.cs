@@ -6,6 +6,5 @@ namespace Infrastructure.Repository.Interfaces
     {
         public IQueryable<OrderItem> GetUserOrderItemsQuery(int userId);
         Task<string?> GetIdentityUserIdByUserIdAsync(int userId);
-        //Task<List<UserSummaryDto>> GetUserSummariesAsync();
     }
 }

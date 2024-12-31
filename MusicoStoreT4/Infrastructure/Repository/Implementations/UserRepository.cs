@@ -50,23 +50,5 @@ namespace Infrastructure.Repository.Implementations
                 .Select(u => u.Id)
                 .FirstOrDefaultAsync();
         }
-
-        //public async Task<List<UserSummaryDto>> GetUserSummariesAsync()
-        //{
-        //    var userSummaries = await _context.Users
-        //        .Where(u => u.Role == Role.Customer)
-        //        .Select(u => new UserSummaryDto
-        //        {
-        //            UserId = u.Id,
-        //            Username = u.Username,
-        //            Role = u.Role,
-        //            TotalExpenditure = (decimal)u.Orders
-        //                .SelectMany(o => o.OrderItems)
-        //                .Sum(oi => (double)(oi.Price * oi.Quantity))
-        //        })
-        //        .ToListAsync();
-
-        //    return userSummaries;
-        //}
     }
 }
