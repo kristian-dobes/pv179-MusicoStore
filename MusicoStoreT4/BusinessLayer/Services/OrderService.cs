@@ -67,13 +67,13 @@ namespace BusinessLayer.Services
             return order?.Adapt<OrderDetailDto>();
         }
 
-        public async Task<bool> CreateOrderAsync(CreateOrderDto createOrderDto)
+        public async Task<(bool Success, string? ErrorMessage)> CreateOrderAsync(CreateOrderDto createOrderDto)
         {
             if (createOrderDto == null || createOrderDto.Items == null || !createOrderDto.Items.Any())
-                throw new ArgumentException("Order must contain at least one item.", nameof(createOrderDto));
+                return (false, "Order must contain at least one item.");
 
             if (!await _uow.UsersRep.AnyAsync(u => u.Id == createOrderDto.CustomerId))
-                throw new ArgumentException($"No such customer with id {createOrderDto.CustomerId}", nameof(createOrderDto.CustomerId));
+                return (false, $"No such customer with id {createOrderDto.CustomerId}");
 
             // validate products
             var orderItems = new List<OrderItem>();
@@ -84,7 +84,11 @@ namespace BusinessLayer.Services
             {
                 var product = products.FirstOrDefault(p => p.Id == itemDto.ProductId);
                 if (product == null)
-                    throw new ArgumentException($"No such product with id {itemDto.ProductId}", nameof(itemDto.ProductId));
+                    return (false, $"No such product with id {itemDto.ProductId}");
+
+                // Check product stock availability
+                if (itemDto.Quantity > product.QuantityInStock)
+                    return (false, $"Product {product.Name} (ID: {itemDto.ProductId}) has insufficient stock. Requested: {itemDto.Quantity}, In stock: {product.QuantityInStock}.");
 
                 orderItems.Add(new OrderItem
                 {
@@ -92,6 +96,10 @@ namespace BusinessLayer.Services
                     Quantity = itemDto.Quantity,
                     Price = product.Price
                 });
+
+                // --quantity in stock
+                product.QuantityInStock -= itemDto.Quantity;
+                await _uow.ProductsRep.UpdateAsync(product); // Track stock changes
             }
 
             // Fetch gift card
@@ -101,11 +109,11 @@ namespace BusinessLayer.Services
             {
                 appliedCouponCode = await _uow.CouponCodesRep.GetCouponCodeByCodeAsync(createOrderDto.AppliedGiftCardCode);
                 if (appliedCouponCode == null)
-                    throw new ArgumentException($"Invalid coupon code: {createOrderDto.AppliedGiftCardCode}", nameof(createOrderDto.AppliedGiftCardCode));
+                    return (false, $"Invalid coupon code: {createOrderDto.AppliedGiftCardCode}");
 
                 appliedGiftCard = await _uow.GiftCardsRep.GetGiftCardByCodeAsync(createOrderDto.AppliedGiftCardCode);
                 if (appliedGiftCard == null)
-                    throw new ArgumentException($"Invalid gift card code: {createOrderDto.AppliedGiftCardCode}", nameof(createOrderDto.AppliedGiftCardCode));
+                    return (false, $"Invalid gift card code: {createOrderDto.AppliedGiftCardCode}");
             }
 
             var order = new Order
@@ -147,7 +155,7 @@ namespace BusinessLayer.Services
             {
                 appliedCouponCode.IsUsed = true;
                 appliedCouponCode.OrderId = order.Id; // assign order's ID to coupon code
-                _uow.CouponCodesRep.UpdateAsync(appliedCouponCode); // Track the change
+                await _uow.CouponCodesRep.UpdateAsync(appliedCouponCode); // Track the change
             }
 
             try
@@ -157,10 +165,10 @@ namespace BusinessLayer.Services
             }
             catch (DbUpdateException)
             {
-                return false;
+                return (false, "Failed to create order.");
             }
 
-            return true;
+            return (true, null);
         }
 
         public async Task<bool> UpdateOrderAsync(int orderId, UpdateOrderDto updateOrderDto)

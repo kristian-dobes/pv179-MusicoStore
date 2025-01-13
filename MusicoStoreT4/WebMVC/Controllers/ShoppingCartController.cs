@@ -134,15 +134,17 @@ namespace WebMVC.Controllers
 
             var orderCreated = await _orderService.CreateOrderAsync(createOrderDto);
 
-            if (!orderCreated)
+            if (!orderCreated.Success)
             {
-                return View("Cart", cart); 
+                ModelState.AddModelError("", orderCreated.ErrorMessage);
+                return View("Cart", cart);
             }
 
             // Clear the cart
             HttpContext.Session.Remove("Cart");
 
-            return View("Cart");
+            TempData["SuccessMessage"] = "Order created successfully!";
+            return RedirectToAction("Cart");
         }
 
         [HttpPost]

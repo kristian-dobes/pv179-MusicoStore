@@ -98,7 +98,13 @@ namespace WebMVC.Areas.Admin.Controllers
                 Items = model.Items
             };
 
-            await _orderService.CreateOrderAsync(order);
+            var orderResult = await _orderService.CreateOrderAsync(order);
+
+            if (!orderResult.Success)
+            {
+                ModelState.AddModelError("", orderResult.ErrorMessage ?? "Order creation failed.");
+                return View(model);
+            }
 
             return RedirectToAction("Index", new { area = "Admin" });
         }
