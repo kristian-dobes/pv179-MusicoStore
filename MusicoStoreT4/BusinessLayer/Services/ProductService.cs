@@ -59,6 +59,23 @@ namespace BusinessLayer.Services
             return product;
         }
 
+        public async Task<ProductShoppingDetailsDTO?> GetProductShoppingDetailsAsync(int productId)
+        {
+            var productQuery = _uow.ProductsRep.GetQuery()
+                .Where(p => p.Id == productId);
+                
+            var product = await productQuery
+                .Select(p => new ProductShoppingDetailsDTO
+                {
+                    ProductId = p.Id,
+                    Name = p.Name,
+                    Price = p.Price
+                })
+                .FirstOrDefaultAsync();
+
+            return product;
+        }
+
         public async Task<IEnumerable<ProductCompleteDTO>> GetAllProductsAsync()
         {
             var productDtos = await _uow.ProductsRep.GetQuery()

@@ -6,6 +6,7 @@ namespace BusinessLayer.Services.Interfaces
     public interface IProductService : IBaseService
     {
         Task<ProductCompleteDTO?> GetProductByIdAsync(int productId);
+        Task<ProductShoppingDetailsDTO?> GetProductShoppingDetailsAsync(int productId);
         Task<IEnumerable<ProductCompleteDTO>> GetAllProductsAsync();
         Task<ProductCompleteDTO> UpdateProductAsync(int id, ProductUpdateDTO productDto);
         Task<bool> CreateProductAsync(ProductCreateDTO productDto);

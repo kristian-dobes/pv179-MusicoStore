@@ -12,12 +12,14 @@ namespace WebMVC.Controllers
     public class ShoppingCartController : Controller
     {
         private readonly IGiftCardService _giftCardService;
+        private readonly IProductService _productService;
         private readonly IOrderService _orderService;
         private readonly UserManager<LocalIdentityUser> _userManager;
 
-        public ShoppingCartController(IGiftCardService giftCardService, IOrderService orderService, UserManager<LocalIdentityUser> userManager)
+        public ShoppingCartController(IGiftCardService giftCardService, IProductService productService, IOrderService orderService, UserManager<LocalIdentityUser> userManager)
         {
             _giftCardService = giftCardService;
+            _productService = productService;
             _orderService = orderService;
             _userManager = userManager;
         }
@@ -30,7 +32,7 @@ namespace WebMVC.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddToCart(int productId, string productName, decimal price, int quantity = 1)
+        public IActionResult AddToCart(int productId, int quantity = 1)
         {
             var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
 
@@ -41,11 +43,18 @@ namespace WebMVC.Controllers
             }
             else
             {
+                var productShoppingDetailsDTO = _productService.GetProductShoppingDetailsAsync(productId).Result;
+
+                if (productShoppingDetailsDTO == null)
+                {
+                    return Json(new { success = false, message = "Product not found." });
+                }
+
                 cart.CartItems.Add(new CartItem
                 {
                     ProductId = productId,
-                    ProductName = productName,
-                    Price = price,
+                    ProductName = productShoppingDetailsDTO.Name,
+                    Price = productShoppingDetailsDTO.Price,
                     Quantity = quantity
                 });
             }

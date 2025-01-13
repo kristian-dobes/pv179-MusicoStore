@@ -54,7 +54,7 @@
                     <!-- Add to Cart Button -->
                     <div class="d-flex align-items-center mt-3">
                         <input type="number" id="quantity-@Model.Id" value="1" min="1" class="form-control form-control-sm me-2" style="width: 80px;" />
-                        <button class="btn btn-primary btn-sm" onclick="addToCart(@Model.Id, '@Model.Name', @Model.Price)">
+                        <button class="btn btn-primary btn-sm" onclick="addToCart(@Model.Id)">
                             <i class="bi bi-cart-plus"></i> Add to Cart
                         </button>
                     </div>
@@ -69,7 +69,7 @@
 </div>
 
 <script>
-    function addToCart(productId, productName, price) {
+    function addToCart(productId) {
         const quantity = document.getElementById(`quantity-${productId}`).value;
 
         $.ajax({
@@ -77,8 +77,6 @@
             type: 'POST',
             data: {
                 productId: productId,
-                productName: productName,
-                price: price,
                 quantity: quantity
             },
             success: function (response) {
