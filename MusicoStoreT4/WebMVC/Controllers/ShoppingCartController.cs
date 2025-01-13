@@ -2,6 +2,7 @@
 using BusinessLayer.DTOs.OrderItem;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebMVC.Helpers;
@@ -102,6 +103,7 @@ namespace WebMVC.Controllers
             return Json(new { success = true, cartTotal = cart.TotalAmount, finalAmount = cart.FinalAmount });
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Checkout()
         {
@@ -115,7 +117,7 @@ namespace WebMVC.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null || user.User == null)
             {
-                return RedirectToAction("Login", "Account");
+                return Unauthorized();
             }
 
             var createOrderDto = new CreateOrderDto
