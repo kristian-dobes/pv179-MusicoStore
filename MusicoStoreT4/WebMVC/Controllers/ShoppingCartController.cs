@@ -68,7 +68,7 @@ namespace WebMVC.Controllers
         [HttpPost]
         public IActionResult RemoveItem(int productId)
         {
-            var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
+            var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart");
 
             var itemToRemove = cart.CartItems.FirstOrDefault(i => i.ProductId == productId);
 
@@ -84,7 +84,7 @@ namespace WebMVC.Controllers
         [HttpPost]
         public IActionResult UpdateQuantity(int productId, int quantityChange)
         {
-            var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
+            var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart");
 
             var itemToUpdate = cart.CartItems.FirstOrDefault(i => i.ProductId == productId);
 
@@ -148,7 +148,7 @@ namespace WebMVC.Controllers
         [HttpPost]
         public async Task<IActionResult> ApplyGiftCard(string giftCardCode)
         {
-            var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
+            var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart");
 
             // Check if a gift card is already applied
             if (!string.IsNullOrEmpty(cart.AppliedGiftCardCode))
