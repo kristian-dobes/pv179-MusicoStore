@@ -274,44 +274,51 @@ namespace BusinessLayer.Services
             return products.Adapt<IEnumerable<ProductDto>>();
         }
 
-        public async Task<(IEnumerable<ProductDto>, int totalCount)> GetProductsAsync(
+        public async Task<(IEnumerable<ProductDto>, int totalCount)> GetProductsPaginatedAsync(
             int page = 1,
-            int pageSize = 10
+            int pageSize = 9
         )
         {
-            IQueryable<Product> productQuery = _uow
-                .ProductsRep.GetQuery()
-                .Include(a => a.PrimaryCategory)
-                .Include(a => a.Manufacturer);
+            var productQuery = _uow.ProductsRep.GetQuery();
 
-            // Get the total count of posts
+            // product count (without Includes)
             int totalCount = await productQuery.CountAsync();
 
-            // Get the paginated list of posts
+            // Fetch paginated and projected data
             var products = await productQuery
+                .OrderBy(p => p.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
+                .Select(p => new ProductDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Price = p.Price,
+                    QuantityInStock = p.QuantityInStock,
+                    PrimaryCategoryName = p.PrimaryCategory.Name,
+                    SecondaryCategories = p.SecondaryCategories.Select(sc => sc.Name),
+                    ManufacturerName = p.Manufacturer.Name,
+                    DateCreated = p.Created,
+                    ImageFilePath = p.Image != null ? p.Image.FilePath : null
+                })
                 .ToListAsync();
 
-            return (products.Adapt<IEnumerable<ProductDto>>(), totalCount);
+            return (products, totalCount);
         }
 
         public async Task<SearchResultDto> SearchAsync(
             string? query,
             int page = 1,
-            int pageSize = 5,
+            int pageSize = 8,
             string? manufacturer = null,
             string? category = null
         )
         {
-            IQueryable<Product> productQuery = _uow
-                .ProductsRep.GetQuery()
-                .Include(p => p.Manufacturer)
-                .Include(p => p.PrimaryCategory);
+            // Base query
+            var productQuery = _uow.ProductsRep.GetQuery();
 
-            string? searchQuery = query?.ToLower();
-
-            // Apply filters
+            // manufacturer filter
             if (!string.IsNullOrWhiteSpace(manufacturer))
             {
                 productQuery = productQuery.Where(p =>
@@ -319,60 +326,69 @@ namespace BusinessLayer.Services
                 );
             }
 
+            // category filter
             if (!string.IsNullOrWhiteSpace(category))
             {
                 productQuery = productQuery.Where(p =>
                     (p.PrimaryCategory != null && p.PrimaryCategory.Name == category)
-                    || p.SecondaryCategories.Select(c => c.Name).Contains(category)
+                    || p.SecondaryCategories.Any(c => c.Name == category)
                 );
             }
 
-            List<Manufacturer> manufacturers = new List<Manufacturer>();
-            List<Category> categories = new List<Category>();
+            // normalizing the search query
+            string? searchQuery = query?.ToLower();
 
+            // apply search filters
             if (!string.IsNullOrWhiteSpace(searchQuery))
             {
                 productQuery = productQuery.Where(p =>
-                    (
-                        p.Name.ToLower().Contains(searchQuery)
-                        || p.Description.ToLower().Contains(searchQuery)
-                        || (
-                            p.Manufacturer != null
-                            && p.Manufacturer.Name.ToLower().Contains(searchQuery)
-                        )
-                        || (
-                            p.PrimaryCategory != null
-                            && p.PrimaryCategory.Name.ToLower().Contains(searchQuery)
-                        )
-                        || p.SecondaryCategories.Any(c => searchQuery.Contains(c.Name.ToLower()))
-                    )
+                    EF.Functions.Like(p.Name, $"%{searchQuery}%")
+                    || EF.Functions.Like(p.Description, $"%{searchQuery}%")
+                    || (p.Manufacturer != null && EF.Functions.Like(p.Manufacturer.Name, $"%{searchQuery}%"))
+                    || (p.PrimaryCategory != null && EF.Functions.Like(p.PrimaryCategory.Name, $"%{searchQuery}%"))
+                    || p.SecondaryCategories.Any(c => EF.Functions.Like(c.Name, $"%{searchQuery}%"))
                 );
-
-                manufacturers = await _uow
-                    .ManufacturersRep.GetAllQuery()
-                    .Where(m => m.Name.ToLower().Contains(searchQuery))
-                    .Take(pageSize)
-                    .ToListAsync();
-
-                categories = await _uow
-                    .CategoriesRep.GetAllQuery()
-                    .Where(c => c.Name.ToLower().Contains(searchQuery))
-                    .Take(pageSize)
-                    .ToListAsync();
             }
 
-            // Fetch paginated products
+            // Fetch manufacturers and categories - if needed
+            var manufacturerQuery = string.IsNullOrWhiteSpace(searchQuery)
+                ? _uow.ManufacturersRep.GetAllQuery().Where(m => false) // Returns no results from DB
+                : _uow.ManufacturersRep.GetAllQuery().Where(m => EF.Functions.Like(m.Name, $"%{searchQuery}%"));
+
+            var categoryQuery = string.IsNullOrWhiteSpace(searchQuery)
+                ? _uow.CategoriesRep.GetAllQuery().Where(c => false) // Returns no results from DB
+                : _uow.CategoriesRep.GetAllQuery().Where(c => EF.Functions.Like(c.Name, $"%{searchQuery}%"));
+
+            // product count
             int totalProductCount = await productQuery.CountAsync();
 
+            // project directly to ProductDto
             var products = await productQuery
+                .OrderBy(p => p.Name)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
+                .Select(p => new ProductDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Price = p.Price,
+                    QuantityInStock = p.QuantityInStock,
+                    PrimaryCategoryName = p.PrimaryCategory.Name,
+                    SecondaryCategories = p.SecondaryCategories.Select(c => c.Name),
+                    ManufacturerName = p.Manufacturer.Name,
+                    DateCreated = p.Created,
+                    ImageFilePath = p.Image != null ? p.Image.FilePath : null
+                })
                 .ToListAsync();
 
-            // Return combined results
+            // Fetch manufacturers and categories (limit to pageSize
+            var manufacturers = await manufacturerQuery.Take(pageSize).ToListAsync();
+            var categories = await categoryQuery.Take(pageSize).ToListAsync();
+
             return new SearchResultDto
             {
-                Products = products.Adapt<IEnumerable<ProductDto>>(),
+                Products = products,
                 TotalProductCount = totalProductCount,
                 Manufacturers = manufacturers.Adapt<IEnumerable<ManufacturerDTO>>(),
                 Categories = categories.Adapt<IEnumerable<CategoryDTO>>()

@@ -13,14 +13,14 @@ namespace BusinessLayer.Services.Interfaces
         Task ReassignProductsToManufacturerAsync(int sourceManufacturerId, int destinationManufacturerId, int modifiedById);
         Task DeleteProductAsync(int productId, int deletedBy);
         Task<IEnumerable<ProductDto>> GetFilteredProductsAsync(FilterProductDto filterProductDto);
-        Task<(IEnumerable<ProductDto>, int totalCount)> GetProductsAsync(
+        Task<(IEnumerable<ProductDto>, int totalCount)> GetProductsPaginatedAsync(
             int page = 1,
-            int pageSize = 10
+            int pageSize = 9
         );
         Task<SearchResultDto> SearchAsync(
             string? query,
             int page = 1,
-            int pageSize = 5,
+            int pageSize = 8,
             string? manufacturer = null,
             string? category = null
         );

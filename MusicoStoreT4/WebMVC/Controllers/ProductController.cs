@@ -2,6 +2,7 @@ using BusinessLayer.Services.Interfaces;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using WebMVC.Models.Category;
 using WebMVC.Models.Manufacturer;
 using WebMVC.Models.Product;
@@ -22,34 +23,12 @@ namespace WebMVC.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
-        {
-            var products = await _productService.GetAllProductsAsync();
-
-            if (!products.Any())
-            {
-                return NotFound();
-            }
-
-            return View(products.Adapt<IEnumerable<ProductDetailViewModel>>());
-        }
-
-        [HttpGet("details/{id}")]
-        public async Task<IActionResult> Details(int id)
-        {
-            var product = await _productService.GetProductByIdAsync(id);
-
-            if (product == null)
-                return NotFound();
-
-            return View(product.Adapt<ProductDetailViewModel>());
-        }
-
-        [HttpGet("list")]
         [AllowAnonymous]
-        public async Task<IActionResult> List(int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(int page = 1)
         {
-            var (products, totalCount) = await _productService.GetProductsAsync(page, pageSize);
+            const int pageSize = 9;
+
+            var (products, totalCount) = await _productService.GetProductsPaginatedAsync(page, pageSize);
 
             if (!products.Any())
             {
@@ -68,6 +47,18 @@ namespace WebMVC.Controllers
             return View(viewModel);
         }
 
+        [HttpGet("details/{id}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Details(int id)
+        {
+            var product = await _productService.GetProductByIdAsync(id);
+
+            if (product == null)
+                return NotFound();
+
+            return View(product.Adapt<ProductDetailViewModel>());
+        }
+
         [HttpGet("search")]
         [AllowAnonymous]
         public async Task<IActionResult> Search(
@@ -77,7 +68,7 @@ namespace WebMVC.Controllers
             string? category = null
         )
         {
-            const int pageSize = 5;
+            const int pageSize = 8;
 
             // If query is empty and no category or manufacturer is selected, return to search page
             if (
