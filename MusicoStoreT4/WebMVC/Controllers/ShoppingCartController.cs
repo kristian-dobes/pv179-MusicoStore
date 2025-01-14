@@ -120,6 +120,16 @@ namespace WebMVC.Controllers
                 return Unauthorized();
             }
 
+            if(!string.IsNullOrEmpty(cart.AppliedGiftCardCode))
+            {
+                var isValid = await _giftCardService.SetCouponCodeAsUsed(cart.AppliedGiftCardCode);
+                if (!isValid)
+                {
+                    ModelState.AddModelError("", "This coupon was already used.");
+                    return View("Cart", cart);
+                }
+            }
+
             var createOrderDto = new CreateOrderDto
             {
                 CustomerId = user.User.Id,
@@ -159,19 +169,10 @@ namespace WebMVC.Controllers
             }
 
             // Validate gift code
-            var couponCode = await _giftCardService.GetGiftCardByCouponCodeAsync(giftCardCode);
-
-            if (couponCode == null ||
-                couponCode.ValidityStartDate > DateTime.Now ||
-                couponCode.ValidityEndDate < DateTime.Now)
+            var couponCode = await _giftCardService.ValidateCouponCode(giftCardCode);
+            if (!couponCode.Valid)
             {
-                return Json(new { success = false, message = "Invalid or expired gift card." });
-            }
-
-            var wasUsed = await _giftCardService.SetCouponCodeAsUsed(giftCardCode);
-            if (!wasUsed)
-            {
-                return Json(new { success = false, message = "This coupon was already used." });
+                return Json(new { success = false, message = couponCode.ErrorMessage });
             }
 
             // discount
