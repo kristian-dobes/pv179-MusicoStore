@@ -26,4 +26,9 @@ public static class CacheKeys
     {
         return ActiveKeys;
     }
+
+    public static void RemoveKey(string key)
+    {
+        ActiveKeys.Remove(key);
+    }
 }
