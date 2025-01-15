@@ -1,120 +1,140 @@
-﻿using BusinessLayer.DTOs.Product;
-using BusinessLayer.Enums;
+using BusinessLayer.Cache;
+using BusinessLayer.Cache.Interfaces;
 using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Models;
-using Microsoft.AspNetCore.Identity;
+using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
-using WebMVC.Models;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using WebMVC.Models.Category;
+using WebMVC.Models.Manufacturer;
+using WebMVC.Models.Product;
+using WebMVC.Models.Shared;
 
 namespace WebMVC.Controllers
 {
+    [Route("products")]
     public class ProductController : Controller
     {
-        private readonly UserManager<LocalIdentityUser> _userManager;
         private readonly IProductService _productService;
-        private readonly IAuditLogService _auditLogService;
-        private readonly IUserService _userService;
-        private readonly IImageService _imageService;
+        private readonly IMemoryCacheWrapper _cacheWrapper;
+        private static readonly CacheOptions CacheOptions =
+            new(
+                AbsoluteExpiration: TimeSpan.FromHours(12),
+                SlidingExpiration: TimeSpan.FromMinutes(30)
+            );
 
-        public ProductController(UserManager<LocalIdentityUser> userManager, IProductService productService,
-                                 IAuditLogService auditLogService, IUserService userService)
+        public ProductController(IProductService productService, IMemoryCacheWrapper cacheWrapper)
         {
             _productService = productService;
-            _auditLogService = auditLogService;
-            _userService = userService;
-            _userManager = userManager;
+            _cacheWrapper = cacheWrapper;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Show(int id)
+        [AllowAnonymous]
+        public async Task<IActionResult> Index(int page = 1)
         {
-            var product = await _productService.GetProductByIdAsync(id);
+            const int pageSize = 9;
+            string cacheKey = CacheKeys.GetProductListKey(page);
 
-            if (product == null)
-                return NotFound();
+            var viewModel = await _cacheWrapper.GetOrCreateAsync(
+                cacheKey,
+                async () =>
+                {
+                    var (products, totalCount) = await _productService.GetProductsPaginatedAsync(
+                        page,
+                        pageSize
+                    );
 
-            return View(product);
-        }
+                    if (!products.Any())
+                    {
+                        return null;
+                    }
 
-        [HttpPost]
-        public async Task<IActionResult> Edit(int id, UpdateProductDTO productDto)
-        {
-            if (id != productDto.Id)
-                return BadRequest();
+                    return new ProductListViewModel
+                    {
+                        Products = products.Adapt<IEnumerable<ProductDetailViewModel>>(),
+                        CurrentPage = page,
+                        TotalPages = (int)Math.Ceiling((double)totalCount / pageSize)
+                    };
+                },
+                CacheOptions
+            );
 
-            var user = await _userManager.GetUserAsync(User);
-
-            if (user == null)
-                return Unauthorized();
-
-            var existingProduct = await _productService.GetProductByIdAsync(id);
-            
-            if (existingProduct == null)
-                return NotFound();
-
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            await _productService.UpdateProductAsync(productDto, user.UserId);
-
-            return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Create(CreateProductDTO productDto)
-        {
-            var user = await _userManager.GetUserAsync(User);
-
-            if (user == null)
-                return Unauthorized();
-
-            if (ModelState.IsValid)
+            if (viewModel == null)
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var createdProduct = await _productService.CreateProductAsync(productDto, user.UserId);
-
-                return RedirectToAction("Index");
+                return NotFound();
             }
 
-            return View(productDto);
+            return View(viewModel);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Delete(int id)
+        [HttpGet("details/{id}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Details(int id)
         {
-            var product = await _productService.GetProductByIdAsync(id);
+            var viewModel = await _cacheWrapper.GetOrCreateAsync(
+                CacheKeys.GetProductDetailsKey(id),
+                async () =>
+                {
+                    var product = await _productService.GetProductByIdAsync(id);
+                    return product?.Adapt<ProductDetailViewModel>();
+                },
+                CacheOptions
+            );
 
-            if (product == null)
+            if (viewModel == null)
                 return NotFound();
 
-            var user = await _userManager.GetUserAsync(User);
-
-            if (user == null)
-                return Unauthorized();
-
-            await _productService.DeleteProductAsync(id, user.UserId);
-            return RedirectToAction("Index");
+            return View(viewModel);
         }
 
-        public async Task<IActionResult> ProductDetails(int productId)
+        [HttpGet("search")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Search(
+            string query,
+            int page = 1,
+            string? manufacturer = null,
+            string? category = null
+        )
         {
-            ProductDto product = await _productService.GetProductByIdAsync(productId);
+            const int pageSize = 8;
 
-            if (product == null)
-                return NotFound();
-
-            string imageFilePath = await _imageService.GetImagePathByProductIdAsync(productId);
-
-            var productViewModel = new ProductViewModel
+            // If query is empty and no category or manufacturer is selected, return to search page
+            if (
+                string.IsNullOrWhiteSpace(query)
+                && string.IsNullOrWhiteSpace(category)
+                && string.IsNullOrWhiteSpace(manufacturer)
+            )
             {
-                ProductId = product.Id,
-                ProductName = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                ImageFilePath = imageFilePath
+                ModelState.AddModelError("", "Search query cannot be empty.");
+                return Redirect(Request.Headers["Referer"].ToString());
+            }
+            var searchResults = await _productService.SearchAsync(
+                query,
+                page,
+                pageSize,
+                manufacturer,
+                category
+            );
+
+            var viewModel = new SearchProductListViewModel
+            {
+                Products = searchResults.Products.Adapt<IEnumerable<ProductDetailViewModel>>(),
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling((double)searchResults.TotalProductCount / pageSize),
+                Manufacturers = searchResults.Manufacturers.Adapt<
+                    IEnumerable<ManufacturerViewModel>
+                >(),
+                Categories = searchResults.Categories.Adapt<IEnumerable<CategoryViewModel>>(),
+                SearchParams = new SearchViewModel
+                {
+                    Query = query,
+                    Category = category,
+                    Manufacturer = manufacturer
+                }
             };
 
-            return View(productViewModel);
+            return View("SearchResult", viewModel);
         }
     }
 }

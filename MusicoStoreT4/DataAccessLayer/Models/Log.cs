@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DataAccessLayer.Models.Enums;
 
 namespace DataAccessLayer.Models
 {
@@ -10,5 +6,6 @@ namespace DataAccessLayer.Models
     {
         public string Method { get; set; }
         public string Path { get; set; }
+        public RequestSource Source { get; set; }
     }
 }

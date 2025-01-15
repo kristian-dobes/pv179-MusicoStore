@@ -1,34 +1,30 @@
 ﻿using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
 using DataAccessLayer.Models;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using DataAccessLayer.Models.Enums;
+using Infrastructure.UnitOfWork;
 
 namespace BusinessLayer.Services
 {
     public class LogService : BaseService, ILogService
     {
-        private readonly MyDBContext _dBContext;
+        private readonly IUnitOfWork _uow;
 
-        public LogService(MyDBContext dBContext) : base(dBContext)
+        public LogService(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _dBContext = dBContext;
+            _uow = unitOfWork;
         }
 
-        public async Task LogRequestAsync(string method, string path)
+        public async Task LogRequestAsync(string method, string path, RequestSource source)
         {
             var log = new Log
             {
                 Method = method,
                 Path = path,
-                Created = DateTime.UtcNow
+                Created = DateTime.UtcNow,
+                Source = source
             };
 
-            _dBContext.Logs.Add(log);
+            await _uow.LogsRep.AddAsync(log);
             await SaveAsync(true);
         }
     }

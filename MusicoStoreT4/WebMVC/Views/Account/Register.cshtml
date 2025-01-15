@@ -1,4 +1,4 @@
-﻿@model RegisterViewModel
+﻿@model WebMVC.Models.Account.RegisterViewModel
 
 <h2>Register</h2>
 
@@ -17,6 +17,11 @@
         <label asp-for="ConfirmPassword"></label>
         <input asp-for="ConfirmPassword" type="password" />
         <span asp-validation-for="ConfirmPassword"></span>
+    </div>
+    <div>
+        <label asp-for="IsAdmin"></label>
+        <input asp-for="IsAdmin" type="checkbox" />
+        <span asp-validation-for="IsAdmin"></span>
     </div>
     <button type="submit">Register</button>
     @Html.ValidationSummary(false, "", new { @class = "text-danger" })

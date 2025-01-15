@@ -1,0 +1,200 @@
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using WebMVC.Models.Product;
+@model SearchProductListViewModel
+
+<div class="filters">
+    @if (Model.Manufacturers.Any())
+    {
+        <div class="filter-group">
+            <h3>Manufacturers</h3>
+            @foreach (var manufacturer in Model.Manufacturers)
+            {
+                <button class="filter-btn" onclick="location.href='@Url.Action("Search", new { manufacturer = manufacturer.Name })'">
+                    @manufacturer.Name
+                </button>
+            }
+        </div>
+    }
+
+    @if (Model.Categories.Any())
+    {
+        <div class="filter-group">
+            <h3>Categories</h3>
+            @foreach (var category in Model.Categories)
+            {
+                <button class="filter-btn" onclick="location.href='@Url.Action("Search", new { category = category.Name })'">
+                    @category.Name
+                </button>
+            }
+        </div>
+    }
+</div>
+
+<h2>Products</h2>
+@if (Model.Products.Any())
+{
+    <div class="product-grid">
+        @foreach (var item in Model.Products)
+        {
+            <div class="product-tile">
+                <h3>@item.Name</h3>
+                <p><strong>Description:</strong> @item.Description</p>
+                <p><strong>Price:</strong> $@item.Price</p>
+                <p><strong>Stock:</strong> @item.QuantityInStock units available</p>
+                <p><strong>Primary Category:</strong> @item.PrimaryCategory.Name</p>
+                <p><strong>Manufacturer:</strong> @item.Manufacturer.Name</p>
+
+                <!-- Buttons section -->
+                <div class="mt-auto">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <!-- Add to Cart -->
+                        <div class="d-flex align-items-center">
+                            <input type="number" id="quantity-@item.Id" value="1" min="1" class="form-control form-control-sm me-2" style="width: 80px;" />
+                            <button class="btn btn-primary btn-sm" onclick="addToCart(@item.Id)">
+                                <i class="bi bi-cart-plus"></i> Add to Cart
+                            </button>
+                        </div>
+
+                        <!-- Show Product -->
+                        <a asp-action="Details" asp-controller="Product" asp-route-id="@item.Id" class="btn btn-outline-secondary btn-sm">
+                            Show Product
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p>No products found.</p>
+}
+
+<div class="pagination">
+    @for (int i = 1; i <= Model.TotalPages; i++)
+    {
+        <a asp-action="Search"
+           asp-route-page="@i"
+           asp-route-query="@Model.SearchParams.Query"
+           asp-route-manufacturer="@Model.SearchParams.Manufacturer"
+           asp-route-category="@Model.SearchParams.Category"
+           class="pagination-link @(i == Model.CurrentPage ? "active" : "")">
+            @($" {i} ")
+        </a>
+    }
+</div>
+
+<script>
+    function addToCart(productId) {
+        const quantity = document.getElementById(`quantity-${productId}`).value;
+
+        $.ajax({
+            url: '/ShoppingCart/AddToCart',
+            type: 'POST',
+            data: {
+                productId: productId,
+                quantity: quantity
+            },
+            success: function (response) {
+                if (response.success) {
+                    alert(`Added to cart! Total: $${response.cartTotal}`);
+                } else {
+                    alert('Failed to add to cart.');
+                }
+            },
+            error: function () {
+                alert('An error occurred while adding to the cart.');
+            }
+        });
+    }
+</script>
+
+<style>
+    .filters {
+        margin-bottom: 20px;
+    }
+
+    .filter-group {
+        margin-bottom: 10px;
+    }
+
+    .filter-btn {
+        display: inline-block;
+        margin: 5px;
+        padding: 8px 12px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .filter-btn:hover {
+        background-color: #0056b3;
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .product-tile {
+        border: 1px solid #ccc;
+        padding: 15px;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .product-tile h3 {
+        margin-top: 0;
+    }
+
+    .details-btn:hover {
+        background-color: #218838;
+    }
+
+    .btn {
+        font-size: 0.875rem; /* Adjust font size for smaller buttons */
+        padding: 4px 10px; /* Reduce padding */
+        line-height: 1.5; /* Ensure proper alignment */
+    }
+
+    .details-btn {
+        white-space: nowrap; /* Prevent text wrapping */
+    }
+
+    .form-control-sm {
+        font-size: 0.875rem;
+        height: 32px; /* Match height with small buttons */
+        padding: 4px 8px;
+    }
+
+    .pagination {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .pagination-link {
+        margin: 0 5px;
+        padding: 5px 10px;
+        text-decoration: none;
+        color: #007bff;
+        border: 1px solid #007bff;
+        border-radius: 4px;
+    }
+
+        .pagination-link.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .pagination-link:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+</style>

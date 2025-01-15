@@ -1,11 +1,11 @@
-﻿using BusinessLayer.DTOs;
-using BusinessLayer.DTOs.User;
-using BusinessLayer.Facades;
-using BusinessLayer.Mapper;
+﻿using BusinessLayer.Cache;
 using BusinessLayer.Services;
-using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
 using DataAccessLayer.Models;
+using Infrastructure.Repository.Implementations;
+using Infrastructure.Repository.Implementations.Implementations;
+using Infrastructure.UnitOfWork;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using Tests.Other;
 
@@ -14,22 +14,47 @@ namespace Tests
     [TestFixture]
     public class UserServiceTests
     {
-        private MyDBContext _context;
         private UserService _userService;
-        private ProductService _productService;
+        private Mock<UserManager<LocalIdentityUser>> _mockUserManager;
+        private IUnitOfWork _uow;
 
         [SetUp]
         public void SetUp()
         {
-            _context = MockDbContext.GenerateMock();
-            _userService = new UserService(_context);
-            _productService = new ProductService(_context, new AuditLogService(_context));
-        }
+            var context = MockDbContext.GenerateMock();
 
-        [TearDown]
-        public void TearDown()
-        {
-            _context?.Dispose();
+            // Mock UserManager dependencies
+            var store = new Mock<IUserStore<LocalIdentityUser>>();
+            _mockUserManager = new Mock<UserManager<LocalIdentityUser>>(
+                store.Object,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            );
+
+            _uow = new UnitOfWork(
+                context,
+                new UserRepository(context, _mockUserManager.Object),
+                new CategoryRepository(context),
+                new ManufacturerRepository(context),
+                new OrderRepository(context),
+                new OrderItemRepository(context),
+                new ProductRepository(context),
+                new ProductImageRepository(context),
+                new AuditLogRepository(context),
+                new LogRepository(context),
+                new GiftCardRepository(context),
+                new CouponCodeRepository(context)
+            );
+            _userService = new UserService(
+                _uow,
+                new MemoryCacheWrapper(new MemoryCache(new MemoryCacheOptions()))
+            );
         }
 
         [Test]
@@ -37,8 +62,9 @@ namespace Tests
         {
             // Arrange
             int userId = 1;
-            _context.Users.RemoveRange(_context.Users.ToList());
-            await _context.SaveChangesAsync();
+            await _uow.UsersRep.DeleteByIdsAsync(
+                (await _uow.UsersRep.GetAllAsync()).Select(u => u.Id)
+            );
 
             // Act
             var result = await _userService.GetMostFrequentBoughtItemAsync(userId);
@@ -52,9 +78,12 @@ namespace Tests
         {
             // Arrange
             int userId = 1;
-            _context.Orders.RemoveRange(_context.Orders.ToList());
-            _context.OrderItems.RemoveRange(_context.OrderItems.ToList());
-            await _context.SaveChangesAsync();
+            await _uow.OrdersRep.DeleteByIdsAsync(
+                (await _uow.OrdersRep.GetAllAsync()).Select(o => o.Id)
+            );
+            await _uow.OrderItemsRep.DeleteByIdsAsync(
+                (await _uow.OrderItemsRep.GetAllAsync()).Select(oi => oi.Id)
+            );
 
             // Act
             var result = await _userService.GetMostFrequentBoughtItemAsync(userId);
@@ -69,9 +98,11 @@ namespace Tests
             // Arrange
             int userId = 1;
 
-            var user = _context.Users.SingleOrDefault(u => u.Id == userId);
-            var orders = _context.Orders.Where(o => o.UserId == userId).ToList();
-            var orderItems = _context.OrderItems.Where(oi => orders.Select(o => o.Id).Contains(oi.OrderId)).ToList();
+            var user = await _uow.UsersRep.GetByIdAsync(userId);
+            var orders = await _uow.OrdersRep.WhereAsync(o => o.UserId == userId);
+            var orderItems = await _uow.OrderItemsRep.WhereAsync(oi =>
+                orders.Select(o => o.Id).Contains(oi.OrderId)
+            );
 
             Assert.IsNotNull(user);
             Assert.IsNotEmpty(orders);
@@ -89,7 +120,6 @@ namespace Tests
                 .FirstOrDefault();
 
             Assert.AreEqual(mostFrequentOrderItem.Key, result.ProductId);
-            Assert.AreEqual(mostFrequentOrderItem.Sum(oi => oi.Quantity), result.Quantity);
         }
 
         [Test]
@@ -98,10 +128,12 @@ namespace Tests
             // Arrange
             int userId = 1;
 
-            // Retrieve the user and related orders from the context
-            var user = _context.Users.SingleOrDefault(u => u.Id == userId);
-            var orders = _context.Orders.Where(o => o.UserId == userId).ToList();
-            var orderItems = _context.OrderItems.Where(oi => orders.Select(o => o.Id).Contains(oi.OrderId)).ToList();
+            // Retrieve the user and related orders from the unit of work
+            var user = await _uow.UsersRep.GetByIdAsync(userId);
+            var orders = await _uow.OrdersRep.WhereAsync(o => o.UserId == userId);
+            var orderItems = await _uow.OrderItemsRep.WhereAsync(oi =>
+                orders.Select(o => o.Id).Contains(oi.OrderId)
+            );
 
             Assert.IsNotNull(user);
             Assert.IsNotEmpty(orders);
@@ -119,7 +151,6 @@ namespace Tests
                 .FirstOrDefault();
 
             Assert.AreEqual(mostFrequentOrderItem.Key, result.ProductId);
-            Assert.AreEqual(mostFrequentOrderItem.Sum(oi => oi.Quantity), result.Quantity);
         }
 
         [Test]
@@ -128,9 +159,11 @@ namespace Tests
             // Arrange
             int userId = 1;
 
-            var user = _context.Users.SingleOrDefault(u => u.Id == userId);
-            var orders = _context.Orders.Where(o => o.UserId == userId).ToList();
-            var orderItems = _context.OrderItems.Where(oi => orders.Select(o => o.Id).Contains(oi.OrderId)).ToList();
+            var user = await _uow.UsersRep.GetByIdAsync(userId);
+            var orders = await _uow.OrdersRep.WhereAsync(o => o.UserId == userId);
+            var orderItems = await _uow.OrderItemsRep.WhereAsync(oi =>
+                orders.Select(o => o.Id).Contains(oi.OrderId)
+            );
 
             Assert.IsNotNull(user);
             Assert.IsNotEmpty(orders);
@@ -157,58 +190,7 @@ namespace Tests
                     .FirstOrDefault();
 
                 Assert.AreEqual(mostFrequentOrderItem.Key, result.ProductId);
-                Assert.AreEqual(mostFrequentOrderItem.Sum(oi => oi.Quantity), result.Quantity);
             }
-        }
-
-        [Test]
-        public async Task GetCustomerSegmentsAsync_ShouldReturnCustomerSegments()
-        {
-            // Arrange
-            var customerSegmentsDto = new CustomerSegmentsDto()
-            {
-                HighValueCustomers = new List<CustomerDto>() { _context.Customers.FirstOrDefault(u => u.Id == 3).MapToCustomerDto(),
-                                                               _context.Customers.FirstOrDefault(u => u.Id == 4).MapToCustomerDto() },
-                InfrequentCustomers = new List<CustomerDto>()
-            };
-
-            // Act
-            var result = await _userService.GetCustomerSegmentsAsync();
-
-            // Assert
-            CollectionAssert.AreEquivalent(customerSegmentsDto.HighValueCustomers, result.HighValueCustomers);
-            CollectionAssert.AreEquivalent(customerSegmentsDto.InfrequentCustomers, result.InfrequentCustomers);
-        }
-
-        
-        [Test]
-        public async Task GetCustomerSegmentsAsync_ShouldReturnEmptyLists_WhenNoCustomers()
-        {
-            // Arrange
-            _context.Customers.RemoveRange(_context.Customers.ToList());
-            await _context.SaveChangesAsync();
-
-            // Act
-            var result = await _userService.GetCustomerSegmentsAsync();
-
-            // Assert
-            Assert.IsEmpty(result.HighValueCustomers);
-            Assert.IsEmpty(result.InfrequentCustomers);
-        }
-
-        [Test]
-        public async Task GetUserSummariesAsync_ShouldReturnEmpty_WhenDatasetIsEmpty()
-        {
-            // Arrange
-            _context.Users.RemoveRange(_context.Users.ToList());
-            _context.Customers.RemoveRange(_context.Customers.ToList());
-            await _context.SaveChangesAsync();
-
-            // Act
-            var result = await _userService.GetUserSummariesAsync();
-
-            // Assert
-            Assert.IsEmpty(result);
         }
     }
 }

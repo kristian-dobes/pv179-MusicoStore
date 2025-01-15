@@ -1,24 +1,28 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BusinessLayer.DTOs;
-using DataAccessLayer.Models;
 using BusinessLayer.DTOs.Product;
-using Microsoft.AspNetCore.Http;
 
 namespace BusinessLayer.Services.Interfaces
 {
     public interface IProductService : IBaseService
     {
-        Task ReassignProductsToManufacturerAsync(int sourceManufacturerId, int targetManufacturerId, int modifiedBy);
-        Task<List<Product>> GetProductsByManufacturerAsync(int manufacturerId);
-        Task UpdateProductManufacturerAsync(int productId, int newManufacturerId, int modifiedBy);
-        Task<List<TopSellingProductDto>> GetTopSellingProductsByCategoryAsync(DateTime startDate, DateTime endDate, int topN = 5);
-        Task<ProductDto> GetProductByIdAsync(int productId);
-        Task UpdateProductAsync(UpdateProductDTO productDto, int modifiedById);
-        Task<Product> CreateProductAsync(CreateProductDTO productDto, int createdById);
+        Task<ProductCompleteDTO?> GetProductByIdAsync(int productId);
+        Task<ProductShoppingDetailsDTO?> GetProductShoppingDetailsAsync(int productId);
+        Task<IEnumerable<ProductCompleteDTO>> GetAllProductsAsync();
+        Task<ProductCompleteDTO> UpdateProductAsync(int id, ProductUpdateDTO productDto);
+        Task<bool> CreateProductAsync(ProductCreateDTO productDto);
+        Task ReassignProductsToManufacturerAsync(int sourceManufacturerId, int destinationManufacturerId, int modifiedById);
         Task DeleteProductAsync(int productId, int deletedBy);
+        Task<IEnumerable<ProductDto>> GetFilteredProductsAsync(FilterProductDto filterProductDto);
+        Task<(IEnumerable<ProductDto>, int totalCount)> GetProductsPaginatedAsync(
+            int page = 1,
+            int pageSize = 9
+        );
+        Task<SearchResultDto> SearchAsync(
+            string? query,
+            int page = 1,
+            int pageSize = 8,
+            string? manufacturer = null,
+            string? category = null
+        );
     }
 }

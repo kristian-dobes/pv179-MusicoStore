@@ -1,172 +1,133 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BusinessLayer.DTOs;
+﻿using BusinessLayer.Cache;
+using BusinessLayer.Cache.Interfaces;
 using BusinessLayer.DTOs.Product;
 using BusinessLayer.DTOs.User;
+using BusinessLayer.DTOs.User.Admin;
+using BusinessLayer.DTOs.User.Customer;
 using BusinessLayer.Mapper;
 using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
 using DataAccessLayer.Models;
 using DataAccessLayer.Models.Enums;
+using Infrastructure.UnitOfWork;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Services
 {
     public class UserService : BaseService, IUserService
     {
-        private readonly MyDBContext _dbContext;
+        private readonly IUnitOfWork _uow;
+        private readonly IMemoryCacheWrapper _cacheWrapper;
+        private const string USER_LIST_CACHE_KEY = "Users_List";
+        private static readonly CacheOptions CacheOptions =
+            new(
+                AbsoluteExpiration: TimeSpan.FromHours(6),
+                SlidingExpiration: TimeSpan.FromMinutes(20)
+            );
 
-        public UserService(MyDBContext dBContext)
-            : base(dBContext)
+        public UserService(IUnitOfWork unitOfWork, IMemoryCacheWrapper memoryCacheWrapper)
+            : base(unitOfWork)
         {
-            _dbContext = dBContext;
+            _uow = unitOfWork;
+            _cacheWrapper = memoryCacheWrapper;
         }
 
-        public async Task<CustomerSegmentsDto> GetCustomerSegmentsAsync()
+        public async Task<ProductMostBoughtDTO?> GetMostFrequentBoughtItemAsync(int userId)
         {
-            var currentDate = DateTime.UtcNow;
-
-            var customersWithStats = await _dbContext.Users
-                .Where(u => u.Role == Role.Customer)
-                .Select(u => new
+            var mostFrequentItem = await _uow.UsersRep.GetUserOrderItemsQuery(userId)
+                .GroupBy(oi => new { oi.ProductId, oi.Product.Name, oi.Product.Description, oi.Product.Price })
+                .Select(g => new
                 {
-                    Customer = u as Customer,
-                    TotalExpenditure = u.Orders
-                        .SelectMany(o => o.OrderItems)
-                        .Sum(oi => oi.Price * oi.Quantity),
-                    IsInfrequent = u.Orders.Any() &&
-                                   u.Orders.All(o => (currentDate - o.Date).Days > 180)
+                    ProductId = g.Key.ProductId,
+                    Name = g.Key.Name,
+                    Description = g.Key.Description,
+                    Price = g.Key.Price,
+                    TotalQuantity = g.Sum(oi => oi.Quantity)
                 })
-                .ToListAsync();
+                .OrderByDescending(g => g.TotalQuantity)
+                .FirstOrDefaultAsync();
 
-            var highValueCustomers = customersWithStats
-                .Where(c => c.TotalExpenditure > 1000)
-                .Select(c => c.Customer.MapToCustomerDto())
-                .ToList();
-
-            var infrequentCustomers = customersWithStats
-                .Where(c => c.IsInfrequent)
-                .Select(c => c.Customer.MapToCustomerDto())
-                .ToList();
-
-            return new CustomerSegmentsDto
-            {
-                HighValueCustomers = highValueCustomers,
-                InfrequentCustomers = infrequentCustomers
-            };
-        }
-
-        public async Task<OrderItemDto?> GetMostFrequentBoughtItemAsync(int userId)
-        {
-            var user = await _dbContext
-                .Users
-                .Include(u => u.Orders)
-                    .ThenInclude(o => o.OrderItems)
-                .FirstOrDefaultAsync(u => u.Id == userId);
-
-            if (user == null || !user.Orders.Any())
-            {
+            if (mostFrequentItem == null || !mostFrequentItem.ProductId.HasValue)
                 return null;
-            }
 
-            var mostFrequentItem = user.Orders
-                .SelectMany(o => o.OrderItems)
-                .GroupBy(oi => oi.ProductId)
-                .Select(g => new { ProductId = g.Key.Value, Quantity = g.Sum(oi => oi.Quantity) })
-                .OrderByDescending(g => g.Quantity)
-                .FirstOrDefault();
-
-            if (mostFrequentItem == null)
+            return new ProductMostBoughtDTO
             {
-                return null;
-            }
-
-            // Create a new OrderItemDto based on the most frequent item
-            return new OrderItemDto
-            {
-                ProductId = mostFrequentItem.ProductId,
-                Quantity = mostFrequentItem.Quantity
+                ProductId = mostFrequentItem.ProductId.Value,
+                Name = mostFrequentItem.Name,
+                Description = mostFrequentItem.Description,
+                NumberOfBuys = mostFrequentItem.TotalQuantity
             };
-        }
-
-        public async Task<List<UserSummaryDto>> GetUserSummariesAsync()
-        {
-            var userSummaries = await _dbContext.Users
-                .Where(u => u.Role == Role.Customer)
-                .Select(u => new UserSummaryDto
-                {
-                    UserId = u.Id,
-                    Username = u.Username,
-                    Role = u.Role,
-                    TotalExpenditure = u.Orders
-                        .SelectMany(o => o.OrderItems)
-                        .Sum(oi => oi.Price * oi.Quantity)
-                })
-                .ToListAsync();
-
-            return userSummaries;
         }
 
         public async Task<bool> ValidateUserAsync(int userId)
         {
-            return await _dbContext.Users.AnyAsync(u => u.Id == userId);
+            return await _uow.UsersRep.AnyAsync(u => u.Id == userId);
         }
 
         public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
         {
-            var users = await _dbContext.Users.ToListAsync();
+            var users = await _cacheWrapper.GetOrCreateAsync(
+                USER_LIST_CACHE_KEY,
+                async () => await _uow.UsersRep.GetAllAsync(),
+                CacheOptions
+            );
             return users.Select(u => u.MapToUserDto());
         }
 
-        public async Task<UserDetailDto?> GetUserByIdAsync(int userId)
+        public async Task<UserSummaryDTO?> GetUserByIdAsync(int userId)
         {
-            var user = await _dbContext
-                .Users.Include(u => (u as Customer).Orders)
-                .FirstOrDefaultAsync(u => u.Id == userId);
+            var user = await _uow.UsersRep.GetByIdAsync(userId);
 
             if (user == null)
+            {
                 return null;
+            }
 
-            return user.MapToUserDetailDto();
+            return user.Adapt<UserSummaryDTO>();
         }
 
         public async Task CreateAdminAsync(AdminDto adminDto)
         {
             var admin = adminDto.MapToAdmin();
-            await _dbContext.Users.AddAsync(admin);
-            await _dbContext.SaveChangesAsync();
+            await _uow.UsersRep.AddAsync(admin);
+            await _uow.SaveAsync();
+            _cacheWrapper.Invalidate(USER_LIST_CACHE_KEY);
         }
 
         public async Task CreateCustomerAsync(CustomerDto customerDto)
         {
             var customer = customerDto.MapToCustomer();
-            await _dbContext.Users.AddAsync(customer);
-            await _dbContext.SaveChangesAsync();
+            await _uow.UsersRep.AddAsync(customer);
+            await _uow.SaveAsync();
+            _cacheWrapper.Invalidate(USER_LIST_CACHE_KEY);
         }
 
         public async Task UpdateAdminAsync(int userId, AdminDto adminDto)
         {
-            var user = await _dbContext.Users.FindAsync(userId);
+            var user = await _uow.UsersRep.GetByIdAsync(userId);
 
             if (user == null || user.Role != Role.Admin)
+            {
                 throw new KeyNotFoundException("Admin not found");
+            }
 
             user.Username = adminDto.Username;
             user.Email = adminDto.Email;
-            await _dbContext.SaveChangesAsync();
+            await _uow.SaveAsync();
+            _cacheWrapper.Invalidate(USER_LIST_CACHE_KEY);
         }
 
         public async Task UpdateCustomerAsync(int userId, CustomerDto customerDto)
         {
-            var customer = await _dbContext
-                .Users.OfType<Customer>()
-                .FirstOrDefaultAsync(u => u.Id == userId);
+            Customer? customer = (Customer?)
+                (
+                    await _uow.UsersRep.WhereAsync(u => u is Customer && u.Id == userId)
+                ).FirstOrDefault();
 
             if (customer == null || customer.Role != Role.Customer)
+            {
                 throw new KeyNotFoundException("Customer not found");
+            }
 
             customer.Username = customerDto.Username;
             customer.Email = customerDto.Email;
@@ -176,31 +137,42 @@ namespace BusinessLayer.Services
             customer.State = customerDto.State;
             customer.PostalCode = customerDto.PostalCode;
 
-            await _dbContext.SaveChangesAsync();
+            await _uow.SaveAsync();
+            _cacheWrapper.Invalidate(USER_LIST_CACHE_KEY);
         }
 
         public async Task DeleteUserAsync(int userId)
         {
-            var user = await _dbContext.Users.FindAsync(userId);
-            if (user == null)
-                throw new KeyNotFoundException("User not found");
+            var user = await _uow.UsersRep.GetByIdAsync(userId);
 
-            _dbContext.Users.Remove(user);
-            await _dbContext.SaveChangesAsync();
+            if (user == null)
+            {
+                throw new KeyNotFoundException("User not found");
+            }
+
+            await _uow.UsersRep.DeleteAsync(user.Id);
+            await _uow.SaveAsync();
+            _cacheWrapper.Invalidate(USER_LIST_CACHE_KEY);
         }
 
         public async Task<IEnumerable<UserDetailDto>> GetAllUserDetailsAsync()
         {
-            var users = await _dbContext.Users.ToListAsync();
+            var users = await _cacheWrapper.GetOrCreateAsync(
+                USER_LIST_CACHE_KEY,
+                async () => await _uow.UsersRep.GetAllAsync(),
+                CacheOptions
+            );
             return users.Select(u => u.MapToUserDetailDto());
         }
 
-        public static IQueryable<decimal> CalculateCustomerExpenditure(IQueryable<Order> orders)
+        public async Task<IEnumerable<UserSummaryDTO>> GetAllUserSummariesAsync()
         {
-            return orders
-                .SelectMany(o => o.OrderItems)
-                .GroupBy(oi => oi.Order.UserId)
-                .Select(group => group.Sum(oi => oi.Price * oi.Quantity));
+            var users = await _cacheWrapper.GetOrCreateAsync(
+                USER_LIST_CACHE_KEY,
+                async () => await _uow.UsersRep.GetAllAsync(),
+                CacheOptions
+            );
+            return users.Select(u => u.Adapt<UserSummaryDTO>());
         }
     }
 }

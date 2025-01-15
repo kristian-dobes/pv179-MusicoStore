@@ -1,0 +1,22 @@
+﻿@model WebMVC.Models.Product.MostBoughtProductViewModel
+
+@{
+    ViewData["Title"] = "Your Most Bought Product";
+}
+
+<h1>Your Most Bought Product</h1>
+
+@if (Model == null)
+{
+    <p>You have not bought any products yet.</p>
+}
+else
+{
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">@Model.Name</h5>
+            <p class="card-text">@Model.Description</p>
+            <p><strong>Total Purchases:</strong> @Model.NumberOfBuys</p>
+        </div>
+    </div>
+}

@@ -1,18 +1,24 @@
-﻿using Infrastructure.Repository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Infrastructure.Repository.Interfaces;
 
 namespace Infrastructure.UnitOfWork
 {
     public interface IUnitOfWork
     {
-        //IRepository<LogMessage> LogMessageRepository { get; }
-        //IRepository<Image> ImageRepository { get; }
+        IUserRepository UsersRep { get; }
+        ICategoryRepository CategoriesRep { get; }
+        IManufacturerRepository ManufacturersRep { get; }
+        IOrderRepository OrdersRep { get; }
+        IOrderItemRepository OrderItemsRep { get; }
+        IProductRepository ProductsRep { get; }
+        IProductImageRepository ProductImagesRep { get; }
+        IAuditLogRepository ProductAuditsRep { get; }
+        ILogRepository LogsRep { get; }
+        IGiftCardRepository GiftCardsRep { get; }
+        ICouponCodeRepository CouponCodesRep { get; }
 
-        void Commit();
-        void Rollback();
+        Task<int> SaveAsync();
+        void BeginTransaction();
+        Task CommitAsync();
+        Task RollbackAsync();
     }
 }

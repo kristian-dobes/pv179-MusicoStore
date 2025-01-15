@@ -1,22 +1,22 @@
 ﻿using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
+using Infrastructure.UnitOfWork;
 
 namespace BusinessLayer.Services
 {
     public class BaseService : IBaseService
     {
-        private readonly MyDBContext _dBContext;
+        private readonly IUnitOfWork uow;
 
-        public BaseService(MyDBContext dBContext)
+        public BaseService(IUnitOfWork unitOfWork)
         {
-            _dBContext = dBContext;
+            uow = unitOfWork;
         }
 
         public async Task SaveAsync(bool save)
         {
             if (save)
             {
-                await _dBContext.SaveChangesAsync();
+                await uow.SaveAsync();
             }
         }
     }

@@ -1,11 +1,7 @@
-﻿using BusinessLayer.DTOs;
-using BusinessLayer.DTOs.User;
+﻿using BusinessLayer.DTOs.User.Admin;
+using BusinessLayer.DTOs.User.Customer;
 using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
-using DataAccessLayer.Models;
-using DataAccessLayer.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace WebAPI.Controllers
 {
@@ -21,13 +17,13 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Fetch()
+        public async Task<IActionResult> GetAllUsers()
         {
             var users = await _userService.GetAllUsersAsync();
             return Ok(users);
         }
 
-        [HttpGet("detail")]
+        [HttpGet("with-orders")]
         public async Task<IActionResult> FetchWithOrders()
         {
             var users = await _userService.GetAllUserDetailsAsync();
@@ -43,28 +39,28 @@ namespace WebAPI.Controllers
             return Ok(user);
         }
 
-        [HttpPost("createAdmin")]
+        [HttpPost("admin")]
         public async Task<IActionResult> CreateAdmin([FromBody] AdminDto adminDto)
         {
             await _userService.CreateAdminAsync(adminDto);
             return Ok();
         }
 
-        [HttpPost("createCustomer")]
+        [HttpPost("customer")]
         public async Task<IActionResult> CreateCustomer([FromBody] CustomerDto customerDto)
         {
             await _userService.CreateCustomerAsync(customerDto);
             return Ok();
         }
 
-        [HttpPut("updateAdmin/{userId}")]
+        [HttpPut("admin/{userId}")]
         public async Task<IActionResult> UpdateAdmin(int userId, [FromBody] AdminDto adminDto)
         {
             await _userService.UpdateAdminAsync(userId, adminDto);
             return NoContent();
         }
 
-        [HttpPut("updateCustomer/{userId}")]
+        [HttpPut("customer/{userId}")]
         public async Task<IActionResult> UpdateCustomer(
             int userId,
             [FromBody] CustomerDto customerDto
@@ -84,18 +80,11 @@ namespace WebAPI.Controllers
         [HttpGet("summaries")]
         public async Task<IActionResult> GetUserSummaries()
         {
-            var summaries = await _userService.GetUserSummariesAsync();
+            var summaries = await _userService.GetAllUserSummariesAsync();
             return Ok(summaries);
         }
 
-        [HttpGet("segments")]
-        public async Task<IActionResult> GetCustomerSegments()
-        {
-            var segments = await _userService.GetCustomerSegmentsAsync();
-            return Ok(segments);
-        }
-
-        [HttpGet("mostFrequentItem/{userId}")]
+        [HttpGet("frequent-item/{userId}")]
         public async Task<IActionResult> GetMostFrequentItem(int userId)
         {
             if (!await _userService.ValidateUserAsync(userId))

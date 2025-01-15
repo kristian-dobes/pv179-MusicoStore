@@ -1,9 +1,6 @@
-﻿using BusinessLayer.Services;
-﻿using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
-using DataAccessLayer.Models;
+﻿using BusinessLayer.DTOs.Category;
+using BusinessLayer.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using WebAPI.DTOs;
 
 namespace WebAPI.Controllers
@@ -12,145 +9,98 @@ namespace WebAPI.Controllers
     [Route("api/[controller]")]
     public class CategoriesController : Controller
     {
-        private readonly MyDBContext _dBContext;
         private readonly ICategoryService _categoryService;
 
-        public CategoriesController(MyDBContext dBContext, ICategoryService categoryService)
+        public CategoriesController(ICategoryService categoryService)
         {
-            _dBContext = dBContext;
             _categoryService = categoryService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Fetch()
         {
-            var categories = await _dBContext.Categories.ToListAsync();
-
-            return Ok(categories.Select(a => new
-            {
-                CategoryId = a.Id,
-                CategoryName = a.Name,
-                CategoryDateOfCreation = a.Created,
-            }));
+            var categories = await _categoryService.GetCategoriesAsync();
+            return Ok(categories);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCategoryById(int id)
         {
-            var category = await _dBContext.Categories
-                .Where(a => a.Id == id)
-                .FirstOrDefaultAsync();
+            var category = await _categoryService.GetByIdAsync(id);
 
             if (category == null)
                 return NotFound();
 
-            return Ok(new
-            {
-                CategoryId = category.Id,
-                CategoryName = category.Name,
-                CategoryDateOfCreation = category.Created,
-            });
-        }
-
-        [HttpGet("fetch/summary")]
-        public async Task<IActionResult> FetchCategoriesSummary()
-        {
-            return Ok(await _categoryService.GetCategoriesAsync());
-        }
-
-        [HttpGet("detail")]
-        public async Task<IActionResult> FetchWithProducts()
-        {
-            var categories = await _dBContext.Categories
-                .Include(a => a.Products)
-                .ToListAsync();
-
-            return Ok(categories.Select(a => new
-            {
-                CategoryId = a.Id,
-                CategoryName = a.Name,
-                CategoryDateOfCreation = a.Created,
-                Products = a.Products?.Select(product => new
-                {
-                    ProductId = product.Id,
-                    ProductName = product.Name,
-                    ProductDateOfCreation = product.Created,
-                }),
-            }));
-        }
-
-        [HttpGet("fetch/{categoryId}/summary")]
-        public async Task<IActionResult> FetchCategorySummary(int categoryId)
-        {
-            var category = await _categoryService.GetCategorySummaryAsync(categoryId);
-
-            if (category == null)
-            {
-                return BadRequest();
-            }
-
             return Ok(category);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(string categoryName)
+        [HttpGet("with-products")]
+        public async Task<IActionResult> FetchWithProducts()
         {
-            var category = new Category
-            {
-                Name = categoryName,
-            };
+            var categories = await _categoryService.GetCategoriesWithProductsAsync();
 
-            await _dBContext.Categories.AddAsync(category);
-            await _dBContext.SaveChangesAsync();
+            return Ok(categories);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] CategoryUpdateDTO categoryNameDto)
+        {
+            await _categoryService.CreateCategory(categoryNameDto);
 
             return Ok();
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Update(int categoryId, string categoryName)
+        [HttpPut("{categoryId}")]
+        public async Task<IActionResult> Update(int categoryId, [FromBody] CategoryUpdateDTO categoryNameDto)
         {
-            if (string.IsNullOrWhiteSpace(categoryName))
+            if (string.IsNullOrWhiteSpace(categoryNameDto.Name))
             {
                 return BadRequest("Category name is required");
             }
 
-            if (await _dBContext.Categories.AnyAsync(a => a.Name == categoryName))
+            try
             {
-                return BadRequest("Category already exists");
+                var updatedCategory = await _categoryService.UpdateCategoryAsync(categoryId, categoryNameDto);
+
+                if (updatedCategory == null)
+                {
+                    return NotFound("Category not found");
+                }
+
+                return Ok(updatedCategory);
             }
-
-            var category = await _dBContext.Categories
-                                           .Where(a => a.Id == categoryId)
-                                           .FirstOrDefaultAsync();
-
-            if (category == null)
+            catch (ArgumentException ex)
             {
-                return NotFound("CategoryID not found");
+                return BadRequest(ex.Message);
             }
-
-            category.Name = categoryName;
-            await _dBContext.SaveChangesAsync();
-
-            return Ok();
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An unexpected error occurred.");
+            }
         }
 
         [HttpDelete("{categoryId}")]
         public async Task<IActionResult> Delete(int categoryId)
         {
-            var category = await _dBContext.Categories
-                .Include(a => a.Products)
-                .Where(a => a.Id == categoryId)
-                .FirstOrDefaultAsync();
-
-            if (category != null)
+            try
             {
-                _dBContext.Categories.Remove(category);
-                await _dBContext.SaveChangesAsync();
-            }
-            else
-                return NotFound();
+                var result = await _categoryService.DeleteCategoryAsync(categoryId);
 
-            return Ok();
+                if (!result)
+                {
+                    return NotFound("Category not found");
+                }
+
+                return Ok("Category deleted successfully");
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An unexpected error occurred");
+            }
         }
 
         [HttpPost("merge")]
@@ -165,7 +115,7 @@ namespace WebAPI.Controllers
                     mergeCategoriesDTO.NewCategoryName,
                     mergeCategoriesDTO.SourceCategoryId1,
                     mergeCategoriesDTO.SourceCategoryId2,
-                    save: true
+                    1
                 );
 
                 var result = CreatedAtAction("GetCategoryById", new { id = newCategory.Id }, new

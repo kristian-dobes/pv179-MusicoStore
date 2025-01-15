@@ -1,13 +1,5 @@
 ﻿using BusinessLayer.Services.Interfaces;
-using DataAccessLayer.Data;
-using DataAccessLayer.Models;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.IO;
-using System.Threading.Tasks;
-using WebAPI.DTOs.Images;
 
 namespace WebAPI.Controllers
 {
@@ -15,14 +7,10 @@ namespace WebAPI.Controllers
     [ApiController]
     public class ImagesController : ControllerBase
     {
-        private readonly MyDBContext _context;
-        private readonly IWebHostEnvironment _webHostEnvironment;
         private IImageService _imageService;
 
-        public ImagesController(MyDBContext context, IWebHostEnvironment webHostEnvironment, IImageService productService)
+        public ImagesController(IImageService productService)
         {
-            _context = context;
-            _webHostEnvironment = webHostEnvironment;
             _imageService = productService;
         }
 
@@ -54,37 +42,6 @@ namespace WebAPI.Controllers
                 fileResult.ContentType,
                 FileBytes = Convert.ToBase64String(fileResult.FileContents)
             }));
-        }
-
-        [HttpPost("UploadMetadata")]
-        public async Task<IActionResult> UploadImageMetadata([FromBody] UploadImageMetadataDTO uploadImageMetadataDTO)
-        {
-            if (uploadImageMetadataDTO == null)
-                return BadRequest("Image metadata must be provided.");
-
-            var productImage = new ProductImage
-            {
-                ProductId = uploadImageMetadataDTO.ProductId,
-                Created = DateTime.UtcNow,
-                FilePath = uploadImageMetadataDTO.FilePath,
-                FileName = uploadImageMetadataDTO.FileName,
-                MimeType = uploadImageMetadataDTO.MimeType
-            };
-
-            _context.ProductImages.Add(productImage);
-            await _context.SaveChangesAsync();
-
-            var productImageDTO = new ProductImageDTO
-            {
-                Id = productImage.Id,
-                ProductId = productImage.ProductId,
-                FilePath = productImage.FilePath,
-                FileName = productImage.FileName,
-                MimeType = productImage.MimeType,
-                CreatedAt = productImage.Created
-            };
-
-            return Ok(productImageDTO);
         }
 
         [HttpGet("{productId}/file")]

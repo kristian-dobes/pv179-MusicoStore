@@ -1,0 +1,115 @@
+﻿@* this view was prepared with the help of ChatGPT *@
+@model WebMVC.Models.Order.OrderCreateViewModel
+
+@{
+    ViewData["Title"] = "Create Order";
+}
+
+<h1>Create Order</h1>
+
+<h4>Order Details</h4>
+<hr />
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <!-- User Selection -->
+            <div class="form-group mt-3">
+                <label class="control-label">Assign to User:</label>
+                <select asp-for="CustomerId" class="form-control">
+                    <option value="" disabled selected>Select a user</option>
+                    @foreach (var user in Model.Users)
+                    {
+                        <option value="@user.UserId">@user.Username (@user.Email)</option>
+                    }
+                </select>
+                <span asp-validation-for="CustomerId" class="text-danger"></span>
+            </div>
+
+            <!-- Product List for Order Items -->
+            <div id="order-items-section" class="mt-4">
+                <h5>Order Items</h5>
+                <div id="order-items-container">
+                    <!-- Pre-rendered product entry -->
+                    <div class="order-item mb-3">
+                        <div class="form-row align-items-end">
+                            <div class="col-md-6">
+                                <label class="control-label">Product:</label>
+                                <select name="Items[0].ProductId" class="form-control product-dropdown">
+                                    <option value="" disabled selected>Select a product</option>
+                                    @foreach (var product in Model.Products)
+                                    {
+                                        <option value="@product.ProductId">@product.Name - @product.Price ($)</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="control-label">Quantity:</label>
+                                <input name="Items[0].Quantity" type="number" class="form-control product-quantity" placeholder="Enter quantity" min="1" />
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-danger btn-remove-item">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-success mt-3" id="add-item-button">Add Product</button>
+
+            </div>
+
+            <div class="form-group mt-4">
+                <input type="submit" value="Create Order" class="btn btn-primary" />
+                <a asp-area="Admin" asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const orderItemsContainer = document.getElementById('order-items-container');
+            const addItemButton = document.getElementById('add-item-button');
+
+            addItemButton.addEventListener('click', function () {
+                const index = orderItemsContainer.children.length; // Track the current index
+                const template = document.querySelector('.order-item').cloneNode(true);
+                template.querySelector('.product-dropdown').value = ""; // Reset dropdown
+                template.querySelector('.product-quantity').value = ""; // Reset quantity
+                orderItemsContainer.appendChild(template);
+
+                // Set proper names for model binding
+                template.querySelector('.product-dropdown').setAttribute('name', `Items[${index}].ProductId`);
+                template.querySelector('.product-quantity').setAttribute('name', `Items[${index}].Quantity`);
+
+                // Add remove functionality
+                template.querySelector('.btn-remove-item').addEventListener('click', function () {
+                    template.remove();
+                    updateIndices();
+                });
+            });
+
+            // Update indices for all order items
+            function updateIndices() {
+                const items = orderItemsContainer.children;
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    item.querySelector('.product-dropdown').setAttribute('name', `Items[${i}].ProductId`);
+                    item.querySelector('.product-quantity').setAttribute('name', `Items[${i}].Quantity`);
+                }
+            }
+
+            // Attach remove functionality to the pre-rendered row
+            orderItemsContainer.querySelector('.btn-remove-item').addEventListener('click', function () {
+                this.closest('.order-item').remove();
+                updateIndices();
+            });
+        });
+    </script>
+}

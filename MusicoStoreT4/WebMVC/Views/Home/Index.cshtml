@@ -1,4 +1,4 @@
-﻿@model ProductViewModel
+@model WebMVC.Models.Product.ProductHomeViewModel
 
 @{
     ViewData["Title"] = "Welcome to Musico Store!";
@@ -11,7 +11,7 @@
     <p>Sign up now to get the latest updates on new arrivals, exclusive discounts, and more!</p>
 
     <div class="mt-4">
-        <a class="btn btn-primary btn-lg" role="button">Start Shopping</a>
+        <a class="btn btn-primary btn-lg" role="button" asp-area="" asp-controller="Product" asp-action="Index">Start Shopping</a>
     </div>
 
     <div class="mt-5">
@@ -25,11 +25,14 @@
     </div>
 
     <div class="mt-5">
-        <h3>Featured Product</h3>
+        @if (Model.IsValid)
+        {
+            <h3>Featured Product</h3>
 
-        <div class="partial-view-container">
-            @Html.Partial("~/Views/Product/ProductDetails.cshtml", Model)
-        </div>
+            <div class="partial-view-container">
+                @Html.Partial("~/Views/Product/ProductDetails.cshtml", Model)
+            </div>
+        }
     </div>
 </div>
 

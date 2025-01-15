@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@using DataAccessLayer.Models;
+@using Microsoft.AspNetCore.Identity;
+@inject SignInManager<LocalIdentityUser> SignInManager
+@inject UserManager<LocalIdentityUser> UserManager
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -22,19 +27,25 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Products</a>
+                        </li>
+
+                        @{await Html.RenderPartialAsync("_SearchBox", new WebMVC.Models.Shared.SearchViewModel());}
                     </ul>
-                    <!-- Align the logout button to the right -->
+
+                    <!-- User-specific menu handled by UserMenuViewComponent + Shoppping Cart -->
                     <ul class="navbar-nav ms-auto">
-                        @if (User.Identity.IsAuthenticated)
-                        {
-                            <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
-                                    <button type="submit" class="btn btn-link nav-link text-dark" style="text-decoration:none;">
-                                        Logout
-                                    </button>
-                                </form>
-                            </li>
-                        }
+                        <li class="nav-item">
+                            <a class="shopping-cart-button d-flex align-items-center justify-content-center px-3 py-2 rounded text-white"
+                               asp-area="" asp-controller="ShoppingCart" asp-action="Cart">
+                                <i class="bi bi-cart-fill" style="font-size: 1.25rem;"></i>
+                                <span class="cart-text" style="margin-left: -0.05rem;">Cart</span>
+                            </a>
+                        </li>
+
+                        @await Component.InvokeAsync("UserMenu")
                     </ul>
                 </div>
             </div>
@@ -55,5 +66,39 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <!-- Inline CSS -->
+    <style>
+        /* Shopping Cart Button */
+        .shopping-cart-button {
+            background-color: #007bff; /* Button background color */
+            color: white; /* Ensure text and icon are visible */
+            font-size: 1rem; /* Text font size */
+            font-weight: 500; /* Slightly bold text for emphasis */
+            text-decoration: none; /* Remove underline */
+            display: flex; /* Flexbox for alignment */
+            align-items: center; /* Vertically align icon and text */
+            justify-content: center; /* Horizontally align icon and text */
+            border: none; /* No border for a clean look */
+            transition: background-color 0.3s ease, color 0.3s ease; /* Smooth hover effect */
+            padding: 0.5rem 1rem; /* Adjust padding for a proportional button */
+        }
+
+        /* Icon in the button */
+        .shopping-cart-button i {
+            font-size: 1.25rem; /* Slightly larger icon size */
+            color: white; /* Icon color matches text */
+        }
+
+        /* Manually adjust text position */
+        .cart-text {
+            margin-left: -0.05rem; /* Push the text slightly to the left */
+        }
+
+        /* Hover Effect */
+        .shopping-cart-button:hover {
+            background-color: #0056b3; /* Slightly darker blue on hover */
+            color: white; /* Ensure text and icon remain
+    </style>
 </body>
 </html>

@@ -1,4 +1,4 @@
-﻿@model ProductViewModel
+﻿@model WebMVC.Models.Product.ProductHomeViewModel
 
 <div class="product-details-container">
     <div class="image-container">
@@ -8,15 +8,51 @@
         }
         else
         {
-            <div class="no-image-placeholder">No Image Available</div>
+            <div class="no-image-message d-flex justify-content-center align-items-center text-muted">
+                <p>No image available for this product.</p>
+            </div>
         }
     </div>
+
     <div class="details-container">
         <h1>@Model.ProductName</h1>
         <p><strong>Description:</strong> @Model.Description</p>
-        <p><strong>Price:</strong> @Model.Price.ToString("F2") Kč</p>
+        <p><strong>Primary Category:</strong> @Model.PrimaryCategory</p>
+        <p><strong>Price:</strong> @Model.Price.ToString("C")</p>
+
+        <div class="d-flex align-items-center mt-3">
+            <input type="number" id="quantity-@Model.ProductId" value="1" min="1" class="form-control form-control-sm me-2" style="width: 80px;" />
+            <button class="btn btn-primary btn-sm" onclick="addToCart(@Model.ProductId)">
+                <i class="bi bi-cart-plus"></i> Add to Cart
+            </button>
+        </div>
     </div>
 </div>
+
+<script>
+    function addToCart(productId) {
+        const quantity = document.getElementById(`quantity-${productId}`).value;
+
+        $.ajax({
+            url: '/ShoppingCart/AddToCart',
+            type: 'POST',
+            data: {
+                productId: productId,
+                quantity: quantity
+            },
+            success: function (response) {
+                if (response.success) {
+                    alert(`Added to cart! Total: $${response.cartTotal}`);
+                } else {
+                    alert('Failed to add to cart.');
+                }
+            },
+            error: function () {
+                alert('An error occurred while adding to the cart.');
+            }
+        });
+    }
+</script>
 
 <style>
     .product-details-container {
@@ -61,15 +97,15 @@
         text-align: left;
     }
 
-    .details-container h1 {
-        margin: 0 0 10px;
-        font-size: 24px;
-        text-align: left;
-    }
+        .details-container h1 {
+            margin: 0 0 10px;
+            font-size: 24px;
+            text-align: left;
+        }
 
-    .details-container p {
-        margin: 5px 0;
-        line-height: 1.5;
-        text-align: left;
-    }
+        .details-container p {
+            margin: 5px 0;
+            line-height: 1.5;
+            text-align: left;
+        }
 </style>
