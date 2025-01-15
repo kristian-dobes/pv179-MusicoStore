@@ -1,4 +1,6 @@
-﻿using BusinessLayer.DTOs.Product;
+﻿using BusinessLayer.Cache;
+using BusinessLayer.Cache.Interfaces;
+using BusinessLayer.DTOs.Product;
 using BusinessLayer.Services.Interfaces;
 using DataAccessLayer.Models;
 using Mapster;
@@ -19,21 +21,28 @@ namespace WebMVC.Areas.Admin.Controllers
         private readonly ICategoryService _categoryService;
         private readonly UserManager<LocalIdentityUser> _userManager;
         private readonly IImageService _imageService;
+        private readonly IMemoryCacheWrapper _cacheWrapper;
+        private static readonly CacheOptions CacheOptions =
+            new(
+                AbsoluteExpiration: TimeSpan.FromHours(12),
+                SlidingExpiration: TimeSpan.FromMinutes(30)
+            );
 
-        public ProductController
-            (
+        public ProductController(
             IProductService productService,
             IManufacturerService manufacturerService,
             ICategoryService categoryService,
             UserManager<LocalIdentityUser> userManager,
-            IImageService imageService
-            )
+            IImageService imageService,
+            IMemoryCacheWrapper cacheWrapper
+        )
         {
             _productService = productService;
             _manufacturerService = manufacturerService;
             _categoryService = categoryService;
             _userManager = userManager;
             _imageService = imageService;
+            _cacheWrapper = cacheWrapper;
         }
 
         // GET: Admin/Product
@@ -54,14 +63,20 @@ namespace WebMVC.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var product = await _productService.GetProductByIdAsync(id);
+            var viewModel = await _cacheWrapper.GetOrCreateAsync(
+                CacheKeys.GetProductDetailsKey(id),
+                async () =>
+                {
+                    var product = await _productService.GetProductByIdAsync(id);
+                    return product?.Adapt<ProductDetailViewModel>();
+                },
+                CacheOptions
+            );
 
-            if (product == null)
-            {
+            if (viewModel == null)
                 return NotFound();
-            }
 
-            return View(product.Adapt<ProductDetailViewModel>());
+            return View(viewModel);
         }
 
         // GET: Admin/Product/Create
@@ -78,7 +93,7 @@ namespace WebMVC.Areas.Admin.Controllers
 
             var productCreateViewModel = new ProductCreateViewModel()
             {
-                Categories = categories,   // TODO sort values by name
+                Categories = categories, // TODO sort values by name
                 Manufacturers = manufacturers
             };
 
@@ -90,13 +105,26 @@ namespace WebMVC.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ProductCreateViewModel model)
         {
-            if (!ModelState.IsValid || (model.SecondaryCategoryIds != null && model.SecondaryCategoryIds.Contains(model.PrimaryCategoryId) || model.Price == 0))
+            if (
+                !ModelState.IsValid
+                || (
+                    model.SecondaryCategoryIds != null
+                        && model.SecondaryCategoryIds.Contains(model.PrimaryCategoryId)
+                    || model.Price == 0
+                )
+            )
             {
-                if(model.Price == 0)
+                if (model.Price == 0)
                     ModelState.AddModelError("Price", "Price cannot be 0.");
 
-                if (model.SecondaryCategoryIds != null && model.SecondaryCategoryIds.Contains(model.PrimaryCategoryId))
-                    ModelState.AddModelError("SecondaryCategoryIds", "The primary category cannot also be a secondary category.");
+                if (
+                    model.SecondaryCategoryIds != null
+                    && model.SecondaryCategoryIds.Contains(model.PrimaryCategoryId)
+                )
+                    ModelState.AddModelError(
+                        "SecondaryCategoryIds",
+                        "The primary category cannot also be a secondary category."
+                    );
 
                 // Reload categories and manufacturers for the view
                 model.Categories = await _categoryService.GetCategoriesAsync();
@@ -116,11 +144,16 @@ namespace WebMVC.Areas.Admin.Controllers
 
             if (!result)
             {
-                ModelState.AddModelError("Name", "Failed to create product. Product name is already taken");
+                ModelState.AddModelError(
+                    "Name",
+                    "Failed to create product. Product name is already taken"
+                );
                 model.Categories = await _categoryService.GetCategoriesAsync();
                 model.Manufacturers = await _manufacturerService.GetManufacturersAsync();
                 return View(model);
             }
+
+            InvalidateProductCache();
 
             return RedirectToAction("Index", new { area = "Admin" });
         }
@@ -143,7 +176,7 @@ namespace WebMVC.Areas.Admin.Controllers
                 return NotFound();
 
             var productUpdateViewModel = product.Adapt<ProductUpdateViewModel>();
-            productUpdateViewModel.Manufacturers = manufacturers;   // TODO sort values by name
+            productUpdateViewModel.Manufacturers = manufacturers; // TODO sort values by name
             productUpdateViewModel.Categories = categories;
 
             return View(productUpdateViewModel);
@@ -154,18 +187,25 @@ namespace WebMVC.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, ProductUpdateViewModel model)
         {
-            if (!ModelState.IsValid || model.SecondaryCategoryIds.Contains(model.PrimaryCategoryId) || model.Price == 0)
+            if (
+                !ModelState.IsValid
+                || model.SecondaryCategoryIds.Contains(model.PrimaryCategoryId)
+                || model.Price == 0
+            )
             {
                 if (model.Price == 0)
                     ModelState.AddModelError("Price", "Price cannot be 0.");
                 if (model.SecondaryCategoryIds.Contains(model.PrimaryCategoryId))
-                    ModelState.AddModelError("SecondaryCategoryIds", "The primary category cannot also be a secondary category.");
-                
+                    ModelState.AddModelError(
+                        "SecondaryCategoryIds",
+                        "The primary category cannot also be a secondary category."
+                    );
+
                 model.Categories = await _categoryService.GetCategoriesAsync();
                 model.Manufacturers = await _manufacturerService.GetManufacturersAsync();
                 return View(model);
             }
-            
+
             var product = model.Adapt<ProductUpdateDTO>();
             product.SecondaryCategoryIds = model.SecondaryCategoryIds;
 
@@ -190,7 +230,10 @@ namespace WebMVC.Areas.Admin.Controllers
             }
             else if (model.Image != null)
             {
-                var imageRestult = await _imageService.ChangeOrAssignProductImageAsync(id, model.Image);
+                var imageRestult = await _imageService.ChangeOrAssignProductImageAsync(
+                    id,
+                    model.Image
+                );
 
                 if (!imageRestult)
                 {
@@ -202,6 +245,8 @@ namespace WebMVC.Areas.Admin.Controllers
             }
 
             await _productService.UpdateProductAsync(id, product);
+
+            InvalidateProductCache(id);
 
             return RedirectToAction("Details", "Product", new { area = "Admin", id });
         }
@@ -233,7 +278,29 @@ namespace WebMVC.Areas.Admin.Controllers
             await _imageService.DeleteProductImageAsync(id);
             await _productService.DeleteProductAsync(id, user.UserId);
 
+            InvalidateProductCache(id);
+
             return RedirectToAction("Index", new { area = "Admin" });
+        }
+
+        private void InvalidateProductCache(int? productId = null)
+        {
+            var keysToInvalidate = CacheKeys.GetAllProductListKeys().ToList();
+
+            // Invalidate all product list pages
+            foreach (var key in keysToInvalidate)
+            {
+                _cacheWrapper.Invalidate(key);
+                CacheKeys.RemoveKey(key);
+            }
+
+            // Invalidate specific product details if provided
+            if (productId.HasValue)
+            {
+                string key = CacheKeys.GetProductDetailsKey(productId.Value);
+                _cacheWrapper.Invalidate(key);
+                CacheKeys.RemoveKey(key);
+            }
         }
     }
 }
