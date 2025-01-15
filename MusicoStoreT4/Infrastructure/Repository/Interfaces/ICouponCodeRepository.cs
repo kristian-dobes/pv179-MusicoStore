@@ -6,5 +6,6 @@ namespace Infrastructure.Repository.Interfaces
     {
         Task<CouponCode?> GetCouponCodeByCodeAsync(string code);
         Task MarkCouponCodeAsUsedAsync(CouponCode couponCode);
+        Task AddRangeAsync(IEnumerable<CouponCode> couponCodes);
     }
 }

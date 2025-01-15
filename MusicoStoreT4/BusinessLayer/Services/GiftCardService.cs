@@ -39,11 +39,21 @@ namespace BusinessLayer.Services
             }
 
             var giftCard = createGiftCardDto.Adapt<GiftCard>();
-            var added = await _uow.GiftCardsRep.AddAsync(giftCard);
+            var addedGiftCard = await _uow.GiftCardsRep.AddAsync(giftCard);
+
+            var couponCodes = Enumerable.Range(0, createGiftCardDto.CouponCodesCount)
+                .Select(_ => new CouponCode
+                {
+                    Code = Guid.NewGuid().ToString(),
+                    GiftCardId = addedGiftCard.Id
+                })
+                .ToList();
+
+            await _uow.CouponCodesRep.AddRangeAsync(couponCodes);
 
             await _uow.SaveAsync();
 
-            return added.Adapt<GiftCardDto>();
+            return addedGiftCard.Adapt<GiftCardDto>();
         }
 
         public async Task<GiftCardDto?> UpdateGiftCardAsync(UpdateGiftCardDto updateGiftCardDto)
