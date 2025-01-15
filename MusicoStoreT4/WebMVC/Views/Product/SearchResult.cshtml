@@ -44,14 +44,22 @@
                 <p><strong>Primary Category:</strong> @item.PrimaryCategory.Name</p>
                 <p><strong>Manufacturer:</strong> @item.Manufacturer.Name</p>
 
-                <div class="d-flex flex-column align-items-center mt-3">
-                    <div class="d-flex align-items-center justify-content-center w-100 mb-2">
-                        <input type="number" id="quantity-@item.Id" value="1" min="1" class="form-control form-control-sm me-2" style="width: 80px;" />
-                        <button class="btn btn-primary btn-sm" onclick="addToCart(@item.Id, '@item.Name', @item.Price)">
-                            <i class="bi bi-cart-plus"></i> Add to Cart
-                        </button>
+                <!-- Buttons section -->
+                <div class="mt-auto">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <!-- Add to Cart -->
+                        <div class="d-flex align-items-center">
+                            <input type="number" id="quantity-@item.Id" value="1" min="1" class="form-control form-control-sm me-2" style="width: 80px;" />
+                            <button class="btn btn-primary btn-sm" onclick="addToCart(@item.Id)">
+                                <i class="bi bi-cart-plus"></i> Add to Cart
+                            </button>
+                        </div>
+
+                        <!-- Show Product -->
+                        <a asp-action="Details" asp-controller="Product" asp-route-id="@item.Id" class="btn btn-outline-secondary btn-sm">
+                            Show Product
+                        </a>
                     </div>
-                    <a asp-action="Details" asp-controller="Product" asp-route-id="@item.Id" class="btn details-btn w-100">Show Product</a>
                 </div>
             </div>
         }
@@ -77,7 +85,7 @@ else
 </div>
 
 <script>
-    function addToCart(productId, productName, price) {
+    function addToCart(productId) {
         const quantity = document.getElementById(`quantity-${productId}`).value;
 
         $.ajax({
@@ -85,8 +93,6 @@ else
             type: 'POST',
             data: {
                 productId: productId,
-                productName: productName,
-                price: price,
                 quantity: quantity
             },
             success: function (response) {
@@ -123,9 +129,9 @@ else
         cursor: pointer;
     }
 
-        .filter-btn:hover {
-            background-color: #0056b3;
-        }
+    .filter-btn:hover {
+        background-color: #0056b3;
+    }
 
     .product-grid {
         display: grid;
@@ -139,26 +145,34 @@ else
         border-radius: 8px;
         background-color: #f9f9f9;
         text-align: left;
-        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
-        .product-tile h3 {
-            margin-top: 0;
-        }
+    .product-tile h3 {
+        margin-top: 0;
+    }
+
+    .details-btn:hover {
+        background-color: #218838;
+    }
+
+    .btn {
+        font-size: 0.875rem; /* Adjust font size for smaller buttons */
+        padding: 4px 10px; /* Reduce padding */
+        line-height: 1.5; /* Ensure proper alignment */
+    }
 
     .details-btn {
-        margin-top: 10px;
-        padding: 8px 12px;
-        background-color: #28a745;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
+        white-space: nowrap; /* Prevent text wrapping */
     }
 
-        .details-btn:hover {
-            background-color: #218838;
-        }
+    .form-control-sm {
+        font-size: 0.875rem;
+        height: 32px; /* Match height with small buttons */
+        padding: 4px 8px;
+    }
 
     .pagination {
         margin-top: 20px;

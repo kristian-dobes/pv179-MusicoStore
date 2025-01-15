@@ -54,5 +54,13 @@ namespace Infrastructure.Repository.Implementations
             _context.Set<CouponCode>().Update(couponCode);
             await _context.SaveChangesAsync();
         }
+
+        public async Task AddRangeAsync(IEnumerable<CouponCode> couponCodes)
+        {
+            if (couponCodes == null || !couponCodes.Any())
+                throw new ArgumentException("The couponCodes collection cannot be null or empty.", nameof(couponCodes));
+
+            await _context.CouponCodes.AddRangeAsync(couponCodes);
+        }
     }
 }

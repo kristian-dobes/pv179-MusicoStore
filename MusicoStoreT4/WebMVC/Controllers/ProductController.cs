@@ -1,7 +1,10 @@
+using BusinessLayer.Cache;
+using BusinessLayer.Cache.Interfaces;
 using BusinessLayer.Services.Interfaces;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using WebMVC.Models.Category;
 using WebMVC.Models.Manufacturer;
 using WebMVC.Models.Product;
@@ -13,57 +16,74 @@ namespace WebMVC.Controllers
     public class ProductController : Controller
     {
         private readonly IProductService _productService;
+        private readonly IMemoryCacheWrapper _cacheWrapper;
+        private static readonly CacheOptions CacheOptions =
+            new(
+                AbsoluteExpiration: TimeSpan.FromHours(12),
+                SlidingExpiration: TimeSpan.FromMinutes(30)
+            );
 
-        public ProductController(
-            IProductService productService
-        )
+        public ProductController(IProductService productService, IMemoryCacheWrapper cacheWrapper)
         {
             _productService = productService;
+            _cacheWrapper = cacheWrapper;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        [AllowAnonymous]
+        public async Task<IActionResult> Index(int page = 1)
         {
-            var products = await _productService.GetAllProductsAsync();
+            const int pageSize = 9;
+            string cacheKey = CacheKeys.GetProductListKey(page);
 
-            if (!products.Any())
+            var viewModel = await _cacheWrapper.GetOrCreateAsync(
+                cacheKey,
+                async () =>
+                {
+                    var (products, totalCount) = await _productService.GetProductsPaginatedAsync(
+                        page,
+                        pageSize
+                    );
+
+                    if (!products.Any())
+                    {
+                        return null;
+                    }
+
+                    return new ProductListViewModel
+                    {
+                        Products = products.Adapt<IEnumerable<ProductDetailViewModel>>(),
+                        CurrentPage = page,
+                        TotalPages = (int)Math.Ceiling((double)totalCount / pageSize)
+                    };
+                },
+                CacheOptions
+            );
+
+            if (viewModel == null)
             {
                 return NotFound();
             }
 
-            return View(products.Adapt<IEnumerable<ProductDetailViewModel>>());
+            return View(viewModel);
         }
 
         [HttpGet("details/{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int id)
         {
-            var product = await _productService.GetProductByIdAsync(id);
+            var viewModel = await _cacheWrapper.GetOrCreateAsync(
+                CacheKeys.GetProductDetailsKey(id),
+                async () =>
+                {
+                    var product = await _productService.GetProductByIdAsync(id);
+                    return product?.Adapt<ProductDetailViewModel>();
+                },
+                CacheOptions
+            );
 
-            if (product == null)
+            if (viewModel == null)
                 return NotFound();
-
-            return View(product.Adapt<ProductDetailViewModel>());
-        }
-
-        [HttpGet("list")]
-        [AllowAnonymous]
-        public async Task<IActionResult> List(int page = 1, int pageSize = 10)
-        {
-            var (products, totalCount) = await _productService.GetProductsAsync(page, pageSize);
-
-            if (!products.Any())
-            {
-                return NotFound();
-            }
-
-            var viewModel = new ProductListViewModel
-            {
-                Products = products.Adapt<IEnumerable<ProductDetailViewModel>>(),
-                CurrentPage = page,
-                // we need to get the upper number of pages ... therefore
-                // this of this is is 11 posts were returned, we wish to change `1.1` (result) to `2`
-                TotalPages = (int)Math.Ceiling((double)totalCount / pageSize)
-            };
 
             return View(viewModel);
         }
@@ -77,7 +97,7 @@ namespace WebMVC.Controllers
             string? category = null
         )
         {
-            const int pageSize = 5;
+            const int pageSize = 8;
 
             // If query is empty and no category or manufacturer is selected, return to search page
             if (

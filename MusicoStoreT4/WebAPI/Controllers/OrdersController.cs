@@ -46,10 +46,10 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var created = await _orderService.CreateOrderAsync(createOrderDto);
+                var result = await _orderService.CreateOrderAsync(createOrderDto);
 
-                if (!created)
-                    return BadRequest("None of the products were found or order creation failed.");
+                if (!result.Success)
+                    return BadRequest(result.ErrorMessage ?? "None of the products were found or order creation failed.");
 
                 return Ok();
             }

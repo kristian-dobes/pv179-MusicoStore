@@ -53,13 +53,14 @@ namespace WebMVC.Areas.Admin.Controllers
         // GET: Admin/GiftCard/Create
         public async Task<IActionResult> Create()
         {
-            var productCreateViewModel = new GiftCardViewModel
+            var giftCardCreateViewModel = new GiftCardViewModel
             {
                 ValidityStartDate = DateTime.Now,
                 ValidityEndDate = DateTime.Now.AddYears(1),
-                DiscountAmount = 100
+                DiscountAmount = 100,
+                CouponCodesCount = 5
             };
-            return View(productCreateViewModel);
+            return View(giftCardCreateViewModel);
         }
 
         // POST: Admin/Product/Create
@@ -68,12 +69,18 @@ namespace WebMVC.Areas.Admin.Controllers
         {
             model.Created = DateTime.Now;
 
-            if (!ModelState.IsValid || model.ValidityStartDate > model.ValidityEndDate || model.ValidityEndDate < DateTime.Now)
+            if (!ModelState.IsValid || model.ValidityStartDate > model.ValidityEndDate || model.ValidityEndDate < DateTime.Now || model.DiscountAmount <= 0 || model.CouponCodesCount <= 0 || model.CouponCodesCount > 100)
             {
                 if (model.ValidityStartDate > model.ValidityEndDate)
                     ModelState.AddModelError("ValidityStartDate", "Start date must be before end date.");
                 if (model.ValidityEndDate < DateTime.Now)
                     ModelState.AddModelError("ValidityEndDate", "End date must be in the future.");
+                if (model.DiscountAmount <= 0)
+                    ModelState.AddModelError("DiscountAmount", "Discount must be greater than zero.");
+                if (model.CouponCodesCount <= 0)
+                    ModelState.AddModelError("CouponCodesCount", "Coupon codes count must be greater than zero.");
+                if (model.CouponCodesCount > 100)
+                    ModelState.AddModelError("CouponCodesCount", "Coupon codes count must be less than 100. (limited for development purposes)");
 
                 return View(model);
             }

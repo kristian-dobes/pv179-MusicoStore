@@ -39,11 +39,21 @@ namespace BusinessLayer.Services
             }
 
             var giftCard = createGiftCardDto.Adapt<GiftCard>();
-            var added = await _uow.GiftCardsRep.AddAsync(giftCard);
+            var addedGiftCard = await _uow.GiftCardsRep.AddAsync(giftCard);
+
+            var couponCodes = Enumerable.Range(0, createGiftCardDto.CouponCodesCount)
+                .Select(_ => new CouponCode
+                {
+                    Code = Guid.NewGuid().ToString(),
+                    GiftCardId = addedGiftCard.Id
+                })
+                .ToList();
+
+            await _uow.CouponCodesRep.AddRangeAsync(couponCodes);
 
             await _uow.SaveAsync();
 
-            return added.Adapt<GiftCardDto>();
+            return addedGiftCard.Adapt<GiftCardDto>();
         }
 
         public async Task<GiftCardDto?> UpdateGiftCardAsync(UpdateGiftCardDto updateGiftCardDto)
@@ -176,7 +186,6 @@ namespace BusinessLayer.Services
             }
         }
 
-
         public async Task<bool> DeleteCouponCodeAsync(int couponCodeId)
         {
             var existingCouponCode = await _uow.CouponCodesRep.GetByIdAsync(couponCodeId);
@@ -199,19 +208,47 @@ namespace BusinessLayer.Services
             return couponCode.GiftCard.Adapt<GiftCardDto>();
         }
 
+        public async Task<(bool Valid, decimal DiscountAmount, string? ErrorMessage)> ValidateCouponCode(string code)
+        {
+            CouponCode? couponCode = await _uow.CouponCodesRep.FirstOrDefaultAsync(cc => cc.Code == code);
+            
+            if (couponCode == null)
+            {
+                return (false, 0, "Invalid gift card code"); // Invalid gift card code
+            }
+
+            if (couponCode.IsUsed)
+            {
+                return (false, 0, "Gift card code has already been used"); // Gift card code has already been used
+            }
+
+            if(couponCode.GiftCard.ValidityEndDate < DateTime.Now)
+            {
+                return (false, 0, "Gift card code is expired"); // Gift card code has expired
+            }
+
+            if (couponCode.GiftCard.ValidityStartDate > DateTime.Now)
+            {
+                return (false, 0, "Gift card code is not yet valid"); // Gift card code is not yet valid
+            }
+                
+            return (true, couponCode.GiftCard.DiscountAmount, null);
+        }
+
         public async Task<bool> SetCouponCodeAsUsed(string code)
         {
             if (string.IsNullOrEmpty(code))
             {
-                throw new ArgumentException("Coupon code cannot be null or empty", nameof(code));
+                return false;
             }
 
             // Fetch the CouponCode using the repository
             var couponCode = await _uow.CouponCodesRep.GetCouponCodeByCodeAsync(code);
 
-            if (couponCode == null || couponCode.IsUsed)
+            // remove validity check, as it is already checked in ValidateCouponCode method
+            if (couponCode == null)
             {
-                return false; // Invalid or already used
+                return false; // Invalid coupon code
             }
 
             // Mark the coupon as used
