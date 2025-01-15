@@ -120,16 +120,18 @@ namespace WebMVC.Controllers
                 return Unauthorized();
             }
 
+            // Validate gift code
             if(!string.IsNullOrEmpty(cart.AppliedGiftCardCode))
             {
-                var isValid = await _giftCardService.SetCouponCodeAsUsed(cart.AppliedGiftCardCode);
-                if (!isValid)
+                var couponCode = await _giftCardService.ValidateCouponCode(cart.AppliedGiftCardCode);
+                if (!couponCode.Valid)
                 {
-                    TempData["ErrorMessage"] = "This coupon was already used.";
+                    TempData["ErrorMessage"] = couponCode.ErrorMessage;
                     return RedirectToAction("Cart");
                 }
             }
 
+            // Create order
             var createOrderDto = new CreateOrderDto
             {
                 CustomerId = user.User.Id,
@@ -148,6 +150,17 @@ namespace WebMVC.Controllers
             {
                 TempData["ErrorMessage"] = orderCreated.ErrorMessage;
                 return RedirectToAction("Cart");
+            }
+
+            // Mark the gift card as used
+            if (!string.IsNullOrEmpty(cart.AppliedGiftCardCode))
+            {
+                var isValid = await _giftCardService.SetCouponCodeAsUsed(cart.AppliedGiftCardCode);
+                if (!isValid)
+                {
+                    TempData["ErrorMessage"] = "This coupon was already used.";
+                    return RedirectToAction("Cart");
+                }
             }
 
             // Clear the cart

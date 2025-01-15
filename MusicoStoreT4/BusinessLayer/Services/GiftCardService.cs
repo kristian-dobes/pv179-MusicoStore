@@ -245,9 +245,10 @@ namespace BusinessLayer.Services
             // Fetch the CouponCode using the repository
             var couponCode = await _uow.CouponCodesRep.GetCouponCodeByCodeAsync(code);
 
-            if (couponCode == null || couponCode.IsUsed)
+            // remove validity check, as it is already checked in ValidateCouponCode method
+            if (couponCode == null)
             {
-                return false; // Invalid or already used
+                return false; // Invalid coupon code
             }
 
             // Mark the coupon as used
