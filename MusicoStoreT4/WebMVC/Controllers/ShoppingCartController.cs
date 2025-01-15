@@ -184,5 +184,16 @@ namespace WebMVC.Controllers
 
             return Json(new { success = true, discountAmount = cart.DiscountAmount, finalAmount = cart.FinalAmount });
         }
+
+        [HttpPost]
+        public IActionResult ClearCart()
+        {
+            // Remove cart from the session
+            HttpContext.Session.Remove("Cart");
+
+            TempData["SuccessMessage"] = "Your cart has been cleared.";
+
+            return RedirectToAction("Cart");
+        }
     }
 }
