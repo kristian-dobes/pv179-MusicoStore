@@ -11,6 +11,14 @@
         </div>
     }
 
+    <!-- Display Error Message -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
     <!-- Validation summary for errors -->
     <div class="validation-summary-errors text-danger" asp-validation-summary="All"></div>
 
