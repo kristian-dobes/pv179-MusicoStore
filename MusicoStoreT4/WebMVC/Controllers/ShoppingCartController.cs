@@ -125,8 +125,8 @@ namespace WebMVC.Controllers
                 var isValid = await _giftCardService.SetCouponCodeAsUsed(cart.AppliedGiftCardCode);
                 if (!isValid)
                 {
-                    ModelState.AddModelError("", "This coupon was already used.");
-                    return View("Cart", cart);
+                    TempData["ErrorMessage"] = "This coupon was already used.";
+                    return RedirectToAction("Cart");
                 }
             }
 
@@ -146,8 +146,8 @@ namespace WebMVC.Controllers
 
             if (!orderCreated.Success)
             {
-                ModelState.AddModelError("", orderCreated.ErrorMessage);
-                return View("Cart", cart);
+                TempData["ErrorMessage"] = orderCreated.ErrorMessage;
+                return RedirectToAction("Cart");
             }
 
             // Clear the cart
@@ -183,6 +183,17 @@ namespace WebMVC.Controllers
             HttpContext.Session.SetObjectAsJson("Cart", cart);
 
             return Json(new { success = true, discountAmount = cart.DiscountAmount, finalAmount = cart.FinalAmount });
+        }
+
+        [HttpPost]
+        public IActionResult ClearCart()
+        {
+            // Remove cart from the session
+            HttpContext.Session.Remove("Cart");
+
+            TempData["SuccessMessage"] = "Your cart has been cleared.";
+
+            return RedirectToAction("Cart");
         }
     }
 }
